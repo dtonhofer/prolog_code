@@ -16,4 +16,5 @@ Note that:
 For information on packs, see:
 
 - [Creating and submitting extension packages for SWI-Prolog](https://eu.swi-prolog.org/howto/Pack.html)
+- [`library(prolog_pack)`](https://eu.swi-prolog.org/pldoc/man?section=prologpack)
 
