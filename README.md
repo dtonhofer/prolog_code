@@ -76,7 +76,6 @@ $ tree $HOME/.local/share/swi-prolog/pack/onepointfour_basics/
 /home/paquette/.local/share/swi-prolog/pack/onepointfour_basics/
 ├── pack.pl
 └── prolog
-    ├── exception_helpers.pl
     ├── meta_helpers.pl
     ├── README.md
     ├── safe_format.pl
