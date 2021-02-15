@@ -58,7 +58,9 @@ prolog_code/
 
 **Alternatively, you can just grab the .tgz archive file**
 
-As that is all you need. Give one of the URLs below to `wget`:
+As that is all you need. Give one of the URLs below to `wget`-
+
+The URL https://repo.onepointfour.be/prolog/ points to a dedicated repo server holding the pack files.
 
 - https://repo.onepointfour.be/prolog/packs/onepointfour_basics-1.0.1.tgz  (dedicated repo server)
 - https://github.com/dtonhofer/prolog_code/raw/main/packed/onepointfour_basics-1.0.1.tgz (this very github repository)
