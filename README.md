@@ -20,7 +20,7 @@ For information on packs, see:
 
 ## How to install in SWI-Prolog
 
-Clone the repository.
+**Clone the repository** (but you get everything "in triplicate"; all the files needed are in the . tgz archive file)
 
 ```
 git clone https://github.com/dtonhofer/prolog_code.git
@@ -52,7 +52,7 @@ prolog_code/
         └── throwme.pl
 ```
 
-Alternatively, you can just grab the .tgz archive file as that is all you need.
+**Alternatively, you can just grab the .tgz archive file** as that is all you need.
 
 Start swipl and install the package from the .tgz archive file:
 
