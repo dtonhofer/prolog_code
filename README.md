@@ -56,17 +56,38 @@ prolog_code/
         └── throwme.pl
 ```
 
-**Alternatively, you can just grab the .tgz archive file** as that is all you need.
+**Alternatively, you can just grab the .tgz archive file**
 
-As in:
+As that is all you need.
+
+Get it from the `repo.onepointfour.be` server:
+
+```
+$ wget https://repo.onepointfour.be/prolog/packs/onepointfour_basics-1.0.1.tgz
+```
+
+or directly from this selfsame github repository
 
 ```
 $ wget https://github.com/dtonhofer/prolog_code/raw/main/packed/onepointfour_basics-1.0.1.tgz
-$ file onepointfour_basics-1.0.1.tgz 
-onepointfour_basics-1.0.1.tgz: gzip compressed data, last modified: Mon Feb 15 19:04:47 2021, from Unix, original size modulo 2^32 40960
 ```
 
-*TODO*: Move to a separate server, along with doc. Add hashes and better GPG signature.
+**Check the SHA1 checksum**
+
+In any case, the SHA1 checksum must match:
+
+```
+df2b08199d6cf63319c02d6ed812ae11d993d581  onepointfour_basics-1.0.1.tgz
+```
+
+You can write the line above to a file `OUT` right next to `onepointfour_basics-1.0.1.tgz`
+and then run `sha1sum --check OUT`
+
+```
+onepointfour_basics-1.0.1.tgz: OK
+```
+
+or use this script which takes the hashsum as argument: [verify_checksum.sh](https://github.com/dtonhofer/muh_linux_tomfoolery/blob/master/verify_checksum.sh)
 
 **Start swipl and install the package from the .tgz archive file**
 
