@@ -18,6 +18,10 @@ For information on packs, see:
 - [Creating and submitting extension packages for SWI-Prolog](https://eu.swi-prolog.org/howto/Pack.html)
 - [`library(prolog_pack)`](https://eu.swi-prolog.org/pldoc/man?section=prologpack)
 
+## `pldoc` dcumentation
+
+Available at [this URL (repo.onepointfour.be)](https://repo.onepointfour.be/pldoc/doc/_CWD_/.local/share/swi-prolog/pack/onepointfour_basics/prolog/index.html)
+
 ## How to install in SWI-Prolog
 
 **Clone the repository** (but you get everything "in triplicate"; all the files needed are in the . tgz archive file)
