@@ -52,13 +52,15 @@ prolog_code/
         └── throwme.pl
 ```
 
+Alternatively, you can just grab the .tgz archive file as that is all you need.
+
 Start swipl and install the package from the .tgz archive file:
 
 ```
 ?- pack_install('prolog_code/packed/onepointfour_basics-1.0.0.tgz').
 ```
 
-Alternatively, you can cd to `'prolog_code/packed/`, start swipl there and then issue `pack_install('onepointfour_basics-1.0.0.tgz')`.
+Alternatively, you can cd to the directory which contains the archive file and then issue `pack_install('onepointfour_basics-1.0.0.tgz')`.
 
 The files in the archive file have now been copied to a configuration directory in your $HOME directory. On Linux this is:
 
