@@ -58,19 +58,10 @@ prolog_code/
 
 **Alternatively, you can just grab the .tgz archive file**
 
-As that is all you need.
+As that is all you need. Give one of the URLs below to `wget`:
 
-Get it from the `repo.onepointfour.be` server:
-
-```
-$ wget https://repo.onepointfour.be/prolog/packs/onepointfour_basics-1.0.1.tgz
-```
-
-or directly from this selfsame github repository
-
-```
-$ wget https://github.com/dtonhofer/prolog_code/raw/main/packed/onepointfour_basics-1.0.1.tgz
-```
+- https://repo.onepointfour.be/prolog/packs/onepointfour_basics-1.0.1.tgz  (dedicated repo server)
+- https://github.com/dtonhofer/prolog_code/raw/main/packed/onepointfour_basics-1.0.1.tgz (this very github repository)
 
 **Check the SHA1 checksum**
 
