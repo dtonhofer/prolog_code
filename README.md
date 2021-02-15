@@ -54,7 +54,17 @@ prolog_code/
 
 **Alternatively, you can just grab the .tgz archive file** as that is all you need.
 
-Start swipl and install the package from the .tgz archive file:
+As in:
+
+```
+$ wget https://github.com/dtonhofer/prolog_code/raw/main/packed/onepointfour_basics-1.0.1.tgz
+$ file onepointfour_basics-1.0.1.tgz 
+onepointfour_basics-1.0.1.tgz: gzip compressed data, last modified: Mon Feb 15 19:04:47 2021, from Unix, original size modulo 2^32 40960
+```
+
+*TODO*: Move to a separate server, along with doc. Add hashes and better GPG signature.
+
+**Start swipl and install the package from the .tgz archive file**
 
 ```
 ?- pack_install('prolog_code/packed/onepointfour_basics-1.0.0.tgz').
