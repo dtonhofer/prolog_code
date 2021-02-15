@@ -18,3 +18,7 @@ For information on packs, see:
 - [Creating and submitting extension packages for SWI-Prolog](https://eu.swi-prolog.org/howto/Pack.html)
 - [`library(prolog_pack)`](https://eu.swi-prolog.org/pldoc/man?section=prologpack)
 
+How to install in SWI-Prolog
+
+Clone the repository. You will get a file tree like this:
+
