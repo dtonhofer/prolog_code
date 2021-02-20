@@ -1,3 +1,4 @@
+
 :- begin_tests(helpers).
 
 test("any digits, no rest (chars)") :- 
@@ -148,7 +149,25 @@ test("+001234 (chars)") :-
 test("+0 (chars)") :- 
    accept_digits_ng('+0',Sign,Plus,Minus,Zeros,ValueDigits,Rest,chars),
    assertion((Sign==0,Plus==(+),Minus==x,Zeros==[],ValueDigits=['0'],Rest==[])).
+
+test("Demand 'no plus sign' an 'no leading zeros' #1", fail) :- 
+   accept_digits_ng('-000018889',_Sign,x,_Minus,[],_ValueDigits,_Rest,chars).
    
+test("Demand 'no plus sign' an 'no leading zeros' #2") :- 
+   accept_digits_ng('-18889',Sign,x,Minus,[],ValueDigits,Rest,chars),
+   assertion((Sign==(-1),Minus==(-),ValueDigits==['1','8','8','8','9'],Rest==[])).
+   
+test("Demand 'no plus sign' an 'no leading zeros' #3") :- 
+   accept_digits_ng('-0',Sign,x,Minus,[],ValueDigits,Rest,chars), % Very edge case: -0
+   assertion((Sign==0,Minus==(-),ValueDigits==['0'],Rest==[])).
+   
+test("Demand 'no plus sign' an 'no leading zeros' #4", fail) :- 
+   accept_digits_ng('+0',_Sign,x,_Minus,[],_ValueDigits,_Rest,chars). % Very edge case: +0
+
+test("Demand 'no plus sign' an 'no leading zeros' #5") :- 
+   accept_digits_ng('18889',Sign,x,Minus,[],ValueDigits,Rest,chars),
+   assertion((Sign==1,Minus==(x),ValueDigits==['1','8','8','8','9'],Rest==[])).
+
 :- end_tests(digits_ng).
 
 % ---
@@ -177,4 +196,3 @@ accept_dcg_basics_digits(Atom,Digits,Rest,How) :-
    
 explode(chars,Atom,List) :- atom_chars(Atom,List).
 explode(codes,Atom,List) :- atom_codes(Atom,List).
-   
