@@ -24,7 +24,11 @@
 % a "lists of codes". Depending on preferences and the "natural way" of
 % handling this in your Prolog, you may want to simplify.
 %
-% 
+% Author:  David Tonhofer ronerycoder@gluino.name
+% License: https://opensource.org/licenses/0BSD 
+%          "Zero-Clause BSD / Free Public License 1.0.0 (0BSD)"
+%
+% History: 2021-02-24 - 1.0.0
 % =============================================================================
 
 % plunit tests
