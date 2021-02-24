@@ -457,8 +457,8 @@ plus(codes) --> [0'+].
 dot(chars) --> ['.'].
 dot(codes) --> [0'.].
 
-% Called these nonzero//1 instead of positive_digit//1 because 0 _is_ a
-% positive digit, and digits are positive by their very nature
+% Called these nonzero//1 instead of positive_digit//1 because "positive"
+% is an adjective that doesn't really apply to digits
 
 nonzero(chars,C) --> [C],{member(C,['1','2','3','4','5','6','7','8','9'])}.
 nonzero(codes,C) --> [C],{member(C,[0'1,0'2,0'3,0'4,0'5,0'6,0'7,0'8,0'9])}.
