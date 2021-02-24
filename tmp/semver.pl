@@ -31,7 +31,7 @@
 % History: 2021-02-24 - 1.0.0
 % =============================================================================
 
-% plunit tests
+% plunit tests (these should eactually be in a file semver.plt)
 
 :- begin_tests(semver).
 
