@@ -4,7 +4,7 @@
           ]).
           
 % =============================================================================
-% Semantic versioning assembler/disassembler
+% Semantic versioning string assembler/disassembler
 %
 % Based on https://semver.org/spec/v2.0.0.html
 % =============================================================================
