@@ -1,8 +1,8 @@
-:- module(semver,
+:- module(semver, 
           [
           semantic_version/6  % semantic_version(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds)
           ]).
-
+          
 % =============================================================================
 % Semantic versioning string assembler/disassembler/verifier in Prolog
 %
@@ -12,7 +12,7 @@
 % =============================================================================
 % Runs in SWI-Prolog 8.3 without using SWI-Prolog special features except for
 % the fact that SWI-Prolog prefers lists of codes when doing Definite Clause
-% Grammar processing, as opposed to lists of chars. Adaptations to your
+% Grammar processing, as opposed to lists of chars. Adaptations to your 
 % favorite Prolog may be needed.
 %
 % Unit Test code is based on the "plunit" framework available in SICStus and
@@ -35,7 +35,7 @@ test("major-minor-patch disassemble 2",[nondet,true([Major,Minor,Patch,Pre,Bui]=
 
 test("major-minor-patch disassemble 3",[nondet,true([Major,Minor,Patch,Pre,Bui]==[3,2,1,[],[]])]) :-
   semantic_version('3.2.1',Major,Minor,Patch,Pre,Bui).
-
+  
 test("major-minor-patch disassemble failure: no leading zeros",fail) :-
   semantic_version('03.2.1',_,_,_,_,_).
 
@@ -47,13 +47,13 @@ test("major-minor-patch assemble 1",[true(Text=='1.2.3')]) :-
 
 test("major-minor-patch assemble 2",[true(Text=='0.0.0')]) :-
   semantic_version(Text,0,0,0,[],[]).
-
+  
 test("bad pre-release id #1",fail) :-
    semantic_version(_,1,2,3,['0067'],[]). % must be integer or alphanumeric; fails because the grammar fails
 
 test("bad pre-release id #2",[error(type_error(_,_))]) :-
    semantic_version(_,1,2,3,[3.1415],[]). % must be integer or alphanumeric; throws because entry test catches it
-
+   
 test("disassemble+assemble #1",[nondet,true(Text=='1.2.3')]) :-
   semantic_version(Text,1,2,3,[],[]), % assemble into Text
   semantic_version(Text,1,2,3,[],[]). % disassemble Text and verify
@@ -134,15 +134,15 @@ test("disassemble+assemble #14",[nondet,true(Text== '1.2.3-abcx000000')]) :-
 semantic_version(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds) :-
    (nonvar(SemverAtom) % the instantiation state of SemverAtom is key here
     -> disassemble(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds)
-    ;  assemble(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds)).
-
-% ---
+    ;  assemble(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds)).  
+    
+% --- 
 
 % assemble/6 performs various domain checks on the individual arguments.
 % It throws if the values are unexpected.
 
 assemble(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds) :-
-   entry_test_assemble(Major,Minor,Patch,PreReleaseIds,BuildIds,BuildIds2),
+   entry_test_assemble(Major,Minor,Patch,PreReleaseIds,BuildIds,BuildIds2),  
    number_textlist(Major,MajorCs),
    number_textlist(Minor,MinorCs),
    number_textlist(Patch,PatchCs),
@@ -171,12 +171,12 @@ verify_prerelease_ids([X|Xs]) :-
    integer(X),X>=0,
    !,
    verify_prerelease_ids(Xs).
-
+   
 verify_prerelease_ids([X|Xs]) :-
    atom(X), % correct form of atom must be "alphanumeric", this will be checked by the grammar
    !,
    verify_prerelease_ids(Xs).
-
+   
 verify_prerelease_ids([]) :- !.
 
 verify_prerelease_ids([X|_]) :-
@@ -194,38 +194,38 @@ verify_transform_build_ids([N|Xs],[A|Os]) :-
    !,
    atom_number(A,N), % for convenience, transform integers to atoms
    verify_transform_build_ids(Xs,Os).
-
+   
 verify_transform_build_ids([],[]) :- !.
 
 verify_transform_build_ids([X|_],[_|_]) :-
    type_error("build id id must be atom or possibly a number",X).
-
-% ---
+ 
+% --- 
 
 % disassemble/6 fails if the atom "SemverAtom" cannot be properly parsed.
 % Unfortunately, this won't tell us what's wrong with it. Otherwise
 % this is very straightforward. The implementation has no problem in case
-% some of the arguments "Major","Minor","Patch","PreReleaseIds","BuildIds" are
+% some of the arguments "Major","Minor","Patch","PreReleaseIds","BuildIds" are 
 % already instantiated at call time. It will fail if unification with these
 % fails.
 
 disassemble(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds) :-
    atom_textlist(SemverAtom,Cs),
-   phrase(semver(MajorCs,MinorCs,PatchCs,UncookedPreReleaseIds,UncookedBuildIds),Cs,[]),
+   phrase(semver(MajorCs,MinorCs,PatchCs,UncookedPreReleaseIds,UncookedBuildIds),Cs,[]), 
    number_textlist(Major,MajorCs),
    number_textlist(Minor,MinorCs),
    number_textlist(Patch,PatchCs),
    cookuncook_prerelease_ids(UncookedPreReleaseIds,PreReleaseIds),
    cookuncook_build_ids(UncookedBuildIds,BuildIds).
-
+   
 % ---
-
+   
 cookuncook_build_ids([UC|UCs],[CC|CCs]) :-
    atom_textlist(CC,UC),
    cookuncook_build_ids(UCs,CCs).
 
 cookuncook_build_ids([],[]).
-
+     
 % ---
 
 cookuncook_prerelease_ids([alphanumeric(UC)|UCs],[CC|CCs]) :-
@@ -237,15 +237,15 @@ cookuncook_prerelease_ids([numeric(UC)|UCs],[CC|CCs]) :-
    ((integer(CC),CC>=0);var(CC)),
    number_textlist(CC,UC),
    cookuncook_prerelease_ids(UCs,CCs).
-
+   
 cookuncook_prerelease_ids([],[]).
-
+   
 % ---
 
 % Transform between an "atom" and a "list of codes".
 % Works for directions Atom->Cs, Cs->Atom and accepts (Atom,Cs)
 
-atom_textlist(Atom,Cs) :-
+atom_textlist(Atom,Cs) :- 
    atom_codes(Atom,Cs).
 
 % ---
@@ -253,26 +253,26 @@ atom_textlist(Atom,Cs) :-
 % Transform between a "number" and a "list of codes"
 % Works for directions Atom->Cs, Cs->Atom and accepts (Atom,Cs)
 
-number_textlist(Number,Cs) :-
+number_textlist(Number,Cs) :- 
    number_codes(Number,Cs).
 
 % =============================================================================
 % Definite Clause Grammer for semantic versioning string.
 % This is based on processing of lists of "codes" (rather than "chars"), i.e.
 % the original characters are mapped to their Unicode codepoints (integers)
-% before processing by the DCG. This is SWI-Prolog's preferred style. In
+% before processing by the DCG. This is SWI-Prolog's preferred style. In 
 % particular, in SWI-Prolog, any text enclosed in double quotes ("hello")
 % at the level of the DCG is exploded into a list of codes by default.
-% Other Prolog may prefer "chars" (atoms of length 1) or even have a dedicated
-% character type. Some adaptations may be needed.
+% Other Prolog may prefer "chars" (atoms of length 1) or even have a dedicated 
+% character type. Some adaptations may be needed. 
 % =============================================================================
 
 % For semver//5, attempt "most often encountered" match first. We can always
 % try again if this fails.
 % - "Maj", "Min", "Pat" are nonempty lists of codes representing integers.
-% - "Pre" is a nonempty list of nonempty lists of codes representing
+% - "Pre" is a nonempty list of nonempty lists of codes representing 
 %   alphanumeric strings
-% - "Bld" is a nonempty list of tagged nonempty lists of codes representing
+% - "Bld" is a nonempty list of tagged nonempty lists of codes representing 
 %   alphanumeric strings (tagged as "alphanumeric(List)") or integers
 %   (tagged as numeric(List)").
 % To have call uniformity, all the semver//5 DCG rules take the same arguments.
@@ -289,14 +289,14 @@ semver(Maj,Min,Pat,Pre,[]) -->
    version_core(Maj,Min,Pat),
    dash(_),
    prerelease_ids(Pre).
-
+   
 semver(Maj,Min,Pat,Pre,Bld) -->
    version_core(Maj,Min,Pat),
    dash(_),
    prerelease_ids(Pre),
    plus,
    build_ids(Bld).
-
+   
 version_core(Maj,Min,Pat) -->
    major(Maj),
    dot,
@@ -321,7 +321,7 @@ build_ids([Id])     --> build_id(Id).
 build_ids([Id|Ids]) --> build_id(Id), dot, build_ids(Ids).
 
 % The list of code underlying "pre-release ids" are "tagged":
-% - The term "alphanumeric(Cs)" is used for a list of codes that represents
+% - The term "alphanumeric(Cs)" is used for a list of codes that represents 
 %   an alphanumeric string;
 % - The term "numeric(Cs)" is used for a list of char/codes that represents
 %   an integer.
@@ -364,7 +364,7 @@ alphanum_id(Cs) -->
 % This one is used when we have codes in Cs that we verify against
 % actual codes.
 
-alphanum_id(Cs) -->
+alphanum_id(Cs) --> 
    {nonvar(Cs)},
    {splinter(Cs,Prefix,C,Suffix)}, % Use splinter/4 to propose parts
    id_chars(Prefix),
@@ -414,7 +414,7 @@ id_char(C)         --> letter(C).
 id_char(C)         --> dash(C).
 
 % We are reaching the lowest level: codes in the input list.
-% Tests for code ranges are done explicitly using between/3.
+% Tests for code ranges are done explicitly using between/3. 
 % Luckily, we know that the codes are Unicode codes and not
 % EBCDIC or something equally bizarre.
 
