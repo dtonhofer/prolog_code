@@ -22,9 +22,9 @@
 
 % -----------------------------------------------------------------------------
 % semantic_version(?SemverAtom:atom,
-%                  ?Major:int,
-%                  ?Minor:Int,
-%                  ?Patch:Int,
+%                  ?Major:integer,
+%                  ?Minor:integer,
+%                  ?Patch:integer,
 %                  ?PreReleaseIds:list(atom),
 %                  ?BuildIds:list(atom)).
 %
