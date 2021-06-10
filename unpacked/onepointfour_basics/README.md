@@ -14,7 +14,7 @@ as the latter feel relatively inflexible.
 
 The predicates for `checks.pl` are used throughout in other code.
 
-## `space_string.pl`: Create or accept strings made only of SPACEs
+## `space_string.pl`: Create or accept strings made only of SPACE
 
 The files
 
@@ -31,11 +31,9 @@ fail or throw as required.
 ### Synopsis
 
 ```
-space_string(?N,?String)
-
-space_string(?N,?String,@Throw)
-
-space_string_smooth(?N,?Stringy)
+space_string(?N,?String)           % mostly fails on bad input
+space_string(?N,?String,@Throw)    % with Throw=throw or Throw=true, prefers to throw on bad input
+space_string_smooth(?N,?Stringy)   % only fails on bad input
 ```
 
 ### Examples
@@ -49,6 +47,12 @@ N = 4.
 
 ?- space_string(N," hey  ").
 false.
+
+?- space_string(-1,S).
+false.
+
+?- space_string(-1,S,throw).
+ERROR: check failed : domain error (the culprit is outside the required domain)
 ```
 
 ### Loading the module and running the tests in SWI-Prolog
