@@ -1,33 +1,32 @@
-:- use_module(library('heavycarbon/strings/string_overwrite.pl')).
-:- use_module(library('heavycarbon/strings/stringy.pl')).
+:- use_module(library('onepointfour_basics/stringy_overwrite.pl')).
 
 % :- debug(repeatedly_overwrite).
 
-:- begin_tests(string_overwrite).
+:- begin_tests(overwrite_string).
 
 repeatedly_overwrite(
       range(StartPos,EndPos),
       goal(Goal),
-      strings(Lower,Upper),
+      strings(Bg,Fg),
       cutflags(CutLeft,CutRight),
-      out(UpperPos,Result),
+      out(FgPos,Result),
       aux(Want)) :-
-   between(StartPos,EndPos,UpperPos), % generate new position on redo
-   call(Goal,Lower,Upper,UpperPos,CutLeft,CutRight,Result,Want),
-   debug(repeatedly_overwrite,"[~d,~q],",[UpperPos,Result]).
+   between(StartPos,EndPos,FgPos), 
+   call(Goal,Bg,Fg,FgPos,CutLeft,CutRight,Result,Want),
+   debug(repeatedly_overwrite,"[~d,~q],",[FgPos,Result]).
 
 repeatedly_overwrite_the_empty_string(Goal,T) :-
-   Upper = "XxX",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-1,
+   Fg = "XxX",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-1,
    EndPos is 1,
-   bagof([UpperPos,Result],
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings("",Upper),
+            strings("",Fg),
             cutflags(false,false),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -39,19 +38,19 @@ repeatedly_overwrite_the_empty_string(Goal,T) :-
     [1," XxX"]]).
 
 repeatedly_overwrite_lorem_ipsum_no_cutting(Goal,T) :-
-   Lower = "Lorem ipsum",
-   stringy_length(Lower,LowerLen),
-   Upper = "[perspiciatis]",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-3,
-   EndPos is LowerLen+3,
-   bagof([UpperPos,Result],
+   Bg = "Lorem ipsum",
+   stringy_length(Bg,BgLen),
+   Fg = "[perspiciatis]",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-3,
+   EndPos is BgLen+3,
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings(Lower,Upper),
+            strings(Bg,Fg),
             cutflags(false,false),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -88,20 +87,20 @@ repeatedly_overwrite_lorem_ipsum_no_cutting(Goal,T) :-
     [13,"Lorem ipsum  [perspiciatis]"],
     [14,"Lorem ipsum   [perspiciatis]"]]).
 
-repeatedly_overwrite_lorem_ipsum_cutting_upper(Goal,T) :-
-   Lower = "Lorem ipsum",
-   stringy_length(Lower,LowerLen),
-   Upper = "[perspiciatis]",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-3,
-   EndPos is LowerLen+3,
-   bagof([UpperPos,Result],
+repeatedly_overwrite_lorem_ipsum_cutting_right(Goal,T) :-
+   Bg = "Lorem ipsum",
+   stringy_length(Bg,BgLen),
+   Fg = "[perspiciatis]",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-3,
+   EndPos is BgLen+3,
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings(Lower,Upper),
+            strings(Bg,Fg),
             cutflags(false,true),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -138,20 +137,20 @@ repeatedly_overwrite_lorem_ipsum_cutting_upper(Goal,T) :-
     [13,"Lorem ipsum"],
     [14,"Lorem ipsum"]]).
 
-repeatedly_overwrite_lorem_ipsum_cutting_lower(Goal,T) :-
-   Lower = "Lorem ipsum",
-   stringy_length(Lower,LowerLen),
-   Upper = "[perspiciatis]",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-1,
-   EndPos is LowerLen+1,
-   bagof([UpperPos,Result],
+repeatedly_overwrite_lorem_ipsum_cutting_left(Goal,T) :-
+   Bg = "Lorem ipsum",
+   stringy_length(Bg,BgLen),
+   Fg = "[perspiciatis]",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-1,
+   EndPos is BgLen+1,
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings(Lower,Upper),
+            strings(Bg,Fg),
             cutflags(true,false),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -184,20 +183,20 @@ repeatedly_overwrite_lorem_ipsum_cutting_lower(Goal,T) :-
     [11,"Lorem ipsum[perspiciatis]"],
     [12,"Lorem ipsum [perspiciatis]"]]).
 
-repeatedly_overwrite_lorem_ipsum_cutting_both_sides(Goal,T) :-
-   Lower = "Lorem ipsum",
-   stringy_length(Lower,LowerLen),
-   Upper = "~X~",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-1,
-   EndPos is LowerLen+1,
-   bagof([UpperPos,Result],
+repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(Goal,T) :-
+   Bg = "Lorem ipsum",
+   stringy_length(Bg,BgLen),
+   Fg = "~X~",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-1,
+   EndPos is BgLen+1,
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings(Lower,Upper),
+            strings(Bg,Fg),
             cutflags(true,true),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -219,20 +218,20 @@ repeatedly_overwrite_lorem_ipsum_cutting_both_sides(Goal,T) :-
     [11,"Lorem ipsum"],
     [12,"Lorem ipsum"]]).
 
-repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_both_sides(Goal,T) :-
-   Lower = "Lorem ipsum",
-   stringy_length(Lower,LowerLen),
-   Upper = "",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-1,
-   EndPos is LowerLen+1,
-   bagof([UpperPos,Result],
+repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(Goal,T) :-
+   Bg = "Lorem ipsum",
+   stringy_length(Bg,BgLen),
+   Fg = "",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-1,
+   EndPos is BgLen+1,
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings(Lower,Upper),
+            strings(Bg,Fg),
             cutflags(true,true),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -252,19 +251,19 @@ repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_both_sides(Goal,T) :-
         [12,"Lorem ipsum"]]).
 
 repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(Goal,T) :-
-   Lower = "Lorem ipsum",
-   stringy_length(Lower,LowerLen),
-   Upper = "",
-   stringy_length(Upper,UpperLen),
-   StartPos is -UpperLen-5,
-   EndPos is LowerLen+5,
-   bagof([UpperPos,Result],
+   Bg = "Lorem ipsum",
+   stringy_length(Bg,BgLen),
+   Fg = "",
+   stringy_length(Fg,FgLen),
+   StartPos is -FgLen-5,
+   EndPos is BgLen+5,
+   bagof([FgPos,Result],
          repeatedly_overwrite(
             range(StartPos,EndPos),
             goal(Goal),
-            strings(Lower,Upper),
+            strings(Bg,Fg),
             cutflags(false,false),
-            out(UpperPos,Result),
+            out(FgPos,Result),
             aux(string)), % result shall be string, not atom
          Bag),
    T = (Bag ==
@@ -304,28 +303,28 @@ test("Runs 2",[true(T)]) :-
    repeatedly_overwrite_lorem_ipsum_no_cutting(overwrite_using_runs,T).
 
 test("Char-by-Char 3",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_upper(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_right(overwrite_using_chars,T).
 
 test("Runs 3",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_upper(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_right(overwrite_using_runs,T).
 
 test("Char-by-Char 4",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_lower(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left(overwrite_using_chars,T).
 
 test("Runs 4",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_lower(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left(overwrite_using_runs,T).
 
 test("Char-by-Char 5",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_both_sides(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(overwrite_using_chars,T).
 
 test("Runs 5",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_both_sides(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(overwrite_using_runs,T).
 
 test("Char-by-Char 6",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_both_sides(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(overwrite_using_chars,T).
 
 test("Runs 6",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_both_sides(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(overwrite_using_runs,T).
 
 test("Char-by-Char 7",[true(T)]) :-
    repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(overwrite_using_chars,T).
@@ -333,5 +332,5 @@ test("Char-by-Char 7",[true(T)]) :-
 test("Runs 7",[true(T)]) :-
    repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(overwrite_using_runs,T).
 
-:- end_tests(string_overwrite).
+:- end_tests(overwrite_string).
 

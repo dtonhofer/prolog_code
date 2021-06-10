@@ -1,27 +1,36 @@
 % =============================================================================
-% Unit test code for semantic versioning string assembler/disassembler/verifier
-% in Prolog (more specifically, SWI-Prolog)
+% Unit test code for
+%
+% Semantic versioning string V2.0.0 assembler/disassembler/verifier in Prolog
 %
 % Based on https://semver.org/spec/v2.0.0.html
 %
 % Unit Test code is based on the "plunit" framework available in SICStus and
-% SWI-Prolog and maybe other. 
+% SWI-Prolog and maybe other Prologs.
 %
 % See:
+%
 % https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)
+%
+% This code uses some specifities of SWI-Prolog 
+%
+% - dicts (associative arrays)
+% - the Perl Compatible Regular Expression (pcre) module
+%   https://eu.swi-prolog.org/pldoc/man?section=pcre
+%
 % =============================================================================
-% David Tonhofer (ronerycoder@gluino.name) says:
-% This code is licensed under:
-% "Zero-Clause BSD / Free Public License 1.0.0 (0BSD)"
-% https://opensource.org/licenses/0BSD
+% License information
+%
+% Author:  David Tonhofer (ronerycoder@gluino.name) 
+% License: Zero-Clause BSD / Free Public License 1.0.0 (0BSD)
+%          https://opensource.org/licenses/0BSD
 % =============================================================================
 
-% Look for file 'semver.pl' (which contains the DCG and the code calling
-% phrase/3) in the current directory
+:- use_module(library('onepointfour_semver/semver.pl')). 
 
-:- use_module('semver.pl'). 
-
+% ---
 % Example strings that must be *accepted*, from https://regex101.com/r/Ly7O1x/3/
+% ---
 
 example(positive,'0.0.4',[major:"0",minor:"0",patch:"4"]).
 example(positive,'1.2.3',[major:"1",minor:"2",patch:"3"]).
@@ -55,8 +64,9 @@ example(positive,'1.0.0+0.build.1-rc.10000aaa-kk-0.1',[buildmetadata:"0.build.1-
 example(positive,'99999999999999999999999.999999999999999999.99999999999999999',[major:"99999999999999999999999",minor:"999999999999999999",patch:"99999999999999999"]).
 example(positive,'1.0.0-0A.is.legal',[major:"1",minor:"0",patch:"0",prerelease:"0A.is.legal"]).
 
-
+% ---
 % Example strings that must be *rejected*, from https://regex101.com/r/Ly7O1x/3/
+% ---
 
 example(negative,'1').
 example(negative,'1.2').
@@ -99,9 +109,15 @@ example(negative,'9.8.7+meta+meta').
 example(negative,'9.8.7-whatever+meta+meta').
 example(negative,'99999999999999999999999.999999999999999999.99999999999999999----RC-SNAPSHOT.12.09.1--------------------------------..12').
 
+% ---
+% Plunit module with test cases for accepting/rejecting the examples using
+% the PCRE provided by a third party. If you want, you can comment out this
+% pluint block as it *tests the examples*, not the semver DCG.
+% ---
+
 :- begin_tests(semver_regex).
 
-:- use_module(library(pcre)).  % using pcre library only inside of plunit block works!
+:- use_module(library(pcre)). 
 
 regex_atom(RegexAtom) :-
    atomic_list_concat(
@@ -115,8 +131,6 @@ regex_atom(RegexAtom) :-
          ,'(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$'
       ],RegexAtom).
 
-% https://eu.swi-prolog.org/pldoc/man?section=pcre
-
 regex_blob(RegexBlob) :-
    regex_atom(RegexAtom),
    re_compile(RegexAtom,RegexBlob,[]).
@@ -128,7 +142,7 @@ test(accept_via_pcre) :-
       (re_matchsub(RegexBlob,Text,Dict,[]),    % test that matching succeeds and delivers expected captures
        del_dict(0,Dict,_,DictCleaned),         % 0 stores the whole capture
        dict_create(DictExpected,_,Captures),   % create a dict from the list of Key:Value pairs
-       DictExpected = DictCleaned)).           % tag must unifiy, keys must must and values must unify
+       DictExpected = DictCleaned)).           % tag must unify, keys must must and values must unify
 
 test(reject_via_pcre) :-
    regex_blob(RegexBlob),
@@ -138,14 +152,14 @@ test(reject_via_pcre) :-
  
 :- end_tests(semver_regex).
 
-% ===
+% ---
 % Testing the semver DCG.
 % 
 % The DCG (and its surrounding "helper" code) can 
 % - disassemble a semantic version string into its components and also
 % - assemble a semantic version string from given components 
 %   (so no need to have separate string generation code).
-% ===
+% ---
 
 :- begin_tests(semver_dcg).
 
@@ -231,9 +245,9 @@ test("disassemble+assemble #14",[nondet,true(Text== '1.2.3-abcx000000')]) :-
 
 :- end_tests(semver_dcg).
 
-% ===
+% ---
 % Accept or reject semver example strings using semver DCG
-% ===
+% ---
 
 :- begin_tests(accept_reject_strings_using_semver_dcg).
 

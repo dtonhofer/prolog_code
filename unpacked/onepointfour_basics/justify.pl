@@ -1,12 +1,17 @@
 % =============================================================================
 % Straightforward "string justification": left, right, center, with cutting
-% =============================================================================
+% off of fields.
+%
 % Those little predicates may be called a lot of times (e.g. when formatting 
 % tables), so let's not become too slow when running it!
-% (Currently, there are meta-calls in there and checks and everything. Oh
-%  well, why have GHz CPUs when you can't use them!)
+% Currently, there are meta-calls in there and checks and everything, so the
+% code is not necessarily fast.
 % =============================================================================
-% Running the tests: There should be a file "justify.plt" nearby.
+% Running the tests
+% -----------------
+%
+% There should be a file "justify.plt" nearby.
+%
 % Then, if the root directory for "code" is on the library path:
 %
 % ?- use_module(library('heavycarbon/strings/justify.pl')).
@@ -29,7 +34,7 @@
 % Latest review: Tue 19 January 2021
 % =============================================================================
 
-:- module(heavycarbon_strings_justify,
+:- module(onepointfour_basic_justify,
           [
           justify_left/3    % justify_left(Text,Width,Result)
          ,justify_right/3   % justify_right(Text,Width,Result)
@@ -41,9 +46,10 @@
          ,justify/10        % justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
           ]).
 
+:- use_module(library('onepointfour_basic_justify/space_string.pl')). 
+
 :- use_module(library('heavycarbon/support/meta_helpers.pl')).
 :- use_module(library('heavycarbon/strings/stringy.pl')). 
-:- use_module(library('heavycarbon/strings/string_of_spaces.pl')). 
 :- use_module(library('heavycarbon/strings/string_overwrite.pl')). 
 
 % ===
@@ -132,17 +138,17 @@ justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck) :-
    justify_helper(How,Prefer,Text,Width,Offset,CutLeft,CutRight,Result,Want).
 
 justify_helper(left,_,Text,Width,Offset,CutLeft,CutRight,Result,Want) :-
-   string_of_spaces(Width,Spaces), % should use Want
+   space_string(Width,Spaces,throw), % should use Want
    overwrite_using_runs(Spaces,Text,Offset,CutLeft,CutRight,Result,Want).
 
 justify_helper(right,_,Text,Width,Offset,CutLeft,CutRight,Result,Want) :-
-   string_of_spaces(Width,Spaces), % should use Want
+   space_string(Width,Spaces,throw), % should use Want
    stringy_length(Text,TextLen),
    ActualOffset is Width-TextLen-Offset,
    overwrite_using_runs(Spaces,Text,ActualOffset,CutLeft,CutRight,Result,Want).
 
 justify_helper(center,Prefer,Text,Width,Offset,CutLeft,CutRight,Result,Want) :-
-   string_of_spaces(Width,Spaces), % should use Want
+   space_string(Width,Spaces,throw), % should use Want
    stringy_length(Text,TextLen),
    reify(odd(TextLen),IsOddTextLen),
    reify(odd(Width),IsOddWidth),

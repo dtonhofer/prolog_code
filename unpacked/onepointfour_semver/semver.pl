@@ -1,24 +1,23 @@
-:- module(semver,
+:- module(onepointfour_semver,
           [
           semantic_version/6  % semantic_version(SemverAtom,Major,Minor,Patch,PreReleaseIds,BuildIds)
           ]).
 
 % =============================================================================
-% Semantic versioning string assembler/disassembler/verifier in Prolog
-%
-% V 2.0.0.
+% Semantic versioning string V2.0.0 assembler/disassembler/verifier in Prolog
 %
 % Based on https://semver.org/spec/v2.0.0.html
 % =============================================================================
-% Runs in SWI-Prolog 8.3 without using SWI-Prolog special features except for
-% the fact that SWI-Prolog prefers lists of codes when doing Definite Clause
-% Grammar processing, as opposed to lists of chars. Adaptations to your
-% favorite Prolog may be needed.
+% This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features 
+% except for the fact that SWI-Prolog prefers "lists of codes" when doing 
+% Definite Clause Grammar processing, as opposed to "lists of chars".
+% Adaptations to your favorite Prolog may be needed for this.
 % =============================================================================
-% David Tonhofer (ronerycoder@gluino.name) says:
-% This code is licensed under:
-% "Zero-Clause BSD / Free Public License 1.0.0 (0BSD)"
-% https://opensource.org/licenses/0BSD
+% License information
+%
+% Author:  David Tonhofer (ronerycoder@gluino.name) 
+% License: Zero-Clause BSD / Free Public License 1.0.0 (0BSD)
+%          https://opensource.org/licenses/0BSD
 % =============================================================================
 
 % -----------------------------------------------------------------------------
