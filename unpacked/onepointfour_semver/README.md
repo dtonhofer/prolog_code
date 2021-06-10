@@ -23,14 +23,14 @@ These tests not essential and can be commented out if one does not want to bothe
 
 ## Synopsis
 
-### Assemble
+### Assemble semver string from components
 
 ```
 ?- semantic_version(Text,1,2,3,[],[]).
 Text = '1.2.3'.
 ```
 
-### Disassemble
+### Disassemble semver string into its components
 
 ```
 ?- semantic_version('1.2.3-00x67+alpha.foo-bar.0099',Major,Minor,Path,PreReleaseIds,BuildIds).
@@ -42,7 +42,7 @@ BuildIds = [alpha,'foo-bar','0099'] ;  % maybe more solutions
 false.                                 % actually no
 ```
 
-### Verify
+### Verify that a string corresponds to components
 
 ```
 ?- semantic_version('1.2.3-00x67',1,2,3,['00x67'],[]).
@@ -50,7 +50,7 @@ true ;  % one proof found, maybe more
 false.  % actually no
 ```
 
-## How to load it
+## How to load the module
 
 If you have the directory just above this package directory on you list
 of library directories, which can be achieved with
