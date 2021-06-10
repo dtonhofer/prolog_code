@@ -58,6 +58,10 @@ and run the tests with:
 :- run_tests.
 ```
 
+## See also
+
+[Announcement on the semver issue tracker on 2021-Feb-24: Issue 667](https://github.com/semver/semver/issues/667)
+
 ## License information
 
 - Author: David Tonhofer (ronerycoder@gluino.name) 
