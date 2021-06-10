@@ -59,26 +59,27 @@ true ;  % one proof found, maybe more
 false.  % actually no
 ```
 
-## How to load the module
+## Loading the module and running the tests in SWI-Prolog
 
-If you have the directory just above this package directory on you list
-of library directories, which can be achieved with
+Put the directory just above this package directory
+onto the list of library directories. This can be done with the
+following directive (or command), where you shall replace `/foo/bar` with
+the correct path for your machine:
 
 ```
 :- assertz(file_search_path(library,'/foo/bar/prolog_code/unpacked')).
 ```
 
-then you can load this module with
+After that:
+
+- Load the module by relative filename, with [`use_module/1`](https://eu.swi-prolog.org/pldoc/doc_for?object=use_module/1).
+- Load the accompanying `.plt` file with [`load_test_files/1`](https://eu.swi-prolog.org/pldoc/doc_for?object=load_test_files/1).
+- Run the detected plunit tests with [`run_tests/0`](https://eu.swi-prolog.org/pldoc/doc_for?object=run_tests/0).
 
 ```
-:- use_module(library('onepointfour_semver/semver.pl')).
-```
-
-and run the tests with:
-
-```
-:- load_test_files([]).
-:- run_tests.
+?- use_module(library('onepointfour_semver/semver.pl')).
+?- load_test_files([]).
+?- run_tests.
 ```
 
 ## See also
