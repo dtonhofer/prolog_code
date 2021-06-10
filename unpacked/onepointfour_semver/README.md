@@ -2,10 +2,20 @@
 
 Based on [Semver Spec V2.0.0](https://semver.org/spec/v2.0.0.html)
 
-This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features 
-except for the fact that SWI-Prolog prefers "lists of codes" when doing 
-Definite Clause Grammar processing, as opposed to "lists of chars".
-Adaptations to your favorite Prolog may be needed for this.
+This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features.
+Note however that SWI-Prolog prefers "lists of codes" (integer Unicode code
+points) when doing _Definite Clause Grammar_ processing, as opposed to
+"lists of chars". Adaptations to your favorite Prolog may be needed.
+
+There is a `.plt` file containing Prolog unit tests written with the
+[plunit](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27))
+framework. Note that github can't syntax-highlight the `.plt` file, as
+it consider it to be gnuplot code. 
+
+Unit tests also include tests for PCRE (Perl Compatible Regular Expressions) based 
+disassembly (based on [`library(pcre)`](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))). 
+These tests not essential and can be commented out if one does not want 
+to bother with PCRE.
 
 ## Synopsis
 
