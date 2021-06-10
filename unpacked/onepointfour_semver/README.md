@@ -23,6 +23,17 @@ These tests not essential and can be commented out if one does not want to bothe
 
 ## Synopsis
 
+```
+semantic_version(?SemverAtom:atom,
+                 ?Major:integer,
+                 ?Minor:integer,
+                 ?Patch:integer,
+                 ?PreReleaseIds:list(atom),
+                 ?BuildIds:list(atom)).
+```
+
+## Examples
+
 ### Assemble semver string from components
 
 ```
