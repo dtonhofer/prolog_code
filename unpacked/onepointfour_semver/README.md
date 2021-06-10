@@ -1,10 +1,11 @@
 # Semantic versioning string assembler/disassembler/verifier in Prolog
 
-The present code offers a _semantic versioning string_ assembler/disassembler/verifier in Prolog
-able to handle strings based on the [Semver V2.0.0](https://semver.org/spec/v2.0.0.html) specification.
+The present code offers a "semantic versioning string" assembler/disassembler/verifier in Prolog.
+It handles strings that follow the [Semver V2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
 The code runs in SWI-Prolog 8.3 without using SWI-Prolog special features.
-Note however that SWI-Prolog prefers "lists of codes" (integer Unicode code
+
+Note that SWI-Prolog prefers "lists of codes" (integer Unicode code
 points) when doing _Definite Clause Grammar_ processing, as opposed to
 "lists of chars". Adaptations to your favorite Prolog may be needed.
 
