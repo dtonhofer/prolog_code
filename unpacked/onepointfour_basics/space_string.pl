@@ -52,6 +52,12 @@ N = 4.
 
 ?- space_string(N," hey  ").
 false.
+
+?- space_string(-1,S).
+false.
+
+?- space_string(-1,S,throw).
+ERROR: check failed : domain error (the culprit is outside the required domain)
 ```
 
 ## Running the tests
