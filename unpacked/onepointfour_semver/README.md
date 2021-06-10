@@ -12,12 +12,9 @@ points) when doing _Definite Clause Grammar_ processing, as opposed to
 There are two files:
 
 - [`semver.pl`](semver.pl) - Code in the form of an [SWI-Prolog module](https://eu.swi-prolog.org/pldoc/man?section=modules).
-- [`semver.plt`](semver.plt) - Unit tests in the form of several [plunit](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)) modules.
+- [`semver.plt`](semver.plt) - Unit tests in the form of several [plunit](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)) modules. (Note that github can't syntax-highlight the `.plt` file correctly. It consider it to be gnuplot code, leading to a mess.)
 
-Note that github can't syntax-highlight the `.plt` file correctly:
-it consider it to be gnuplot code, leading to a mess.
-
-The `.plt` file also includes unit tests for semver string disassembly 
+The `.plt` file includes unit tests for semver string disassembly 
 based on PCRE (Perl Compatible Regular Expressions) as provided by
 [`library(pcre)`](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))). 
 These tests not essential and can be commented out if one does not want to bother with PCRE.
