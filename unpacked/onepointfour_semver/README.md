@@ -1,21 +1,25 @@
 # Semantic versioning string assembler/disassembler/verifier in Prolog
 
-Based on [Semver Spec V2.0.0](https://semver.org/spec/v2.0.0.html)
+The present code offers a _semantic versioning string_ assembler/disassembler/verifier in Prolog
+able to handle strings based on the [Semver V2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
-This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features.
+The code runs in SWI-Prolog 8.3 without using SWI-Prolog special features.
 Note however that SWI-Prolog prefers "lists of codes" (integer Unicode code
 points) when doing _Definite Clause Grammar_ processing, as opposed to
 "lists of chars". Adaptations to your favorite Prolog may be needed.
 
-There is a `.plt` file containing Prolog unit tests written with the
-[plunit](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27))
-framework. Note that github can't syntax-highlight the `.plt` file, as
-it consider it to be gnuplot code. 
+There are two files:
 
-Unit tests also include tests for PCRE (Perl Compatible Regular Expressions) based 
-disassembly (based on [`library(pcre)`](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))). 
-These tests not essential and can be commented out if one does not want 
-to bother with PCRE.
+- [`semver.pl`](semver.pl) - Code in the form of an [SWI-Prolog module](https://eu.swi-prolog.org/pldoc/man?section=modules).
+- [`semver.plt`](semver.plt) - Unit tests in the form of several [plunit](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)) modules.
+
+Note that github can't syntax-highlight the `.plt` file correctly:
+it consider it to be gnuplot code, leading to a mess.
+
+The `.plt` file also includes unit tests for semver string disassembly 
+based on PCRE (Perl Compatible Regular Expressions) as provided by
+[`library(pcre)`](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))). 
+These tests not essential and can be commented out if one does not want to bother with PCRE.
 
 ## Synopsis
 
