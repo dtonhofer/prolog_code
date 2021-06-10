@@ -17,7 +17,7 @@ There are two files:
 The `.plt` file includes unit tests for semver string disassembly 
 based on PCRE (Perl Compatible Regular Expressions) as provided by
 [`library(pcre)`](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))). 
-These tests not essential and can be commented out if one does not want to bother with PCRE.
+These tests are not essential and can be commented out if one does not want to bother with PCRE.
 
 ## Synopsis
 
