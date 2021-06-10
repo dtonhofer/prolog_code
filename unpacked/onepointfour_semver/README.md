@@ -1,6 +1,6 @@
 # Semantic versioning string assembler/disassembler/verifier in Prolog
 
-Based on [semver spec V2.0.0](https://semver.org/spec/v2.0.0.html)
+Based on [Semver Spec V2.0.0](https://semver.org/spec/v2.0.0.html)
 
 This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features 
 except for the fact that SWI-Prolog prefers "lists of codes" when doing 
