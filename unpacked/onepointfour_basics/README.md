@@ -61,10 +61,14 @@ The predicates for `checks.pl` are used throughout in other code.
 
 (Much more info to follow or should be generated via pldoc from the .pl file and put on a web server).
 
-## `space_string.pl` - Create and accept strings made up only of SPACE (ASCII codepoint 0x20)
+## `space_string.pl` 
+
+Create or accept strings made only of the SPACE character (Unicode code point 0x20).
 
 [README_space_string.pl](README_space_string.pl)
 
-## `stringy_and_charylist_type.pl` - Simple analysis for stringy and chary terms.
+## `stringy_and_charylist_type.pl`
+
+Simple analysis for stringy and chary terms.
 
 [README_stringy_and_charylist_type.md](README_stringy_and_charylist_type.md)
