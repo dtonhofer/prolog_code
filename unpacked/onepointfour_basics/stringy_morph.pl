@@ -1,13 +1,13 @@
 :- module(onepointfour_basics_stringy_morph,
           [
-           stringy_morph/4         % stringy_morph(StringyA,StringyB,TypeA,TypeB)
-          ,stringy_morph/5         % stringy_morph(StringyA,StringyB,TypeA,TypeB,Throw)
-          ,stringy_charys_morph/4  % stringy_charys_morph(Stringy,Charys,StringyType,CharysType)
-          ,stringy_charys_morph/5  % stringy_charys_morph(Stringy,Charys,StringyType,CharysType,Throw)
+           stringy_morph/4            % stringy_morph(StringyA,StringyB,TypeA,TypeB)
+          ,stringy_morph/5            % stringy_morph(StringyA,StringyB,TypeA,TypeB,Throw)
+          ,stringy_charylist_morph/4  % stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType)
+          ,stringy_charylist_morph/5  % stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType,Throw)
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
-:- use_module(library('onepointfour_basics/stringy_and_charys_type.pl')).
+:- use_module(library('onepointfour_basics/stringy_and_charylist_type.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
 
@@ -33,31 +33,39 @@
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/* <module> Simple predicates that try to make "manipulation of strings"
-   and "manipulation of atoms" somewhat uniform.
+/* pldoc ==================================================================== */
 
-## Tests
+/** <module> A replacement for atom_string/2
 
-Running the tests: There should be a file =|stringy.plt|= nearby.
+This code is specific to SWI-Prolog, as that Prolog provides the traditional
+"atom" and the non-traditional "string" as two distinct representations of
+"sequences of characters".
 
-If you have loaded this module, a call to load_test_files/1 should run the tests:
+We introduce the following additional vocabulary:
 
-```
-?- use_module(library('onepointfour_basics/stringy.pl')).
-?- load_test_files([]).
-?- run_tests.
-```
+- A stringy term is a term that is either an atom or a string.
+  In SWI-Prolog, the string is a distinct representation of a sequence
+  of characters, distinct from the atom and mean to be used in text
+  processing rather than as basis for identifiers.
+- A chary term is a term that is either a char (an atom of length 1) or a
+  code (an integer and, more precisely in SWI-Prolog, a Unicode code point).
+- A charylist is less precise: it is a proper list of either codes or chars.
+  It may or may not contain uninstantiated elements. An empty list is a
+  charylist but we cannot know whether it is supposed to be composed of
+  codes or chars. A list containing only uninstantiated variables is also
+  a charylist and again we don't know what it is supposed to contain, at
+  least not yet.
+
+## Homepage for this code
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_morph.md
 
 ## History
 
 - 2021-01-19: Reviewed
 - 2021-02-16: Reviewed for packs, updated to pldoc.
 - 2021-02-17: Trashed all the old code for testing "stringyness" and wrote new one based on the "texty type tree"
-
-## About
-
-   @license [MIT License](https://opensource.org/licenses/MIT)
-   @author David Tonhofer (ronerycoder@gluino.name)
+- 2021-06-11: Back up on github
 
 */
 
@@ -72,11 +80,15 @@ stringy_morph(StringyA,StringyB,TypeA,TypeB) :-
 %! stringy_morph(?StringyA,?StringyB,?TypeA,?TypeB,@Throw)
 %
 % Establish the "morph" relationship between StringyA (an atom or a string)
-% and StringyB (an atom or a string) whereby StringyA and StringyB
-% hold the same character sequence and the actual type of StringyA
-% is given by TypeA, and the actual type of StringyB is given by
-% TypeB (actual values of TypeA and TypeB are one of =|atom|= or
-%  =|string|=). generate multiple solutions as possible.
+% and StringyB (an atom or a string) whereby
+%
+% - StringyA and StringyB hold the same character sequence, and
+% - the actual type of StringyA is given by TypeA, and
+% - the actual type of StringyB is given by TypeB
+%
+% Actual values of TypeA and TypeB are one of =|atom|= or =|string|=.
+%
+% Generate multiple solutions as possible.
 %
 % Throw is input only. If it is bound to =|throw|= or =|true|=, unwanted
 % argument combinations lead to exception. If Throw has any other binding
@@ -93,8 +105,10 @@ stringy_morph(StringyA,StringyB,TypeA,TypeB,Throw) :-
    stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
 
 % stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
-% The case AsGivenTypeA=var,AsGiventypeB=var is precluded by a check in stringy_morph/5
-
+%
+% The case AsGivenTypeA=var,AsGiventypeB=var is precluded by a check in
+% stringy_morph/5
+%
 % We could put everything elegantly into a singly stringy_morph_2/6 table
 % but to increase determinism we may call a secondary predicate.
 
@@ -124,80 +138,111 @@ stringy_morph_given_string_as_A(string,A,A).
 stringy_morph_given_string_as_A(atom,A,B) :-
    atom_string(B,A).
 
+%! stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType)
 
-%! stringy_charys_morph(Stringy,CharsOrCodes,WantStringy,WantCharsOrCodes)
+stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType) :-
+   stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,false).
 
-stringy_charys_morph(Stringy,Charys,StringyType,CharysType) :-
-   stringy_charys_morph(Stringy,Charys,StringyType,CharysType,false).
-
-%! stringy_charys_morph(Stringy,CharsOrCodes,WantStringy,WantCharsOrCodes)
+%! stringy_charylist_morph(Stringy,Charylist,WantStringy,WantCharylist)
 %
-% Transform a stringy thing into a list of chars, or the reverse.
+% Map a stringy to a charylist.
+
+stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,Throw) :-
+   check_that(Stringy,             [break(var),tuned(stringy)],Throw),
+   check_that(StatedStringyType,   [break(var),tuned(stringy_typeid)],Throw),
+   check_that(StatedCharylistType, [break(var),tuned(member([char,code,chars,codes]))],Throw),
+   fix(StatedCharylistType,StatedCharylistType2),
+   % Won't fail because Stringy is well-typed after check_that/2
+   stringy_type_with_length(Stringy,ActualStringyType),
+   % May fail as Charylist may be ill-typed
+   (charylist_type(Charylist,ActualCharylistType)
+    ->
+    true
+    ;
+    check_that(Charylist,[fail("Charylist has unrecognized type")],Throw)),
+   (\+underspecified(ActualStringyType,ActualCharylistType)
+    ->
+    true
+    ;
+    check_that([Stringy,Charylist],[fail("Stringy-Charylist combination underspecifies")],Throw)),
+   (compatible_cross_combinations(ActualStringyType,ActualCharylistType)
+    ->
+    true
+    ;
+    check_that([ActualStringyType,ActualCharylistType],[fail("Stringy-Charylist type combination incompatible")],Throw)),
+   % below here it's gettign interesting; the cur is really not needed
+   % fails on bad combination or may generate other solutions on redo
+   enumerate_compatible_stringy_type_with_increased_determinism(ActualStringyType,StatedStringyType),
+   % fails on bad combination or may generate other solutions on redo
+   enumerate_compatible_charylist_type_with_increased_determinism(ActualCharylistType,StatedCharylistType2),
+   % we make the exercise of explicitly calling the correct builtin depending on case
+   ((ActualStringyType==var)
+      ->
+      % morph nonvar "Charylist" to a stringy according to "StringyType" and unify
+      % with "Stringy", possibly yielding two solutions (atoms,strings)
+      morph_from_charylist_with_increased_determinism(StatedCharylistType2,StatedStringyType,Charylist,Stringy)
+      ;
+      % morph nonvar "Stringy" to a charylist according to "StatedCharylistType2" and
+      % unify with "Charylist", possibly yielding two solutions (codes,chars)
+      morph_from_stringy_with_increased_determinism(StatedStringyType,StatedCharylistType2,Stringy,Charylist)).
+
+
+% fix(StatedCharylistType,Fixed)
+% The caller may have passed any of char,chars,code,codes; unify!
+
+fix(X,X)          :- var(X),!.
+fix(chars,chars)  :- !.
+fix(char,chars)   :- !.
+fix(codes,codes)  :- !.
+fix(code,codes).
+
+% enumerate_compatible_stringy_type(ActualStringyType,StatedStringyType)
 %
-% This is not really needed as atom_length/2 and string_length/2 work for
-% both strings and atoms, but it removes specificity of using atom_chars/2 
-% or string_chars/2 from the program text.
-
-stringy_charys_morph(Stringy,Charys,StringyType,CharysType,Throw) :-
-   check_that(Stringy,     [break(var),tuned(stringy)],Throw),         % Stringy must be a var or an atom or a string
-   check_that(StringyType, [break(var),tuned(stringy_typeid)],Throw),  % StringyType is a var or one of the atoms 'atom','string' 
-   check_that(CharysType,  [break(var),tuned(chary_typeid)],Throw),    % CharysType is a var or one of the atoms 'char','code'
-   (stringy_type_with_length(Stringy,ActualStringyType)                % won't fail because Stringy is well-typed
-    ->
-    true
-    ;
-    throw("Can't happen")),
-   (charys_type(Charys,ActualCharysType)                               % may fail as Charys may be ill-typed TODO, catch that
-    ->
-    true
-    ;    
-    check_that(Charys,[fail("Charys has unrecognized type")],Throw)), 
-   (\+underspecified(ActualStringyType,ActualCharysType) 
-    ->
-    true
-    ;
-    check_that([Stringy,Charys],[fail("Stringy-Charys combination underspecifies")],Throw)),
-   (compatible_cross_combinations(ActualStringyType,ActualCharysType) 
-    ->
-    true
-    ;
-    check_that([ActualStringyType,ActualCharysType],[fail("Stringy-Charys type combination incompatible")],Throw)),
-   enumerate_compatible_stringy_type(ActualStringyType,StringyType),  % fails on bad combination or may generate other solutions on redo
-   enumerate_compatible_charys_type(ActualCharysType,CharysType),     % fails on bad combination or may generate other solutions on redo
-   ((stringy_typeid\==var) 
-     -> 
-     morph_from_stringy(StringyType,CharysType,Stringy,Charys)     % morph nonvar "Stringy" to a charys according to "CharysType" and unify with "Charys", possibly yielding two solutions (codes,chars)
-     ;
-     morph_from_charys(CharysType,StringyType,Charys,Stringy)). % morph nonvar "Charys" to a stringy according to "StringyType" and unify with "Stringy", possibly yielding two solutions (atoms,strings)
-
-% enumerate_compatible_stringy_type(ActualStringyType,StringyType)
-% 
 % This is an implementation of this table, where incompatible
 % combinations have been left out and thus fail
 %
-% ActualStringyType  StringyType
+% ActualStringyType  StatedStringyType (may be var)
 % ------------------------------
 % 'var'              Var,'atom','string'   StringyType can be bound to 'atom' or 'string'
 % 'atom(L)'          Var,'atom'            StringyType must be bound to 'atom'
 % 'string(L)'        Var,'string'          StringyType must be bound to 'string'
+%
+
+enumerate_compatible_stringy_type_with_increased_determinism(A,B) :-
+   assertion(nonvar(A)),
+   nonvar(B),
+   !,
+   enumerate_compatible_stringy_type(A,B),
+   !.
+enumerate_compatible_stringy_type_with_increased_determinism(A,B) :-
+   enumerate_compatible_stringy_type(A,B).
 
 enumerate_compatible_stringy_type(string(_),string).
 enumerate_compatible_stringy_type(atom(_),atom).
 enumerate_compatible_stringy_type(var,atom).
 enumerate_compatible_stringy_type(var,string).
 
-% enumerate_compatible_charys_type(ActualyCharysType,CharysType)
+% enumerate_compatible_charylist_type(ActualCharylistType,StatedCharylistType)
 
-enumerate_compatible_charys_type(chars(_),char).
-enumerate_compatible_charys_type(codes(_),code).
-enumerate_compatible_charys_type(chars_vars(_,_),char).
-enumerate_compatible_charys_type(codes_vars(_,_),code).
-enumerate_compatible_charys_type(empty,char).
-enumerate_compatible_charys_type(empty,code).
-enumerate_compatible_charys_type(vars(_),char).
-enumerate_compatible_charys_type(vars(_),code).
-enumerate_compatible_charys_type(var,char).
-enumerate_compatible_charys_type(var,code).
+enumerate_compatible_charylist_type_with_increased_determinism(A,B) :-
+   assertion(nonvar(A)),
+   nonvar(B),
+   !,
+   enumerate_compatible_charylist_type(A,B),
+   !.
+enumerate_compatible_charylist_type_with_increased_determinism(A,B) :-
+   enumerate_compatible_charylist_type(A,B).
+
+enumerate_compatible_charylist_type(chars(_),chars).
+enumerate_compatible_charylist_type(codes(_),codes).
+enumerate_compatible_charylist_type(chars_vars(_,_),chars).
+enumerate_compatible_charylist_type(codes_vars(_,_),codes).
+enumerate_compatible_charylist_type(empty,chars).
+enumerate_compatible_charylist_type(empty,codes).
+enumerate_compatible_charylist_type(vars(_),chars).
+enumerate_compatible_charylist_type(vars(_),codes).
+enumerate_compatible_charylist_type(var,chars).
+enumerate_compatible_charylist_type(var,codes).
 
 % underspecified(ActualStringyType,ActualCharysType)
 %
@@ -216,7 +261,7 @@ compatible_cross_combinations(string(L),chars(L)).
 compatible_cross_combinations(string(L),codes(L)).
 compatible_cross_combinations(atom(L),chars(L)).
 compatible_cross_combinations(atom(L),codes(L)).
-compatible_cross_combinations(string(L),chars_vars(C,V)) :- L =:= C+V. 
+compatible_cross_combinations(string(L),chars_vars(C,V)) :- L =:= C+V.
 compatible_cross_combinations(string(L),codes_vars(C,V)) :- L =:= C+V.
 compatible_cross_combinations(atom(L),chars_vars(C,V)) :- L =:= C+V.
 compatible_cross_combinations(atom(L),codes_vars(C,V)) :- L =:= C+V.
@@ -231,19 +276,39 @@ compatible_cross_combinations(var,chars(_)).
 compatible_cross_combinations(var,codes(_)).
 compatible_cross_combinations(var,empty).
 
-% morph_from_stringy(StringyType,CharysType,StringyIn,CharysOut)
- 
-morph_from_stringy(string , char , StringyIn , CharysOut) :- string_chars(StringyIn,CharysOut).
-morph_from_stringy(string , code , StringyIn , CharysOut) :- string_codes(StringyIn,CharysOut).
-morph_from_stringy(atom   , char , StringyIn , CharysOut) :- atom_chars(StringyIn,CharysOut).
-morph_from_stringy(atom   , code , StringyIn , CharysOut) :- atom_codes(StringyIn,CharysOut).
+% morph_from_stringy(StringyType,CharylistType,StringyIn,CharylistOut)
+% More complex than need to get determinism on the first two arguments
 
-% morph_from_charys(CharysType,StringyType,CharysIn,StringyOut)
- 
-morph_from_charys(chars(_) , string , CharysIn, StringyOut) :- string_chars(StringyOut,CharysIn).
-morph_from_charys(chars(_) , atom   , CharysIn, StringyOut) :- atom_chars(StringyOut,CharysIn).
-morph_from_charys(codes(_) , string , CharysIn, StringyOut) :- string_codes(StringyOut,CharysIn).
-morph_from_charys(codes(_) , atom   , CharysIn, StringyOut) :- atom_codes(StringyOut,CharysIn).
-morph_from_charys(empty    , string , [], "").
-morph_from_charys(empty    , atom   , [], '').
+morph_from_stringy_with_increased_determinism(A,B,C,D) :-
+   assertion(nonvar(A)),
+   nonvar(B),
+   !,
+   morph_from_stringy(A,B,C,D),
+   !.
+morph_from_stringy_with_increased_determinism(A,B,C,D) :-
+   morph_from_stringy(A,B,C,D).
+
+morph_from_stringy(string , chars , StringyIn , CharylistOut) :- string_chars(StringyIn,CharylistOut).
+morph_from_stringy(string , codes , StringyIn , CharylistOut) :- string_codes(StringyIn,CharylistOut).
+morph_from_stringy(atom   , chars , StringyIn , CharylistOut) :- atom_chars(StringyIn,CharylistOut).
+morph_from_stringy(atom   , codes , StringyIn , CharylistOut) :- atom_codes(StringyIn,CharylistOut).
+
+% morph_from_charylist(CharylistType,StringyType,CharylistIn,StringyOut)
+
+morph_from_charylist_with_increased_determinism(A,B,C,D) :-
+   assertion(nonvar(A)),
+   nonvar(B),
+   !,
+   morph_from_charylist(A,B,C,D),
+   !.
+morph_from_charylist_with_increased_determinism(A,B,C,D) :-
+   morph_from_charylist(A,B,C,D).
+
+morph_from_charylist(chars , string , CharylistIn, StringyOut) :- string_chars(StringyOut,CharylistIn).
+morph_from_charylist(chars , atom   , CharylistIn, StringyOut) :- atom_chars(StringyOut,CharylistIn).
+morph_from_charylist(codes , string , CharylistIn, StringyOut) :- string_codes(StringyOut,CharylistIn).
+morph_from_charylist(codes , atom   , CharylistIn, StringyOut) :- atom_codes(StringyOut,CharylistIn).
+morph_from_charylist(empty , string , [], "").
+morph_from_charylist(empty , atom   , [], '').
+
 

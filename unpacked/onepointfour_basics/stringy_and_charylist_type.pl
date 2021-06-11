@@ -152,7 +152,7 @@ list_traversal_2(List,VarCount,CodeCount,CharCount,TotalCount,VarCountOut,CodeCo
 list_traversal_2(List,VarCount,CodeCount,CharCount,TotalCount,VarCountOut,CodeCountOut,CharCountOut,TotalCountOut) :-
    nonvar(List),
    List=[X|More],
-   check_that(X,[smooth(char)]),
+   check_that(X,[smooth(char)]), % is a char, fail if not
    !,
    CodeCount=:=0,
    CharCountNext is CharCount+1,
@@ -163,7 +163,7 @@ list_traversal_2(List,VarCount,CodeCount,CharCount,TotalCount,VarCountOut,CodeCo
 list_traversal_2(List,VarCount,CodeCount,CharCount,TotalCount,VarCountOut,CodeCountOut,CharCountOut,TotalCountOut) :-
    nonvar(List),
    List=[X|More],
-   check_that(X,[smooth(code)]),
+   check_that(X,[smooth(code)]), % is a code, fail if not
    !,
    CharCount=:=0,
    CodeCountNext is CodeCount+1,

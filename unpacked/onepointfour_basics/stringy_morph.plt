@@ -1,25 +1,22 @@
-/*  MIT License Follows (https://opensource.org/licenses/MIT)
+/*  Zero-Clause BSD (0BSD) follows (https://opensource.org/licenses/0BSD)
 
-    Copyright 2021 David Tonhofer <ronerycoder@gluino.name>
+    Permission to use, copy, modify, and/or distribute this software for
+    any purpose with or without fee is hereby granted.
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files
-    (the "Software"), to deal in the Software without restriction,
-    including without limitation the rights to use, copy, modify, merge,
-    publish, distribute, sublicense, and/or sell copies of the Software,
-    and to permit persons to whom the Software is furnished to do so,
-    subject to the following conditions:
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+    WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+    AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+    DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
+    OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+*/
 
-    The above copyright notice and this permission notice shall be
-    included in all copies or substantial portions of the Software.
+/*
+Homepage for this code:
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_morph.md
 */
 
 :- use_module(library('onepointfour_basics/stringy_morph.pl')).
@@ -111,81 +108,80 @@ test("two vars instead of at least one string, hard mode throws",error(check(pas
 
 % -----------------------------------------------------------------------------
 
-:- begin_tests(stringy_charys_morph).
+:- begin_tests(stringy_charylist_morph).
 
 test("transform string to anything") :-
-   bagof([StringyType,CharysType,Charys],
-         stringy_charys_morph("hello",Charys,StringyType,CharysType,throw), 
+   bagof([StringyType,CharylistType,Charylist],
+         stringy_charylist_morph("hello",Charylist,StringyType,CharylistType,throw),
          Bag),
-   assertion( Bag == [ [string, char, [h,e,l,l,o]           ],
-                       [string, code, [104,101,108,108,111] ] ] ).
+   assertion( Bag == [ [string, chars, [h,e,l,l,o]           ],
+                       [string, codes, [104,101,108,108,111] ] ] ).
 
 test("transform atom to anything") :-
-   bagof([StringyType,CharysType,Charys],
-         stringy_charys_morph(hello,Charys,StringyType,CharysType,throw), Bag),
-   assertion( Bag == [ [atom, char, [h,e,l,l,o]           ],
-                       [atom, code, [104,101,108,108,111] ] ] ).
+   bagof([StringyType,CharylistType,Charylist],
+         stringy_charylist_morph(hello,Charylist,StringyType,CharylistType,throw), Bag),
+   assertion( Bag == [ [atom, chars, [h,e,l,l,o]           ],
+                       [atom, codes, [104,101,108,108,111] ] ] ).
 
 test("transform chars to anything") :-
-   bagof([Stringy,StringyType,CharysType],
-         stringy_charys_morph(Stringy,[h,e,l,l,o],StringyType,CharysType,throw), 
+   bagof([Stringy,StringyType,CharylistType],
+         stringy_charylist_morph(Stringy,[h,e,l,l,o],StringyType,CharylistType,throw),
          Bag),
-   assertion( Bag == [[hello,atom,char],["hello",string,char]] ).
-                                              
+   assertion( Bag == [ [hello,atom,chars],
+                       ["hello",string,chars] ] ).
+
 test("transform codes to anything") :-
-   bagof([Stringy,StringyType,CharysType],
-         stringy_charys_morph(Stringy,[104,101,108,108,111],StringyType,CharysType,throw), 
+   bagof([Stringy,StringyType,CharylistType],
+         stringy_charylist_morph(Stringy,[104,101,108,108,111],StringyType,CharylistType,throw),
          Bag),
-   assertion( Bag == [[hello,atom,code],["hello",string,code]] ).
+   assertion( Bag == [ [hello,atom,codes],
+                       ["hello",string,codes] ] ).
 
 test("transform chars to atom") :-
-   bagof(Stringy,stringy_charys_morph(Stringy,[h,e,l,l,o],atom,_,throw),Bag),
-   assertion( Bag == [hello] ).
-                                 
+   stringy_charylist_morph(Stringy,[h,e,l,l,o],atom,_,throw),
+   assertion( Stringy == hello ).
+
 test("transform chars to string") :-
-   bagof(Stringy,stringy_charys_morph(Stringy,[h,e,l,l,o],string,_,throw),Bag),
-   assertion( Bag == ["hello"] ).
+   stringy_charylist_morph(Stringy,[h,e,l,l,o],string,_,throw),
+   assertion( Stringy == "hello" ).
 
 test("transform string to chars") :-
-   bagof(Charys,stringy_charys_morph("hello",Charys,_,char,throw),Bag),
-   assertion( Bag == [[h,e,l,l,o]] ).
+   stringy_charylist_morph("hello",Charylist,_,chars,throw),
+   assertion( Charylist == [h,e,l,l,o] ).
 
 test("transform string to codes") :-
-   stringy_charys_morph("hello",Charys,_,code,throw),
-   assertion( Charys == [104,101,108,108,111] ).
-   
+   stringy_charylist_morph("hello",Charylist,_,codes,throw),
+   assertion( Charylist == [104,101,108,108,111] ).
+
 test("accept string/codes, types unspecified") :-
-   stringy_charys_morph("hello",[104,101,108,108,111],T1,T2,throw),
+   stringy_charylist_morph("hello",[104,101,108,108,111],T1,T2,throw),
    assertion( T1 == string ),
-   assertion( T2 == code ).
+   assertion( T2 == codes ).
 
 test("accept string/codes, types specified") :-
-   stringy_charys_morph("hello",[104,101,108,108,111],string,code,throw).
-   
+   stringy_charylist_morph("hello",[104,101,108,108,111],string,codes,throw).
+
 test("accept string/codes with codes semi-filled") :-
-   stringy_charys_morph("hello",[104,X1,108,X2,111],T1,T2,throw),
-   assertion( T1 == string ),
-   assertion( T2 == code ),
-   assertion( X1 == 101 ),
-   assertion( X2 == 108 ).
+   stringy_charylist_morph("hello",[104,X1,108,X2,111],T1,T2,throw),
+   assertion( [T1,T2,X1,X2] == [string,codes,101,108] ).
 
 test("accept string/chars with chars semi-filled") :-
-   bagof([T1,T2,X1,X2],stringy_charys_morph("hello",[h,X1,l,X2,o],T1,T2,throw),Bag),
-   assertion( Bag == [[string,char,e,l]] ).
+   stringy_charylist_morph("hello",[h,X1,l,X2,o],T1,T2,throw),
+   [T1,T2,X1,X2] == [string,chars,e,l].
 
 test("transform no chars to empty atom") :-
-   bagof([Stringy,CharysType],stringy_charys_morph(Stringy,[],atom,CharysType,throw),Bag),
-   assertion( Bag == [['',char],['',code]] ).
-                                 
+   bagof([Stringy,CharylistType],stringy_charylist_morph(Stringy,[],atom,CharylistType,throw),Bag),
+   assertion( Bag == [['',chars],['',codes]] ).
+
 test("transform no chars to empty string") :-
-   bagof([Stringy,CharysType],stringy_charys_morph(Stringy,[],string,CharysType,throw),Bag),
-   assertion( Bag == [["",char],["",code]] ).
+   bagof([Stringy,CharylistType],stringy_charylist_morph(Stringy,[],string,CharylistType,throw),Bag),
+   assertion( Bag == [["",chars],["",codes]] ).
 
 test("transform no chars to empty stringys") :-
-   bagof([Stringy,StringyType,CharysType],stringy_charys_morph(Stringy,[],StringyType,CharysType,throw),Bag),
-   assertion( Bag == [['',atom,char],['',atom,code],["",string,char],["",string,code]] ).
- 
-:- end_tests(stringy_charys_morph).
+   bagof([Stringy,StringyType,CharylistType],stringy_charylist_morph(Stringy,[],StringyType,CharylistType,throw),Bag),
+   assertion( Bag == [['',atom,chars],['',atom,codes],["",string,chars],["",string,codes]] ).
+
+:- end_tests(stringy_charylist_morph).
 
 
 
