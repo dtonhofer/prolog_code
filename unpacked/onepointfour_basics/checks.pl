@@ -35,9 +35,11 @@
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/*
- * 34567890123456789012345678901234567890123456789012345678901234567890123456789
-  
+
+/* pldoc ==================================================================== */
+
+/** <module> A replacement for must/2
+
 check_that/3 and friends: a replacement for the must_be/2 predicate of 
 Prolog. must_be/2 is used to check preconditions on predicate entry, but
 is not very flexible. Can we change that?
