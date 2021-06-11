@@ -39,24 +39,35 @@
 
 /** <module> Analyze "chary" or "stringy" terms
 
-This is specific to SWI-Prolog, which distinguishes "string" and "atom" as
-two distinct representations of "sequences of characters".
+This code is specific to SWI-Prolog, as that Prolog provides the traditional
+"atom" and the non-traditional "string" as two distinct representations of 
+"sequences of characters". 
 
-- A "stringy" is a term that is either a string or an atom.
-- A "chary" is a term that is either a "code" (an integer representing an 
-  Unicode codpoint) or a "char" (an atom of length 1)
-- A "charylist" is a proper list of either "codes" or "chars", but not both.
+We introduce the following additional vocabulary:
 
+- A stringy term is a term that is either an atom or a string. 
+  In SWI-Prolog, the string is a distinct representation of a sequence 
+  of characters, distinct from the atom and mean to be used in text 
+  processing rather than as basis for identifiers.
+- A chary term is a term that is either a char (an atom of length 1) or a
+  code (an integer and, more precisely in SWI-Prolog, a Unicode code point).
+- A charylist is less precise: it is a proper list of either codes or chars.
+  It may or may not contain uninstantiated elements. An empty list is a
+  charylist but we cannot know whether it is supposed to be composed of 
+  codes or chars. A list containing only uninstantiated variables is also
+  a charylist and again we don't know what it is supposed to contain, at
+  least not yet.
+
+## Homepage for this code
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_and_charylist_type.md
 
 ## History
 
    1. 2020-07-XX: First code elements created.
    1. 2021-06-08: Re-created from existing code lying around.
+   1. 2021-06-11: Back up on github.
 
-## License
-
-   @license [MIT License](https://opensource.org/licenses/MIT)
-   @author David Tonhofer (ronerycoder@gluino.name)
 */
 
 %! charylist_type(@CharyList,?Type)
