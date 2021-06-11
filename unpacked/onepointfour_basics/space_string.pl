@@ -71,16 +71,16 @@ Then, if the directory of the package is on the library path:
 ?- run_tests.
 ```
 
+## Homepage for this code
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_space_string.md
+
 ## History
 
    1. 2020-07-XX: First version.
    1. 2021-05-27: Full review.
    1. 2021-06-10: Further review.
-
-## License
-
-   @license [MIT License](https://opensource.org/licenses/MIT)
-   @author David Tonhofer (ronerycoder@gluino.name)
+   1. 2021-06-11: Back up on github.   
 
 ## Notes: Alternatives
 
