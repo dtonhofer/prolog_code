@@ -109,7 +109,7 @@ true.
 Or query their type, as long as they can be morphed from one to the other:
 
 ```
-?- stringy_morph(hello,"string",TypeA,TypeB).
+?- stringy_morph(hello,"hello",TypeA,TypeB).
 TypeA = atom,
 TypeB = string.
 ```
