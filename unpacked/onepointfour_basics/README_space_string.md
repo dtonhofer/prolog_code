@@ -37,3 +37,41 @@ false.
 ?- space_string(-1,S,throw).
 ERROR: check failed : domain error (the culprit is outside the required domain)
 ```
+
+## Notes: Alternatives
+
+Another way of "generating strings of spaces" is:
+
+```
+length(Codes, N),
+maplist(=(0'\s), Codes),    % N space character codes
+string_codes(Codes, String).
+```
+
+Or even like this, which is somewhat hard to remember
+
+```
+format(string(String), '~t~*|', [2]).  % two space characters
+```
+
+However, the performance of of the first trick is much worse than the code
+of `space_string.pl`. The `format/2` trick has about the same performance.
+
+See =|space_string_performance.plt|= for performance testing.
+
+Another way of accepting a string made only of SPACE is:
+
+```
+string_codes(Codes, String),
+maplist(=(0'\s), Codes)
+```
+
+Or even like this:
+
+```
+split_string(String, "", " ", [""]).
+```
+
+See also this code concerning "exponentiation" of an associative operation:
+
+https://swi-prolog.discourse.group/t/power-implementation/1937
