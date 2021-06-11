@@ -14,7 +14,8 @@ This replaces the existing predicates [`atom_string/2`](https://eu.swi-prolog.or
 
 The predicates avoid losing information or being imprecise about the types of their arguments 
 by taking additional type information in separate arguments. If there is ambiguity in the types,
-the predicates may provide additional solutions on redo.
+the predicates may provide additional solutions on redo. The predicate try to be deterministic
+if there is only a single solution (took me some time to find the correct trick).
 
 We introduce the following additional vocabulary:
 
@@ -46,4 +47,65 @@ Please refer to the [README.md](README.md) file.
 
 ## Examples
 
+(Output made clearer manually relative to the on that SWI-prolog would print)
+
+```
+?-  stringy_morph(an_atom,StringyB,TypeA,TypeB).
+StringyB = an_atom, TypeA = atom, TypeB = atom ;
+StringyB = "an_atom", TypeA = atom, TypeB = string.
+
+?- stringy_morph("a_string",StringyB,TypeA,TypeB).
+StringyB = "a_string", TypeA = string, TypeB = string ;
+StringyB = a_string, TypeA = string, TypeB = atom.
+
+?- stringy_morph(StringyA,"a_string",TypeA,TypeB).
+StringyA = "a_string", TypeA = string, TypeB = string ;
+StringyA = a_string, TypeA = atom, TypeB = string.
+
+?-  stringy_morph(StringyA,an_atom,TypeA,TypeB).
+StringyA = an_atom, TypeA = atom, TypeB = atom ;
+StringyA = "an_atom", TypeA = string, TypeB = atom.
+
+?- stringy_morph(StringyA,an_atom,string,_).
+StringyA = "an_atom".
+
+?- stringy_morph(an_atom,StringyB,_,string).
+StringyB = "an_atom".
+
+?- stringy_morph(an_atom,StringyB,TypeA,string). 
+StringyB = "an_atom", TypeA = atom.
+
+?- stringy_morph(an_atom,StringyB,TypeA,string).
+StringyB = "an_atom", TypeA = atom.
+```
+
+```
+?- stringy_charylist_morph("hello",Charylist,StringyType,CharylistType,throw).
+Charylist = [h,e,l,l,o], StringyType = string, CharylistType = chars ;
+Charylist = [104,101,108,108,111], StringyType = string, CharylistType = codes.
+
+?- stringy_charylist_morph(hello,Charylist,StringyType,CharylistType,throw).
+Charylist = [h,e,l,l,o], StringyType = atom, CharylistType = chars ;
+Charylist = [104,101,108,108,111], StringyType = atom, CharylistType = codes.
+
+?- stringy_charylist_morph(Stringy,[h,e,l,l,o],StringyType,CharylistType,throw).
+Stringy = hello, StringyType = atom, CharylistType = chars ;
+Stringy = "hello", StringyType = string, CharylistType = chars.
+
+?- stringy_charylist_morph(Stringy,[104,101,108,108,111],StringyType,CharylistType,throw).
+Stringy = hello, StringyType = atom, CharylistType = codes ;
+Stringy = "hello", StringyType = string, CharylistType = codes.
+
+?- stringy_charylist_morph("hello",Charylist,_,codes,throw).
+Charylist = [104,101,108,108,111].
+
+?- stringy_charylist_morph("hello",[104,101,108,108,111],T1,T2,throw).
+T1 = string, T2 = codes.
+
+?- stringy_charylist_morph(Stringy,[],T1,T2,throw).
+Stringy = '', T1 = atom, T2 = chars ;
+Stringy = '', T1 = atom, T2 = codes ;
+Stringy = "", T1 = string, T2 = chars ;
+Stringy = "", T1 = string, T2 = codes.
+```
 
