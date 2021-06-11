@@ -4,9 +4,12 @@
           ]).
 
 % =============================================================================
-% Semantic versioning string V2.0.0 assembler/disassembler/verifier in Prolog
+% Semantic versioning string V2.0.0 assembler/disassembler in Prolog.
+% See https://semver.org/spec/v2.0.0.html for the semvar specification.
+% 
+% Homepage for this code:
 %
-% Based on https://semver.org/spec/v2.0.0.html
+% https://github.com/dtonhofer/prolog_code/tree/main/unpacked/onepointfour_semver
 % =============================================================================
 % This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features 
 % except for the fact that SWI-Prolog prefers "lists of codes" when doing 
