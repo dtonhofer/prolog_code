@@ -13,6 +13,12 @@
     PERFORMANCE OF THIS SOFTWARE.
 */
 
+/*
+Homepage for this code:
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_space_string.md
+*/
+
 :- use_module(library('onepointfour_basics/space_string.pl')).
 
 :- begin_tests(space_string).
