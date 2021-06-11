@@ -45,21 +45,23 @@ of the file in which the module is defined.
 - License for the .pl files: [MIT License](https://opensource.org/licenses/MIT)
 - License for the .plt files: [Zero-Clause BSD (0BSD)](https://opensource.org/licenses/0BSD)
 
-# `checks.pl`: A replacement for `must_be/2`
+## `checks.pl`
 
-The files
+A more powerful replacement for `must_be/2`
 
 - [`checks.pl`](checks.pl)
 - [`checks.plt`](checks.plt)
 
-provide a replacement for the "precondition checks" performed by [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2),
-as the latter feel relatively inflexible.
-
-`checks.pl` contains a rather large description of what this all about.
+`checks.pl` contains a rather large description of what this all about (still not well-written)
 
 The predicates for `checks.pl` are used throughout in other code.
 
-(Much more info to follow or should be generated via pldoc from the .pl file and put on a web server).
+## `stringy_morph.pl`
+
+[README_stringy_morph.md](README_stringy_morph.md)
+
+A "logical" mapper between atoms and SWI-Prolog strings and "list representations" 
+of character sequences, i.e. proper lists of chars and proper lists of codes.
 
 ## `space_string.pl` 
 
