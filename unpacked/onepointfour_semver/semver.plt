@@ -1,23 +1,21 @@
 % =============================================================================
-% Unit test code for
+% Unit test code for semantic versioning string V2.0.0 assembler/disassembler 
+% in Prolog. See https://semver.org/spec/v2.0.0.html for the specification.
 %
-% Semantic versioning string V2.0.0 assembler/disassembler/verifier in Prolog
+% The unit Test code is based on the "plunit" framework available in SICStus 
+% and SWI-Prolog and maybe other Prologs.
 %
-% Based on https://semver.org/spec/v2.0.0.html
+% Homepage for this code:
 %
-% Unit Test code is based on the "plunit" framework available in SICStus and
-% SWI-Prolog and maybe other Prologs.
+% https://github.com/dtonhofer/prolog_code/tree/main/unpacked/onepointfour_semver
 %
-% See:
-%
-% https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)
-%
-% This code uses some specifities of SWI-Prolog 
+% This code uses some specificities of SWI-Prolog: 
 %
 % - dicts (associative arrays)
 % - the Perl Compatible Regular Expression (pcre) module
-%   https://eu.swi-prolog.org/pldoc/man?section=pcre
-%
+%   https://eu.swi-prolog.org/pldoc/man?section=pcre which, however, is just
+%   used to run supplementary tests against a semver string regular expression.
+%   The use of PCRE and the tests which use it can be safely commented out.
 % =============================================================================
 % License information
 %
