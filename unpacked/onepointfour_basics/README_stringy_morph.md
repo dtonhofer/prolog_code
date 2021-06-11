@@ -3,14 +3,26 @@
 A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
 of character sequences, i.e. proper lists of chars and proper lists of codes.
 
-This encapsulates/replaces the existing predicates [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
-[`atom_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_chars/2),
-[`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
-[`atom_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_codes/2) and
-[`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
-
 - [`stringy_morph.pl`](stringy_morph.pl) (MIT license) 
 - [`stringy_morph.plt`](stringy_morph.plt) (0BSD license)
+
+The module packs the functionality of 
+
+- [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
+- [`atom_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_chars/2),
+
+into a single predicate `stringy_morph/4`, restricting arguments to strings and atoms.
+
+The module also packs all of
+
+- [`atom_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_codes/2) and
+- [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
+- [`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
+
+into a single predicate `stringy_charylist_morph/4`, restricting arguments to strings and
+atoms for argument 1, and list of codes or chars on argument 2.
+
+(Should we go further and pack all of the above into a single `texty_morph/4`? We could!)
 
 The predicates avoid losing information or being imprecise about the types of their arguments 
 by taking additional type information in separate arguments. If there is ambiguity in the types,
