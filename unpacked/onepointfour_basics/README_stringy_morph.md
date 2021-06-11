@@ -3,7 +3,7 @@
 A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
 of character sequences, i.e. proper lists of chars and proper lists of codes.
 
-This replaces the existing predicates [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
+This encapsulates/replaces the existing predicates [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
 [`atom_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_chars/2),
 [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
 [`atom_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_codes/2) and
