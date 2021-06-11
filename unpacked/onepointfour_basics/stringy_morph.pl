@@ -102,41 +102,44 @@ stringy_morph(StringyA,StringyB,TypeA,TypeB,Throw) :-
    check_that(TypeB,              [break(var),tuned(stringy_typeid)],Throw),
    stringy_type(StringyA,AsGivenTypeA),
    stringy_type(StringyB,AsGivenTypeB),
-   stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
+   stringy_morph_2_with_increased_determinism(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
 
 % stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
 %
 % The case AsGivenTypeA=var,AsGiventypeB=var is precluded by a check in
 % stringy_morph/5
 %
-% We could put everything elegantly into a singly stringy_morph_2/6 table
-% but to increase determinism we may call a secondary predicate.
+% Note that even if the types correspond, we must still check whether
+% the text representations correspond.
 
-% ------------  nonvar , nonvar          |- can be var on call -|
-stringy_morph_2(string, string ,  _,  _,  string, string ).
-stringy_morph_2(string, atom   ,  _,  _,  string, atom   ).
-stringy_morph_2(atom,   string ,  _,  _,  atom  , string ).
-stringy_morph_2(atom,   atom   ,  _,  _,  atom  , atom   ).
-stringy_morph_2(atom,   var    ,  A,  B,  atom  , TypeB  ) :- stringy_morph_given_atom_as_A(TypeB,A,B).
-stringy_morph_2(var,    atom   ,  A,  B,  TypeA , atom   ) :- stringy_morph_given_atom_as_A(TypeA,B,A).
-stringy_morph_2(string, var    ,  A,  B,  string, TypeB  ) :- stringy_morph_given_string_as_A(TypeB,A,B).
-stringy_morph_2(var,    string ,  A,  B,  TypeA , string ) :- stringy_morph_given_string_as_A(TypeA,B,A).
+stringy_morph_2_with_increased_determinism(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB) :-
+   (
+      (AsGivenTypeA==var,nonvar(TypeA));
+      (AsGivenTypeB==var,nonvar(TypeB))
+   ),
+   !, 
+   stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB), % we know there is only 1 solution
+   !.
+stringy_morph_2_with_increased_determinism(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB) :-
+   stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
 
-stringy_morph_given_atom_as_A(TypeB,A,B)  :-
-   var(TypeB),
-   !,
-   ((TypeB=atom,A=B);(TypeB=string,atom_string(A,B))).
-stringy_morph_given_atom_as_A(atom,A,A).
-stringy_morph_given_atom_as_A(string,A,B) :-
-   atom_string(A,B).
+% stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
+% ------------  | nonvar on call |           | can be var on call |
 
-stringy_morph_given_string_as_A(TypeB,A,B)  :-
-   var(TypeB),
-   !,
-   ((TypeB=string,A=B);(TypeB=atom,atom_string(B,A))).
-stringy_morph_given_string_as_A(string,A,A).
-stringy_morph_given_string_as_A(atom,A,B) :-
-   atom_string(B,A).
+stringy_morph_2( string, string   ,  A , B ,    string, string ) :- A=B.
+stringy_morph_2( string, atom     ,  A , B ,    string, atom   ) :- atom_string(B,A).
+stringy_morph_2( string, var      ,  A , B ,    string, string ) :- A=B.
+stringy_morph_2( string, var      ,  A , B ,    string, atom   ) :- atom_string(B,A).
+
+stringy_morph_2( atom,   string   ,  A , B ,    atom  , string ) :- atom_string(A,B).
+stringy_morph_2( atom,   atom     ,  A , B ,    atom  , atom   ) :- A=B.
+stringy_morph_2( atom,   var      ,  A , B ,    atom  , string ) :- atom_string(A,B).
+stringy_morph_2( atom,   var      ,  A , B ,    atom  , atom   ) :- A=B.
+
+stringy_morph_2( var,    atom     ,  A , B ,    string, atom   ) :- atom_string(B,A). 
+stringy_morph_2( var,    atom     ,  A , B ,    atom  , atom   ) :- A=B.
+stringy_morph_2( var,    string   ,  A , B ,    string, string ) :- A=B.
+stringy_morph_2( var,    string   ,  A , B ,    atom  , string ) :- atom_string(A,B).
 
 %! stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType)
 

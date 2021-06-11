@@ -2,6 +2,7 @@
           [
             overwrite_using_chars/7  % overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
            ,overwrite_using_runs/7   % overwrite_using_runs(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+           ,stringy_concat/3         % stringy_concat(ListOfStringys,?Result,+ResultType)
           ]).
 
 /** <module> Overwrite a a background text BgText with foreground text FgText
@@ -221,4 +222,18 @@ fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,
     sub_atom(FgText,StartPosInFg,Len,_,Run), % gives an atom
     stringy_concat(Rprev,Run,Rnew,ResultType)).    % gives what we "ResultType"
 
+% stringy_concat(ListOfStringys,?Result,+ResultType)
 
+stringy_concat(ListOfStringy,Result,ResultType) :-
+   check_that(ListOfStringy,[hard(proper_list)]),
+   check_that(ListOfStringy,[hard(passall(stringy))]),
+   check_that(Result,[break(var),hard(stringy)]),
+   check_that(ResultType,[break(var),hard(stringy_typeid)]),
+   check_that([Result,ResultType],[hard(passany(nonvar))]),
+
+complete(Result,ResultType) :-
+   nonvar(Result),
+   !,
+   stringy_type(vim st
+   
+ 

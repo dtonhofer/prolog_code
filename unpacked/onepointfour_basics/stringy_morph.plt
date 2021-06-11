@@ -25,7 +25,10 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 
 test("Morph atom (arg 1) to atom or string") :-
    bagof([TypeA,StringyB:TypeB], stringy_morph(an_atom,StringyB,TypeA,TypeB), Bag),
-   assertion(Bag = [[atom,an_atom:atom],[atom,"an_atom":string]]).
+   assertion(Bag = [
+      [atom,"an_atom":string],
+      [atom,an_atom:atom]
+   ]).
 
 test("Morph string (arg 1) to atom or string") :-
    bagof([TypeA,StringyB:TypeB], stringy_morph("a_string",StringyB,TypeA,TypeB), Bag),
@@ -37,7 +40,10 @@ test("Morph string (arg 2) to atom or string") :-
 
 test("Morph atom (arg 2) to atom or string") :-
    bagof([StringyA:TypeA,TypeB], stringy_morph(StringyA,an_atom,TypeA,TypeB), Bag),
-   assertion(Bag = [[an_atom:atom,atom],["an_atom":string,atom]]).
+   assertion(Bag = [
+      ["an_atom":string,atom],
+      [an_atom:atom,atom]
+   ]).
 
 test("atom (arg 2) to string (arg 1)") :-
    stringy_morph(StringyA,an_atom,string,_),
@@ -103,6 +109,18 @@ test("two vars instead of at least one stringy, soft mode throws",error(check(pa
 
 test("two vars instead of at least one string, hard mode throws",error(check(passany,_,_,_))) :-
    stringy_morph(_,_,string,string,true).
+
+test("types correctly fully specified, stringys don't match #1", fail) :-
+   stringy_morph(hello,"world",atom,string).
+
+test("types correctly fully specified, stringys don't match #2", fail) :-
+   stringy_morph(hello,world,atom,atom).
+
+test("types correctly fully specified, stringys do match #1") :-
+   stringy_morph(hello,"hello",atom,string).
+
+test("types correctly fully specified, stringys do match #2") :-
+   stringy_morph(hello,hello,atom,atom).
 
 :- end_tests(stringy_morph).
 
