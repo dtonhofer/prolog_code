@@ -6,32 +6,126 @@ of character sequences, i.e. proper lists of chars and proper lists of codes.
 - [`stringy_morph.pl`](stringy_morph.pl) (MIT license) 
 - [`stringy_morph.plt`](stringy_morph.plt) (0BSD license)
 
- The module provides a replacement for
+The module provides a replacement for
 
 - [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
 
 with a type-information taking/providing predicate `stringy_morph/4` which
-restricts the arguments to strings and atoms, and a replacement for all of
+restricts the arguments to strings and atoms.
+
+It also provides a replacement for all of
 
 - [`atom_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_codes/2) and
 - [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
 - [`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
 
 with a type-information taking/providing predicate `stringy_charylist_morph/4`, 
-restricting arguments to strings and atoms for argument 1, and list of codes or chars on argument 2.
+restricting arguments to strings and atoms for argument 1, and list of codes or chars on 
+argument 2.
 
-It thus provides a more unified interface than the 4 predicates of SWI-Prolog (which
-may be more flexible than their names suggest; for example `atom_string/2` can work
-with lists of chars or codes.)
+The existing predicates are problematic because they try to be flexible
+in what they accept (for backwards-compatibility reasons), taking atoms, strings, 
+or list representations (possibly on either of their two arguments). They also try 
+to be semi-deterministic, so they always provide at most one solution of a specifc type, 
+becoming non-logical:
 
-(Should we go further and pack all of the above into a single `texty_morph/4`? We could!)
+One would expect this from the name only:
 
-The predicates avoid losing information or being imprecise about the types of their arguments 
-by taking additional type information in separate arguments. If there is ambiguity in the types,
-the predicates may provide additional solutions on redo. The predicate try to be deterministic
-if there is only a single solution (took me some time to find the correct trick).
+```
+?- atom_string(hello,S).
+S = "hello".
 
-We introduce the following additional vocabulary:
+?- atom_string(S,"hello").
+S = hello.
+```
+
+But this may be non-obvious:
+
+```
+?- atom_string(hello,hello).
+true.
+
+?- atom_string("hello",hello).
+true.
+
+?- atom_string("hello","hello").
+true.
+```
+
+The above is in logical contradiction with getting only one solution here:
+
+```
+?- atom_string(hello,S).
+S = "hello".
+```
+
+We shall demand that the caller provide type information regarding
+what he expects on either of the two arguments to be morphed (in any direction).
+If the type information is ambiguous (i.e. the argument is unbound), the predicate 
+shall propose a value and provide the correspondingly typed value generated from 
+any available input. If this means providing two solutions, so be it.
+
+Thus for the new predicate:
+
+`stringy_morph(StringyA,StringyB,TypeOfStringyA,TypeOfStringB)`
+
+I want a _string_ at argument place 2, `StringyB`. I don't care to be told about the
+type of argument 1, so I provide a `_` at argument place 3:
+
+```
+?- stringy_morph(hello,StringyB,_,string).
+StringyB = "hello".
+```
+
+If I state that the type of argument 1 is a _string_, I get told otherwise:
+
+```
+?- stringy_morph(hello,StringyB,string,string).
+false.
+```
+
+Because it's an _atom_:
+
+```
+?- stringy_morph(hello,StringyB,atom,string).
+StringyB = "hello".
+```
+
+If I am lax in specifying the wanted output type, I get two solutions:
+
+```
+?- stringy_morph(hello,StringyB,_,Whatever).
+StringyB = hello, Whatever = atom ;
+StringyB = "hello", Whatever = string.
+```
+
+Of course, one can _accept_ a pair of arguments:
+
+```
+?- stringy_morph(hello,"string",atom,string).
+true.
+```
+
+Or query their type, as long as they can be morphed from one to the other:
+
+```
+?- stringy_morph(hello,"string",TypeA,TypeB).
+TypeA = atom,
+TypeB = string.
+```
+
+Similarly for the new predicate:
+
+```
+stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType)
+```
+
+The predicates try to be well-behaved deterministic if there is only a single solution
+(took me some time to find the correct trick).
+
+(Should we go further and pack all of the above into a single `texty_morph/4`? We could!!)
+
+We also introduce the following additional vocabulary:
 
 - A _stringy_ term is a term that is either an _atom_ or a _string_. In SWI-Prolog, the _string_
   is a distinct representation of a sequence of characters, distinct from the _atom_ and
