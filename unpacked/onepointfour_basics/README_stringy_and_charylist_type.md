@@ -2,10 +2,10 @@
 
 Simple analysis for _stringy_ and _chary_ terms.
 
-- [`stringy_and_charylist_type.pl`](stringy_and_charylist_type.pl)
-- [`stringy_and_charylist_type.plt`](stringy_and_charylist_type.plt)
+- [`stringy_and_charylist_type.pl`](stringy_and_charylist_type.pl) (MIT license) 
+- [`stringy_and_charylist_type.plt`](stringy_and_charylist_type.plt) (0BSD license)
 
-Vocabulary:
+We introduce the following additional vocabulary:
 
 - A _stringy_ term is a term that is either an _atom_ or a _string_. In SWI-Prolog, the _string_
   is a distinct representation of a sequence of characters, distinct from the _atom_ and
