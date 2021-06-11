@@ -47,14 +47,10 @@ of the file in which the module is defined.
 
 ## `checks.pl`
 
-A more powerful replacement for `must_be/2`
+A more powerful replacement for the venerable [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2).
+The predicates provided by `checks.pl` are used throughout other code.
 
-- [`checks.pl`](checks.pl)
-- [`checks.plt`](checks.plt)
-
-`checks.pl` contains a rather large description of what this all about (still not well-written)
-
-The predicates for `checks.pl` are used throughout in other code.
+[README_checks.md](README_checks.md)
 
 ## `stringy_morph.pl`
 
