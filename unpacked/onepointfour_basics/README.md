@@ -66,9 +66,6 @@ Provides replacement for the predicates
 [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
 [`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
 
-- [`stringy_morph.pl`](stringy_morph.pl) (MIT license) 
-- [`stringy_morph.plt`](stringy_morph.plt) (0BSD license)
-
 [README_stringy_morph.md](README_stringy_morph.md)
 
 ## `space_string.pl` 
