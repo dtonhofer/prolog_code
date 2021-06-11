@@ -57,7 +57,7 @@ format(string(String), '~t~*|', [2]).  % two space characters
 However, the performance of of the first trick is much worse than the code
 of `space_string.pl`. The `format/2` trick has about the same performance.
 
-See `space_string_performance.plt` for performance testing.
+See `perf/space_string_performance.plt` for performance testing.
 
 Another way of accepting a string made only of SPACE is:
 
