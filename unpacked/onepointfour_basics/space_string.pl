@@ -38,6 +38,10 @@
 This is specific to SWI-Prolog, which distinguishes "string" and "atom" as
 two distinct representations of "sequences of characters".
 
+## Homepage for this code
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_space_string.md
+
 ## Examples
 
 ```
@@ -60,65 +64,12 @@ false.
 ERROR: check failed : domain error (the culprit is outside the required domain)
 ```
 
-## Running the tests
-
-There should be a file =|space_string.plt|= nearby.
-Then, if the directory of the package is on the library path:
-
-```
-?- use_module(library('onepointfour_basics/space_string.pl')).
-?- load_test_files([]).
-?- run_tests.
-```
-
-## Homepage for this code
-
-https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_space_string.md
-
 ## History
 
    1. 2020-07-XX: First version.
    1. 2021-05-27: Full review.
    1. 2021-06-10: Further review.
    1. 2021-06-11: Back up on github.   
-
-## Notes: Alternatives
-
-Another way of "generating" is:
-
-```
-length(Codes, N),
-maplist(=(0'\s), Codes),    % N space character codes
-string_codes(Codes, String).
-```
-
-Or even like this, which is somewhat hard to remember
-
-```
-format(string(String), '~t~*|', [2]).  % two space characters
-```
-
-However, the performance of of the first trick is much worse than the code
-of this module. The format/2 trick has about the same performance.
-
-See =|space_string_performance.plt|= for performance testing.
-
-Another way of checking whether a string contains spaces only is:
-
-```
-string_codes(Codes, String),
-maplist(=(0'\s), Codes)
-```
-
-Or even like this:
-
-```
-split_string(String, "", " ", [""]).
-```
-
-See also this code concerning "exponentiation" of an associative operation:
-
-https://swi-prolog.discourse.group/t/power-implementation/1937
 */
 
 %! space_string(?N,?Stringy)
