@@ -80,29 +80,29 @@ StringyB = "an_atom", TypeA = atom.
 ```
 
 ```
-?- stringy_charylist_morph("hello",Charylist,StringyType,CharylistType,throw).
+?- stringy_charylist_morph("hello",Charylist,StringyType,CharylistType).
 Charylist = [h,e,l,l,o], StringyType = string, CharylistType = chars ;
 Charylist = [104,101,108,108,111], StringyType = string, CharylistType = codes.
 
-?- stringy_charylist_morph(hello,Charylist,StringyType,CharylistType,throw).
+?- stringy_charylist_morph(hello,Charylist,StringyType,CharylistType).
 Charylist = [h,e,l,l,o], StringyType = atom, CharylistType = chars ;
 Charylist = [104,101,108,108,111], StringyType = atom, CharylistType = codes.
 
-?- stringy_charylist_morph(Stringy,[h,e,l,l,o],StringyType,CharylistType,throw).
+?- stringy_charylist_morph(Stringy,[h,e,l,l,o],StringyType,CharylistType).
 Stringy = hello, StringyType = atom, CharylistType = chars ;
 Stringy = "hello", StringyType = string, CharylistType = chars.
 
-?- stringy_charylist_morph(Stringy,[104,101,108,108,111],StringyType,CharylistType,throw).
+?- stringy_charylist_morph(Stringy,[104,101,108,108,111],StringyType,CharylistType).
 Stringy = hello, StringyType = atom, CharylistType = codes ;
 Stringy = "hello", StringyType = string, CharylistType = codes.
 
-?- stringy_charylist_morph("hello",Charylist,_,codes,throw).
+?- stringy_charylist_morph("hello",Charylist,_,codes).
 Charylist = [104,101,108,108,111].
 
-?- stringy_charylist_morph("hello",[104,101,108,108,111],T1,T2,throw).
+?- stringy_charylist_morph("hello",[104,101,108,108,111],T1,T2).
 T1 = string, T2 = codes.
 
-?- stringy_charylist_morph(Stringy,[],T1,T2,throw).
+?- stringy_charylist_morph(Stringy,[],T1,T2).
 Stringy = '', T1 = atom, T2 = chars ;
 Stringy = '', T1 = atom, T2 = codes ;
 Stringy = "", T1 = string, T2 = chars ;
