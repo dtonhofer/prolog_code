@@ -61,46 +61,9 @@ The predicates for `checks.pl` are used throughout in other code.
 
 (Much more info to follow or should be generated via pldoc from the .pl file and put on a web server).
 
-# `space_string.pl`: Create or accept strings made only of SPACE
+## `space_string.pl` - Create and accept strings made up only of SPACE (ASCII codepoint 0x20)
 
-The files
-
-- [`space_string.pl`](space_string.pl)
-- [`space_string.plt`](space_string.plt)
-
-provide predicates to (quickly) create or accept strings consisting
-only of the SPACE character (ASCII code point 0x20). 
-
-This is a simple but still interesting exercise. The code uses the
-functionality provided by `check.pl` to verify passed arguments and
-fail or throw as required.
-
-## Synopsis
-
-```
-space_string(?N,?String)           % mostly fails on bad input
-space_string(?N,?String,@Throw)    % with Throw=throw or Throw=true, prefers to throw on bad input
-space_string_smooth(?N,?Stringy)   % only fails on bad input
-```
-
-## Examples
-
-```
-?- space_string(10,String).
-String = "          ".
-
-?- space_string(N,"    ").
-N = 4.
-
-?- space_string(N," hey  ").
-false.
-
-?- space_string(-1,S).
-false.
-
-?- space_string(-1,S,throw).
-ERROR: check failed : domain error (the culprit is outside the required domain)
-```
+[README_space_string.pl](README_space_string.pl)
 
 ## `stringy_and_charylist_type.pl` - Simple analysis for stringy and chary terms.
 
