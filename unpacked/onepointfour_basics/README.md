@@ -65,7 +65,7 @@ The predicates for `checks.pl` are used throughout in other code.
 
 Create or accept strings made only of the SPACE character (Unicode code point 0x20).
 
-[README_space_string.pl](README_space_string.md)
+[README_space_string.md](README_space_string.md)
 
 ## `stringy_and_charylist_type.pl`
 
