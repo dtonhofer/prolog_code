@@ -127,6 +127,71 @@ stringy_type_with_length(Stringy,Type,Throw)
 stringy_length(@Stringy,?Length)
 stringy_length(@Stringy,?Length,@Throw)
 ```
-  
 
+### Examples
+
+```
+?- charylist_type(_,T).
+T = var.
+
+?- charylist_type([],T).
+T = empty.
+
+?- charylist_type([h,e,l,l,o],T).
+T = chars(5).
+
+?- charylist_type([0'h,0'e,0'l,0'l,0'o],T).
+T = codes(5).
+
+?- charylist_type(foo,T).
+false.
+
+?- charylist_type([x],foo).
+false.
+```
+  
+```  
+?- stringy_type(foo,T).
+T = atom.
+
+?- stringy_type("foo",T).
+T = string.
+
+?- stringy_type(_,T).
+T = var.
+
+?- stringy_type([h,e,l,l,o],T).
+false.
+
+?- stringy_type([h,e,l,l,o],T,throw).
+ERROR: check failed : type error (the culprit is not of the required type)
+ERROR:    message   : the value should fulfill 'stringy-ness'
+ERROR:    culprit   : [h,e,l,l,o]
+```
+
+```
+?- stringy_type_with_length("foo",T).
+T = string(3).
+
+?- stringy_type_with_length("",T).
+T = string(0).
+
+?- stringy_type_with_length('',T).
+T = atom(0).
+
+?- stringy_type_with_length(_,T).
+T = var.
+```
+
+```
+?- stringy_length("foo",T).
+T = 3.
+
+?- stringy_length(foo,T).
+T = 3.
+
+?- stringy_length(X,3).
+ERROR: check failed : too_little_instantiation error (the culprit is not instantiated (enough))
+ERROR:    message   : the value should fulfill 'nonvar-ness'
+```
 
