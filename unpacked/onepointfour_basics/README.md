@@ -58,21 +58,29 @@ The predicates for `checks.pl` are used throughout in other code.
 
 ## `stringy_morph.pl`
 
-The module packs the functionality of 
+A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
+of character sequences, i.e. proper lists of chars and proper lists of codes.
+
+- [`stringy_morph.pl`](stringy_morph.pl) (MIT license) 
+- [`stringy_morph.plt`](stringy_morph.plt) (0BSD license)
+
+ The module provides a replacement for
 
 - [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
-- [`atom_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_chars/2),
 
-into a single predicate `stringy_morph/4`, restricting arguments to strings and atoms.
-
-The module also packs all of
+with a type-information taking/providing predicate `stringy_morph/4` which
+restricts the arguments to strings and atoms, and a replacement for all of
 
 - [`atom_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_codes/2) and
 - [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
 - [`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
 
-into a single predicate `stringy_charylist_morph/4`, restricting arguments to strings and
-atoms for argument 1, and list of codes or chars on argument 2.
+with a type-information taking/providing predicate `stringy_charylist_morph/4`, 
+restricting arguments to strings and atoms for argument 1, and list of codes or chars on argument 2.
+
+It thus provides a more unified interface than the 4 predicates of SWI-Prolog (which
+may be more flexible than their names suggest; for example `atom_string/2` can work
+with lists of chars or codes.)
 
 [README_stringy_morph.md](README_stringy_morph.md)
 
