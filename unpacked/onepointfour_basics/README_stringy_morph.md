@@ -67,7 +67,7 @@ any available input. If this means providing two solutions, so be it.
 
 Thus for the new predicate:
 
-`stringy_morph(StringyA,StringyB,TypeOfStringyA,TypeOfStringB)`
+**`stringy_morph(StringyA,StringyB,TypeOfStringyA,TypeOfStringB)`**
 
 I want a _string_ at argument place 2, `StringyB`. I don't care to be told about the
 type of argument 1, so I provide a `_` at argument place 3:
@@ -116,9 +116,7 @@ TypeB = string.
 
 Similarly for the new predicate:
 
-```
-stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType)
-```
+**`stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType)`**
 
 The predicates try to be well-behaved deterministic if there is only a single solution
 (took me some time to find the correct trick).
