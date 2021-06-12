@@ -10,7 +10,7 @@ are hard to survey.
 
 The `use_module/1`graph of the files / modules is as folows:
 
-`` 
+```
 checks.pl ---+------------------------------------->+
              |                                      |
              +----> stringy_concat.pl ------------->+-----> stringy_overwrite.pl
