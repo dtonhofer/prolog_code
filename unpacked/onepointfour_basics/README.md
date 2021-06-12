@@ -81,3 +81,11 @@ Simple analysis for stringy and chary terms.
 Overwrite background text with foreground text.
 
 [README_stringy_overwrite.md](README_stringy_overwrite.md)
+
+## `stringy_concat.pl`
+
+Concantenate stringys to a single stringy. Just a front-end to the corresponding
+SWI-Prolog predicates
+
+[README_stringy_concat.md](README_stringy_concat.md)
+
