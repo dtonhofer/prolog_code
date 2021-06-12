@@ -75,3 +75,9 @@ Create or accept strings made only of the SPACE character (Unicode code point 0x
 Simple analysis for stringy and chary terms.
 
 [README_stringy_and_charylist_type.md](README_stringy_and_charylist_type.md)
+
+## `stringy_overwrite.pl`
+
+Overwrite background text with foreground text.
+
+[README_stringy_overwrite.md](README_stringy_overwrite.md)
