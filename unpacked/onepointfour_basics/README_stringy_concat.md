@@ -46,5 +46,5 @@ R = foobarbazquux.
 ## TODO
 
 - If all the elements of the input list are of the same type, the output type should be optional and be forced to the elements' input type.
-
+- This predicate loses information; should it generate a list of "length of substrings" when concatenating to make it reversible (one would also have to retain whether the input was string or atom)
 
