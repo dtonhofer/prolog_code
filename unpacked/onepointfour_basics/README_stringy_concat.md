@@ -25,8 +25,8 @@ Two more general concatenable terms as input (cannot split because arguments 1 a
 
 A list of concatenable terms as input (never split)
 
-- [atomic_list_concat/2](https://eu.swi-prolog.org/pldoc/man?predicate=atomic_list_concat/2); generates atom at argument 2. Refuses string at argument 2 in accept mode (that's likely a bug).
-- [atomics_to_string/2](https://eu.swi-prolog.org/pldoc/man?predicate=atomics_to_string/2); generates string at argument 2. Refuses atom at argument 2 in accept mode (that's likely a bug).
+- [atomic_list_concat/2](https://eu.swi-prolog.org/pldoc/man?predicate=atomic_list_concat/2) - generates atom at argument 2. Refuses string at argument 2 in accept mode (that's likely a bug).
+- [atomics_to_string/2](https://eu.swi-prolog.org/pldoc/man?predicate=atomics_to_string/2) - generates string at argument 2. Refuses atom at argument 2 in accept mode (that's likely a bug).
 
 A list of concatenable terms as input, and intersperse another string (can split at interspersed string)
 
