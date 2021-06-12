@@ -8,6 +8,20 @@ one or more plunit modules.
 The module files are relatively "small" and provide specific functionality. We avoid large modules where in-module interrelationships
 are hard to survey.
 
+The `use_module/1`graph of the files / modules is as folows:
+
+`` 
+checks.pl ---+------------------------------------->+
+             |                                      |
+             +----> stringy_concat.pl ------------->+-----> stringy_overwrite.pl
+             |                                      |
+             +----> space_string.pl --------------->+
+             |
+             +----> stringy_and_charylist_type.pl-->+-----> stringy_morph.pl
+             |                                      |
+             +------------------------------------->+                        
+``` 
+
 ## Loading a module and running its tests (in SWI-Prolog)
 
 Put the directory just above this package directory 
