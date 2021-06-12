@@ -1,8 +1,8 @@
 :- module(onepointfour_basics_stringy_overwrite,
           [
-            overwrite_using_chars/7  % overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+            overwrite/7              % overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+           ,overwrite_using_chars/7  % overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
            ,overwrite_using_runs/7   % overwrite_using_runs(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
-           ,stringy_concat/3         % stringy_concat(ListOfStringys,?Result,+ResultType)
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
@@ -72,13 +72,9 @@ There are two version with the same functionality to compare behaviour:
 
 https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_overwrite.md
 
-## Examples
-
-
 */
 
-
-%! overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+%! overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
 %
 % Succeeds if Result is the outcome of overwriting BgText with FgText, with FgText
 % placed at position FgPos and resulting characters at position < 0 dropped if
@@ -88,6 +84,11 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 %
 % CutLeft and CutRight must be one of =|true|=, =|false|=.
 % ResultType must be one of =|atom|=, =|string|=.
+
+overwrite(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+   overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType).
+ 
+%! overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
 %
 % This implementation uses character-by-character processing and
 % is slow but easy to verify for correctness.
@@ -145,12 +146,6 @@ collect(Pos,EndPos,FgPos,FgEnd,FgChars,BgChars,BgLen,Fin,FinalFin) :-
 
 %! overwrite_using_runs(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
 %
-% Succeeds if Result is the outcome of overwriting BgText with FgText, with FgText
-% placed at position FgPos and resulting characters at position < 0 dropped if
-% CutLeft is =|true|= and resulting characters at position >= length(BgText)
-% dropped if CutRight is =|true|= and the Result an atom if ResultType is =|atom|=
-% and a string if ResultType is =|string|=.
-%
 % This implementation uses run-of-character processing and is a bit hairy to
 % verify, but fast.
 
@@ -160,7 +155,8 @@ overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
    check_that(FgPos      , [hard(integer)]),
    check_that(CutLeft    , [hard(boolean)]),
    check_that(CutRight   , [hard(boolean)]),
-   check_that(ResultType , [hard(stringy_typeid)]),
+   (complete_result_type(BgText,FgText,ResultType) -> true ; true), % an optional op
+   check_that(ResultType , [break(var),hard(stringy_typeid)]), % but now we demand a valid ResultType
    stringy_length(BgText,BgLen),
    stringy_length(FgText,FgLen),
    FgEnd is FgPos+FgLen,
@@ -172,6 +168,9 @@ overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
    filler_between_end_of_bg_and_start_of_fg(FgPos,BgLen,CutRight,R5,R6,ResultType),
    fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,R6,Result,ResultType).
 
+complete_result_type(_BgText,_FgText,ResultType) :- nonvar(ResultType),!. % keep as it is
+complete_result_type(BgText,FgText,ResultType) :- var(ResultType),string(BgText),string(FgText),ResultType=string. % all input is string, assume string wanted
+complete_result_type(BgText,FgText,ResultType) :- var(ResultType),atom(BgText),atom(FgText),ResultType=atom.       % all input is atom, assume atom wanted
 
 fg_completely_or_partially_on_positions_below_position0(FgText,FgPos,FgEnd,CutLeft,Rnew,ResultType) :-
    (CutLeft == true ; 0 =< FgPos)
