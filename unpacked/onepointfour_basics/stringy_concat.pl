@@ -34,25 +34,9 @@
 
 /** <module> Simply concatenate stringys
 
-## See also
-
- - [string_concat/3](https://eu.swi-prolog.org/pldoc/doc_for?object=string_concat/3)
- - [atomics_to_string/2](https://eu.swi-prolog.org/pldoc/doc_for?object=atomics_to_string/2)
- - [atomics_to_string/3](https://eu.swi-prolog.org/pldoc/doc_for?object=atomics_to_string/3)
- - [atom_concat/3](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_concat/3)
- - [atomic_concat/3](https://eu.swi-prolog.org/pldoc/doc_for?object=atomic_concat/3)
- - [atomic_list_concat/2](https://eu.swi-prolog.org/pldoc/doc_for?object=atomic_list_concat/2)
- - [atomic_list_concat/3](https://eu.swi-prolog.org/pldoc/doc_for?object=atomic_list_concat/3) - performs _intersperse_ or _join_ of list elements to atom, can _split_ 
-
-## History
-
-   1. 2021-06-12: All test cases pass
-
 ## Homepage for this code
 
 https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_concat.md
-
-## Examples
 
 */
 
