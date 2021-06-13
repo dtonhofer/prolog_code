@@ -702,7 +702,7 @@ throw_2(domain(Expected),Msg,Culprit)             :- throw(error(check(domain   
 throw_2(type(Expected),Msg,Culprit)               :- throw(error(check(type                     ,Expected,Msg,Culprit),_)).
 throw_2(domain,Msg,Culprit)                       :- throw(error(check(domain                   ,_       ,Msg,Culprit),_)).
 throw_2(type,Msg,Culprit)                         :- throw(error(check(type                     ,_       ,Msg,Culprit),_)).
-throw_2(too_much_instantiation,Msg,Culprit)       :- throw(error(check(too_much_instantiation   ,_       ,Msg,Culprit),_)). % ISO's "uninstantiation error"
+throw_2(uninstantiation,Msg,Culprit)       :- throw(error(check(uninstantiation   ,_       ,Msg,Culprit),_)). % ISO's "uninstantiation error"
 throw_2(instantiation,Msg,Culprit)     :- throw(error(check(instantiation ,_       ,Msg,Culprit),_)). % ISO's "instantiation error"
 throw_2(passall,Msg,Culprit)                      :- throw(error(check(passall                  ,_       ,Msg,Culprit),_)).
 throw_2(passany,Msg,Culprit)                      :- throw(error(check(passany                  ,_       ,Msg,Culprit),_)).
@@ -747,7 +747,7 @@ prolog:error_message(check(Type,Expected,Msg,Culprit)) -->
 
 extended_msg(domain,                   "the culprit is outside the required domain").
 extended_msg(type,                     "the culprit is not of the required type").
-extended_msg(too_much_instantiation,   "the culprit is already (fully) instantiated").
+extended_msg(uninstantiation,   "the culprit is already (fully) instantiated").
 extended_msg(instantiation, "the culprit is not instantiated (enough)").
 extended_msg(not_ground,               "the culprit should be ground").
 extended_msg(random,                   "this is a random error due to the outcome of maybe/1").
@@ -835,7 +835,7 @@ eval(var,X,Name,Throw,_TP) :-
    ->
    true
    ;
-   throw_or_fail(too_much_instantiation,X,Name,Throw,"var").
+   throw_or_fail(uninstantiation,X,Name,Throw,"var").
 
 eval(nonvar,X,Name,Throw,_TP) :-
    nonvar(X)

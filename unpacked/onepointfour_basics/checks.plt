@@ -41,7 +41,7 @@ test("var, success") :-
 test("var, failure", fail) :-
    check_that(foo,[tuned(var)]).
 
-test("var, failure, throw", error(check(too_much_instantiation,_,_,_))) :-
+test("var, failure, throw", error(check(uninstantiation,_,_,_))) :-
    check_that(foo,[hard(var)]).
 
 :- end_tests(check_that_using_var).
