@@ -2,7 +2,7 @@
 
 ## General structure
 
-This directory contains several SWI-Prolog module files (ending in .pl) and their associate unit test files (ending in.plt), which contain 
+This directory contains several SWI-Prolog module files (ending in .pl) and their associate unit test files (ending in.plt), which contain
 one or more plunit modules.
 
 The module files are relatively "small" and provide specific functionality. We avoid large modules where in-module interrelationships
@@ -19,13 +19,13 @@ checks.pl ---+------------------------------------->+
              |
              +----> stringy_and_charylist_type.pl-->+-----> stringy_morph.pl
              |                                      |
-             +------------------------------------->+                        
-``` 
+             +------------------------------------->+
+```
 
 ## Loading a module and running its tests (in SWI-Prolog)
 
-Put the directory just above this package directory 
-onto the list of library directories. This can be done with the 
+Put the directory just above this package directory
+onto the list of library directories. This can be done with the
 following directive (or command), where you shall replace `/foo/bar` with
 the correct path for your machine:
 
@@ -55,7 +55,7 @@ of the file in which the module is defined.
 
 ## License information
 
-- Author: David Tonhofer (ronerycoder@gluino.name) 
+- Author: David Tonhofer (ronerycoder@gluino.name)
 - License for the .pl files: [MIT License](https://opensource.org/licenses/MIT)
 - License for the .plt files: [Zero-Clause BSD (0BSD)](https://opensource.org/licenses/0BSD)
 
@@ -70,7 +70,7 @@ The predicates provided by `checks.pl` are used throughout other code.
 
 A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
 of character sequences, i.e. "proper lists of char" and "proper lists of code".
-Provides replacement for the predicates 
+Provides replacement for the predicates
 [`atom_string/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_string/2),
 [`atom_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=atom_codes/2),
 [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
@@ -78,7 +78,7 @@ Provides replacement for the predicates
 
 [README_stringy_morph.md](README_stringy_morph.md)
 
-## `space_string.pl` 
+## `space_string.pl`
 
 Create or accept strings made only of the SPACE character (Unicode code point 0x20).
 

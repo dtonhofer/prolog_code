@@ -37,27 +37,9 @@
 
 /** <module> Overwrite a a background text BgText with foreground text FgText
 
-Character position 0 corresponds to the first character of BgText.
+## Homepage for this code
 
-The FgText is placed at position FgPos "on top of" BgText. FgPos which may be
-negative or beyond the end of BgText. Any gap is filled with SPACE (0x20)
-characters.
-
-If CutLeft is =|true|=, then any characters at positions less than 0 are 
-deleted.
-
-If CutRight is =|true|=, then any characters at positions larger or equal 
-than the length of BgText are deleted.
-
-If ResultType is =|atom|= you will get an atom in Result, if it is =|string|= you
-will get a string.
-
-There are two version with the same functionality to compare behaviour:
-
-   - overwrite_using_chars/7: Does brute-force character-by-character
-     processing and is slow but easy to verify for correctness.
-   - overwrite_using_runs/7: Does run-of-character processing and is a bit
-     more difficult to verify for correctness, but fast.
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_overwrite.md
 
 ## History
 
@@ -67,54 +49,62 @@ There are two version with the same functionality to compare behaviour:
    1. 2021-05-27: Review
    1. 2021-06-06: Another review to use the (now completed) "checks"
    1. 2021-06-12: All test cases pass
-
-## Homepage for this code
-
-https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_overwrite.md
+   1. 2021-06-13: Code rearranged
 
 */
 
 %! overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
 %
-% Succeeds if Result is the outcome of overwriting BgText with FgText, with FgText
-% placed at position FgPos and resulting characters at position < 0 dropped if
-% CutLeft is =|true|= and resulting characters at position >= length(BgText)
-% dropped if CutRight is =|true|= and the Result an atom if ResultType is =|atom|=
-% and a string if ResultType is =|string|=.
+% Succeeds if Result is the outcome of overwriting BgText (a stringy) with
+% FgText (a stringy), with FgText placed at position FgPos (relative to BgText)
+% and resulting characters at position < 0 dropped if CutLeft is =|true|= and
+% resulting characters at position >= length(BgText) dropped if CutRight is
+% =|true|=. The Result is an atom if ResultType is =|atom|= and a string if
+% ResultType is =|string|=. In case ResultType is uninstantiated and both
+% BgText and FgText are of the same type, that type is used for Result.
 %
 % CutLeft and CutRight must be one of =|true|=, =|false|=.
 % ResultType must be one of =|atom|=, =|string|=.
 
 overwrite(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
    overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType).
- 
-%! overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
-%
-% This implementation uses character-by-character processing and
-% is slow but easy to verify for correctness.
- 
-overwrite_using_chars(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+
+% Entry verification called by both overwrite_using_chars/7 and
+% overwrite_using_runs/7.
+
+overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
    check_that(BgText     , [hard(stringy)]),
    check_that(FgText     , [hard(stringy)]),
    check_that(FgPos      , [hard(integer)]),
    check_that(CutLeft    , [hard(boolean)]),
    check_that(CutRight   , [hard(boolean)]),
-   check_that(ResultType , [hard(stringy_typeid)]),
+   check_that(Result     , [break(var),soft(stringy)]), % fail if Result provided but bad type (TODO: make tunable)
+   check_that(ResultType , [break(var),hard(stringy_typeid)]), % throw if ResultType is not var 'atom' or 'string'
+   complete_result_type(BgText,FgText,Result,ResultType), % succeeds with ResultType instantiated, or throws on missing info, or fails
+   assertion(nonvar(ResultType)).
+
+%! overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+%
+% This implementation uses character-by-character processing and is slow but
+% easy to verify for correctness.
+
+overwrite_using_chars(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+   overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType),
    stringy_charylist_morph(BgText,BgChars,_,chars),
    stringy_charylist_morph(FgText,FgChars,_,chars),
    stringy_length(BgText,BgLen),
    stringy_length(FgText,FgLen),
    PrelimStartPos is min(FgPos,0),
    PrelimEndPos   is max(BgLen,FgPos+FgLen),
-   ((CutLeft == true) 
-    -> 
-    StartPos = 0   
+   ((CutLeft == true)
+    ->
+    StartPos = 0
     ;
     StartPos = PrelimStartPos),
-   ((CutRight == true) 
+   ((CutRight == true)
     ->
-    EndPos = BgLen 
-    ; 
+    EndPos = BgLen
+    ;
     EndPos = PrelimEndPos),
    FgEnd is FgPos+FgLen,
    collect(StartPos,EndPos,FgPos,FgEnd,FgChars,BgChars,BgLen,Tip,FinalFin),
@@ -138,9 +128,9 @@ collect(Pos,EndPos,FgPos,FgEnd,FgChars,BgChars,BgLen,Fin,FinalFin) :-
       ->
       nth0(Pos,BgChars,Char)                        % otherwise use "background" character
       ;
-      Char=' '                                      % otherwise use space as filler 
+      Char=' '                                      % otherwise use space as filler
    ),
-   Fin=[Char|NewFin],                             
+   Fin=[Char|NewFin],
    PosPP is Pos+1,
    collect(PosPP,EndPos,FgPos,FgEnd,FgChars,BgChars,BgLen,NewFin,FinalFin).
 
@@ -150,13 +140,7 @@ collect(Pos,EndPos,FgPos,FgEnd,FgChars,BgChars,BgLen,Fin,FinalFin) :-
 % verify, but fast.
 
 overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
-   check_that(BgText     , [hard(stringy)]),
-   check_that(FgText     , [hard(stringy)]),
-   check_that(FgPos      , [hard(integer)]),
-   check_that(CutLeft    , [hard(boolean)]),
-   check_that(CutRight   , [hard(boolean)]),
-   (complete_result_type(BgText,FgText,ResultType) -> true ; true), % an optional op
-   check_that(ResultType , [break(var),hard(stringy_typeid)]), % but now we demand a valid ResultType
+   overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType),
    stringy_length(BgText,BgLen),
    stringy_length(FgText,FgLen),
    FgEnd is FgPos+FgLen,
@@ -167,10 +151,6 @@ overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
    bg_visible_between_end_of_fg_and_end_of_bg(BgText,FgEnd,BgLen,R4,R5,ResultType),
    filler_between_end_of_bg_and_start_of_fg(FgPos,BgLen,CutRight,R5,R6,ResultType),
    fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,R6,Result,ResultType).
-
-complete_result_type(_BgText,_FgText,ResultType) :- nonvar(ResultType),!. % keep as it is
-complete_result_type(BgText,FgText,ResultType) :- var(ResultType),string(BgText),string(FgText),ResultType=string. % all input is string, assume string wanted
-complete_result_type(BgText,FgText,ResultType) :- var(ResultType),atom(BgText),atom(FgText),ResultType=atom.       % all input is atom, assume atom wanted
 
 fg_completely_or_partially_on_positions_below_position0(FgText,FgPos,FgEnd,CutLeft,Rnew,ResultType) :-
    (CutLeft == true ; 0 =< FgPos)
@@ -240,4 +220,43 @@ fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,
     StartPosInFg is FgLen-Len,
     sub_atom(FgText,StartPosInFg,Len,_,Run),    % gives an atom
     stringy_concat([Rprev,Run],Rnew,ResultType)). % gives sth corresponding to "ResultType"
+
+% In case the ResultType has been left uninstantiated by the caller,
+% clamp it to 'atom' or 'string' if both 'FgText' and 'BgText' are
+% atoms respectively strings.
+
+complete_result_type(BgText,FgText,Result,PassedResultType) :-
+   reified_type(BgText,BgTextType),
+   reified_type(FgText,FgTextType),
+   reified_type(Result,ResultType),
+   reified_type(PassedResultType,PassedResultTypeType),
+   assertion((BgTextType==atom;BgTextType==string)),  % has already been check_that-ed
+   assertion((FgTextType==atom;FgTextType==string)),  % has already been check_that-ed
+   assertion((ResultType==var;ResultType==string;ResultType==atom)),  % has already been check_that-ed
+   assertion((PassedResultTypeType==var;PassedResultTypeType==atom)),  % has already been check_that-ed (also, it is one of 'atom', 'string')
+   complete_result_type_2(BgTextType,FgTextType,ResultType,PassedResultTypeType,PassedResultType), % this throws, or fails or succeeds, with PassedResultType instantiated
+   !, % complete_result_type_2 generates choicepoint we don't want!
+   check_that(PassedResultType , [hard(stringy_typeid)]). % it must be instantiated now!
+
+%                        nonvar     nonvar     nonvar     nonvar               maybe var
+% complete_result_type_2(BgTextType,FgTextType,ResultType,PassedResultTypeType,PassedResultType)
+
+complete_result_type_2(atom   , string , var    , var   , _      ) :- check_that_named(_,hard(nonvar),"If the input texts are of differing type (here, atom and string) and the Result is unbound, then ResultType must be bound").
+complete_result_type_2(string , atom   , var    , var   , _      ) :- check_that_named(_,hard(nonvar),"If the input texts are of differing type (here, string and stom) and the Result is unbound, then ResultType must be bound").
+complete_result_type_2(atom   , atom   , var    , var   , atom   ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'atom' because the input texts are both atom
+complete_result_type_2(string , string , var    , var   , string ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'string' because the input texts are both string
+complete_result_type_2( _     , _      , string , var   , string ).         % Set: We definitely want PassedResultType (unbound on call) to be the atom 'string' because the provided Result is a string
+complete_result_type_2( _     , _      , atom   , var   , atom   ).         % Set: We definitely want PassedResultType (unbound on call) to be the atom 'atom' because the provided Result is an atom
+complete_result_type_2( _     , _      , var    , atom  , _      ).         % OK: the result type is specified (atom on 4th arg) but the Result is var, so anything is ok
+complete_result_type_2( _     , _      , string , atom  , atom   ) :- fail. % FAIL: the result is specified and 'string' but the ResultType is provided and is 'atom'
+complete_result_type_2( _     , _      , atom   , atom  , string ) :- fail. % FAIL: the result is specified and 'atom'   but the ResultType is provided and is 'string'
+complete_result_type_2( _     , _      , string , atom  , string ).         % OK: the result is specified and 'string' and the ResultType is provided and is 'string'
+complete_result_type_2( _     , _      , atom   , atom  , atom   ).         % OK: the result is specified and 'atom'   and the ResultType is provided and is 'atom'
+
+reified_type(X,var)    :- var(X),!.
+reified_type(X,atom)   :- atom(X),!.
+reified_type(X,string) :- string(X),!.
+reified_type(_,other).
+
+
 

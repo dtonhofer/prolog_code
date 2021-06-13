@@ -69,7 +69,7 @@ ERROR: check failed : domain error (the culprit is outside the required domain)
    1. 2020-07-XX: First version.
    1. 2021-05-27: Full review.
    1. 2021-06-10: Further review.
-   1. 2021-06-11: Back up on github.   
+   1. 2021-06-11: Back up on github.
 */
 
 %! space_string(?N,?Stringy)

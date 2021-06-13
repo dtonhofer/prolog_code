@@ -10,7 +10,7 @@
     DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA
     OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
     TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.       
+    PERFORMANCE OF THIS SOFTWARE.
 */
 
 /*
@@ -167,41 +167,41 @@ test("fail to verify atom",fail) :-
 
 :- begin_tests(stringy_length).
 
-test("find length of string") :- 
+test("find length of string") :-
    stringy_length("hello",L),
    assertion(L==5).
 
-test("find length of atom") :- 
+test("find length of atom") :-
    stringy_length(hello,L),
    assertion(L==5).
 
-test("find length of empty string") :- 
+test("find length of empty string") :-
    stringy_length("",L),
    assertion(L==0).
 
-test("find length of empty atom") :- 
+test("find length of empty atom") :-
    stringy_length('',L),
    assertion(L==0).
 
-test("accept length of string") :- 
+test("accept length of string") :-
    stringy_length("hello",5).
 
-test("reject length of string",fail) :- 
+test("reject length of string",fail) :-
    stringy_length("hello",4).
 
-test("accept length of string") :- 
+test("accept length of string") :-
    stringy_length("hello",5,throw).
 
-test("reject length of string",fail) :- 
+test("reject length of string",fail) :-
    stringy_length("hello",4,throw).
 
-test("reject negative length",fail) :- 
+test("reject negative length",fail) :-
    stringy_length("hello",-1).
 
-test("throw on negative length if tuned to 'hard'",error(check(domain,_,_,_))) :- 
+test("throw on negative length if tuned to 'hard'",error(check(domain,_,_,_))) :-
    stringy_length("hello",-1,throw).
 
-test("exception on unbound arg 1",error(check(too_little_instantiation,_,_,_))) :-
+test("exception on unbound arg 1",error(check(instantiation,_,_,_))) :-
    stringy_length(_,_).
 
 test("exception on non-stringy arg 1",error(check(type,_,_,_))) :-

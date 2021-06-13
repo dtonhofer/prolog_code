@@ -2,7 +2,7 @@
 % Straightforward "string justification": left, right, center, with cutting
 % off of fields.
 %
-% Those little predicates may be called a lot of times (e.g. when formatting 
+% Those little predicates may be called a lot of times (e.g. when formatting
 % tables), so let's not become too slow when running it!
 % Currently, there are meta-calls in there and checks and everything, so the
 % code is not necessarily fast.
@@ -17,13 +17,13 @@
 % ?- use_module(library('heavycarbon/strings/justify.pl')).
 % ?- load_test_files([]).
 % ?- run_tests.
-% 
+%
 % TODO:
 % Justification always implies that the resulting string has the width given
-% by "Width" (via string_of_spaces(Width,Spaces)). This may not be desired in 
+% by "Width" (via string_of_spaces(Width,Spaces)). This may not be desired in
 % that one would like to not have the trailing spaces. One more parameter!
 % TODO:
-% What happenms if you justify a string inside a field that has the length of 
+% What happenms if you justify a string inside a field that has the length of
 % that string?
 % =============================================================================
 % David Tonhofer (ronerycoder@gluino.name) says:
@@ -46,11 +46,11 @@
          ,justify/10        % justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
           ]).
 
-:- use_module(library('onepointfour_basic_justify/space_string.pl')). 
+:- use_module(library('onepointfour_basic_justify/space_string.pl')).
 
 :- use_module(library('heavycarbon/support/meta_helpers.pl')).
-:- use_module(library('heavycarbon/strings/stringy.pl')). 
-:- use_module(library('heavycarbon/strings/string_overwrite.pl')). 
+:- use_module(library('heavycarbon/strings/stringy.pl')).
+:- use_module(library('heavycarbon/strings/string_overwrite.pl')).
 
 % ===
 % Simple calls that don't check and always return strings
@@ -88,7 +88,7 @@ justify_how(How,Text,Width,Result) :-
     (How==center)
     -> justify_center(Text,Width,Result) ;
     (How==none)
-    -> stringy_ensure(Text,Result,string) ; 
+    -> stringy_ensure(Text,Result,string) ;
    domain_error([left,right,center,none],How)).
 
 % ===

@@ -117,7 +117,7 @@ stringy_morph_2_with_increased_determinism(AsGivenTypeA,AsGivenTypeB,StringyA,St
       (AsGivenTypeA==var,nonvar(TypeA));
       (AsGivenTypeB==var,nonvar(TypeB))
    ),
-   !, 
+   !,
    stringy_morph_2(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB), % we know there is only 1 solution
    !.
 stringy_morph_2_with_increased_determinism(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB) :-
@@ -136,7 +136,7 @@ stringy_morph_2( atom,   atom     ,  A , B ,    atom  , atom   ) :- A=B.
 stringy_morph_2( atom,   var      ,  A , B ,    atom  , string ) :- atom_string(A,B).
 stringy_morph_2( atom,   var      ,  A , B ,    atom  , atom   ) :- A=B.
 
-stringy_morph_2( var,    atom     ,  A , B ,    string, atom   ) :- atom_string(B,A). 
+stringy_morph_2( var,    atom     ,  A , B ,    string, atom   ) :- atom_string(B,A).
 stringy_morph_2( var,    atom     ,  A , B ,    atom  , atom   ) :- A=B.
 stringy_morph_2( var,    string   ,  A , B ,    string, string ) :- A=B.
 stringy_morph_2( var,    string   ,  A , B ,    atom  , string ) :- atom_string(A,B).

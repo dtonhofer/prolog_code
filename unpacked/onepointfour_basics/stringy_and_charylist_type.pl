@@ -40,20 +40,20 @@
 /** <module> Analyze "chary" or "stringy" terms
 
 This code is specific to SWI-Prolog, as that Prolog provides the traditional
-"atom" and the non-traditional "string" as two distinct representations of 
-"sequences of characters". 
+"atom" and the non-traditional "string" as two distinct representations of
+"sequences of characters".
 
 We introduce the following additional vocabulary:
 
-- A stringy term is a term that is either an atom or a string. 
-  In SWI-Prolog, the string is a distinct representation of a sequence 
-  of characters, distinct from the atom and mean to be used in text 
+- A stringy term is a term that is either an atom or a string.
+  In SWI-Prolog, the string is a distinct representation of a sequence
+  of characters, distinct from the atom and mean to be used in text
   processing rather than as basis for identifiers.
 - A chary term is a term that is either a char (an atom of length 1) or a
   code (an integer and, more precisely in SWI-Prolog, a Unicode code point).
 - A charylist is less precise: it is a proper list of either codes or chars.
   It may or may not contain uninstantiated elements. An empty list is a
-  charylist but we cannot know whether it is supposed to be composed of 
+  charylist but we cannot know whether it is supposed to be composed of
   codes or chars. A list containing only uninstantiated variables is also
   a charylist and again we don't know what it is supposed to contain, at
   least not yet.
@@ -183,8 +183,8 @@ list_traversal_2(List,VarCount,CodeCount,CharCount,TotalCount,VarCount,CodeCount
 
 stringy_type(Stringy,Type) :-
    stringy_type(Stringy,Type,false).
- 
-% !stringy_type(@Stringy,?Type,@Throw) 
+
+% !stringy_type(@Stringy,?Type,@Throw)
 %
 % As stringy_type/2, but setting Throw to either =|true|= or =|throw|= will make the
 % predicate throw on bad input.
@@ -210,7 +210,7 @@ stringy_type_with_length(Stringy,Type) :-
 
 %! stringy_type_with_length(@Stringy,Type,Throw)
 %
-% As stringy_type_with_length/2, but setting Throw to either =|true|= or =|throw|= 
+% As stringy_type_with_length/2, but setting Throw to either =|true|= or =|throw|=
 % will make the predicate throw on bad input.
 
 stringy_type_with_length(Stringy,Type,Throw) :-
@@ -223,7 +223,7 @@ stringy_type_with_length(Stringy,Type,Throw) :-
                            unifies(string(_))]
                        ))],Throw),
    stringy_type_with_length_2(Stringy,Type).
- 
+
 stringy_type_with_length_2(Stringy,var)       :- var(Stringy),!.
 stringy_type_with_length_2(Stringy,atom(L))   :- atom(Stringy),!,atom_length(Stringy,L).
 stringy_type_with_length_2(Stringy,string(L)) :- string(Stringy),!,string_length(Stringy,L).
@@ -246,7 +246,7 @@ stringy_length(Stringy,Length) :-
 
 %! stringy_length(+Stringy,?Length,@Throw)
 %
-% As stringy_length/2, but setting Throw to either =|true|= or =|throw|= 
+% As stringy_length/2, but setting Throw to either =|true|= or =|throw|=
 % will make the predicate throw on bad input.
 
 stringy_length(Stringy,Length,Throw) :-

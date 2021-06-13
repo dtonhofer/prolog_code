@@ -40,7 +40,7 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 
 */
 
-%! stringy_concat(ListOfStringy,?Result,?ResultType) 
+%! stringy_concat(ListOfStringy,?Result,?ResultType)
 %
 % Succeeds if Result is the concatenation of the elements of
 % ListOfStringy, coerced to ResultType (one of 'string' or 'atom').
@@ -50,7 +50,7 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 stringy_concat(ListOfStringy,Result,ResultType) :-
    stringy_concat(ListOfStringy,Result,ResultType,false).
 
-%! stringy_concat(ListOfStringy,?Result,?ResultType,@Throw) 
+%! stringy_concat(ListOfStringy,?Result,?ResultType,@Throw)
 %
 % As stringy_concat/3, but you can make the call throw
 % instead of just fail if Result and ResultType are out-of-type
@@ -90,7 +90,7 @@ quick_length_check(ListOfStringy,Result) :-
 quick_length_check_2([S|More],RunningLength,MaxLength) :-
   stringy_length(S,AddLength), % will throw on bad S
   NewRunningLength is RunningLength + AddLength,
-  NewRunningLength =< MaxLength, 
+  NewRunningLength =< MaxLength,
   quick_length_check_2(More,NewRunningLength,MaxLength).
 quick_length_check_2([],Length,Length). % length must match at the end
 
@@ -117,7 +117,7 @@ determine_var_tag(_,nonvar).
 
 % convert_maybe(ResultType,In,Out)
 %
-% Is called at the end of concatenation to transform the 
+% Is called at the end of concatenation to transform the
 % concatenated stringy into the string of the desired ResultType.
 % Out is actually the Result passed in and may be instantiated
 % to a unifiable or non-unifiable stringy.

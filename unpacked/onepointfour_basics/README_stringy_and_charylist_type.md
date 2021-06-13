@@ -2,7 +2,7 @@
 
 Simple analysis for _stringy_ and _chary_ terms.
 
-- [`stringy_and_charylist_type.pl`](stringy_and_charylist_type.pl) (MIT license) 
+- [`stringy_and_charylist_type.pl`](stringy_and_charylist_type.pl) (MIT license)
 - [`stringy_and_charylist_type.plt`](stringy_and_charylist_type.plt) (0BSD license)
 
 We introduce the following additional vocabulary:
@@ -12,11 +12,11 @@ We introduce the following additional vocabulary:
   mean to be used in text processing rather than as basis for identifiers.
 - A _chary_ term is a term that is either a _char_ (an atom of length 1) or a _code_ (an integer
   and, more precisely in SWI-Prolog, a Unicode code point).
-- A _charylist_ is less precise: it is a proper list of either codes or chars. It may or may not contain 
+- A _charylist_ is less precise: it is a proper list of either codes or chars. It may or may not contain
   uninstantiated elements. An empty list is a _charylist_ but we cannot know whether it is supposed
   to be composed of codes or chars. A list containing only uninstantiated variables is also a _charylist_
   and again we don't know what it is supposed to contain, at least not yet.
- 
+
 ## Loading the module and running its tests (in SWI-Prolog)
 
 Please refer to the [README.md](README.md) file.
@@ -52,8 +52,8 @@ false.
 ?- charylist_type([x],foo).
 false.
 ```
-  
-```  
+
+```
 ?- stringy_type(foo,T).
 T = atom.
 
@@ -94,6 +94,6 @@ T = 3.
 T = 3.
 
 ?- stringy_length(X,3).
-ERROR: check failed : too_little_instantiation error (the culprit is not instantiated (enough))
+ERROR: check failed : instantiation error (the culprit is not instantiated (enough))
 ERROR:    message   : the value should fulfill 'nonvar-ness'
 ```

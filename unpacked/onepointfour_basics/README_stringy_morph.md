@@ -3,7 +3,7 @@
 A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
 of character sequences, i.e. proper lists of chars and proper lists of codes.
 
-- [`stringy_morph.pl`](stringy_morph.pl) (MIT license) 
+- [`stringy_morph.pl`](stringy_morph.pl) (MIT license)
 - [`stringy_morph.plt`](stringy_morph.plt) (0BSD license)
 
 The module provides a replacement for
@@ -19,14 +19,14 @@ It also provides a replacement for all of
 - [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
 - [`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
 
-with a type-information taking/providing predicate `stringy_charylist_morph/4`, 
-restricting arguments to strings and atoms for argument 1, and list of codes or chars on 
+with a type-information taking/providing predicate `stringy_charylist_morph/4`,
+restricting arguments to strings and atoms for argument 1, and list of codes or chars on
 argument 2.
 
 The existing predicates are problematic because they try to be flexible
-in what they accept (for backwards-compatibility reasons), taking atoms, strings, 
-or list representations (possibly on either of their two arguments). They also try 
-to be semi-deterministic, so they always provide at most one solution of a specifc type, 
+in what they accept (for backwards-compatibility reasons), taking atoms, strings,
+or list representations (possibly on either of their two arguments). They also try
+to be semi-deterministic, so they always provide at most one solution of a specifc type,
 becoming non-logical:
 
 One would expect this from the name only:
@@ -61,8 +61,8 @@ S = "hello".
 
 We shall demand that the caller provide type information regarding
 what he expects on either of the two arguments to be morphed (in any direction).
-If the type information is ambiguous (i.e. the argument is unbound), the predicate 
-shall propose a value and provide the correspondingly typed value generated from 
+If the type information is ambiguous (i.e. the argument is unbound), the predicate
+shall propose a value and provide the correspondingly typed value generated from
 any available input. If this means providing two solutions, so be it.
 
 Thus for the new predicate:
@@ -130,7 +130,7 @@ We also introduce the following additional vocabulary:
   mean to be used in text processing rather than as basis for identifiers.
 - A _chary_ term is a term that is either a _char_ (an atom of length 1) or a _code_ (an integer
   and, more precisely in SWI-Prolog, a Unicode code point).
-- A _charylist_ is less precise: it is a proper list of either codes or chars. It may or may not contain 
+- A _charylist_ is less precise: it is a proper list of either codes or chars. It may or may not contain
   uninstantiated elements. An empty list is a _charylist_ but we cannot know whether it is supposed
   to be composed of codes or chars. A list containing only uninstantiated variables is also a _charylist_
   and again we don't know what it is supposed to contain, at least not yet.
@@ -178,7 +178,7 @@ StringyA = "an_atom".
 ?- stringy_morph(an_atom,StringyB,_,string).
 StringyB = "an_atom".
 
-?- stringy_morph(an_atom,StringyB,TypeA,string). 
+?- stringy_morph(an_atom,StringyB,TypeA,string).
 StringyB = "an_atom", TypeA = atom.
 
 ?- stringy_morph(an_atom,StringyB,TypeA,string).

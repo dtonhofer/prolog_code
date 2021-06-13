@@ -3,7 +3,7 @@
 - [`stringy_concat.pl`](stringy_concat.pl)
 - [`stringy_concat.plt`](stringy_concat.plt)
 
-Thois module provides a simple predicate to concatenate a list of _stringys_ 
+Thois module provides a simple predicate to concatenate a list of _stringys_
 into a single _stringy_, which can be requested to be either an atom or a string.
 
 The predicate does not perform splitting.
@@ -31,8 +31,8 @@ A list of concatenable terms as input (never split)
 A list of concatenable terms as input, and intersperse another string (can split at interspersed string)
 
 - [atomic_list_concat/3](https://eu.swi-prolog.org/pldoc/man?predicate=atomic_list_concat/3) - concatenate with separator ("intersperse", "join"). Refuses string at argument 3 in accept mode (that's likely a bug).
-- [atomics_to_string/3](https://eu.swi-prolog.org/pldoc/man?predicate=atomics_to_string/3) - concatenate with separator ("intersperse", "join"). Refuses atom at argument 3 in accept mode (that's likely a bug). 
-     
+- [atomics_to_string/3](https://eu.swi-prolog.org/pldoc/man?predicate=atomics_to_string/3) - concatenate with separator ("intersperse", "join"). Refuses atom at argument 3 in accept mode (that's likely a bug).
+
 ## Examples
 
 ```

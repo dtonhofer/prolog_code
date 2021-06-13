@@ -40,12 +40,12 @@
 
 /** <module> A replacement for must/2
 
-check_that/3 and friends: a replacement for the must_be/2 predicate of 
+check_that/3 and friends: a replacement for the must_be/2 predicate of
 Prolog. must_be/2 is used to check preconditions on predicate entry, but
 is not very flexible. Can we change that?
- 
+
 See: https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2
- 
+
 A call to check_that/3 looks as follows:
 
    check_that(X,Conditions,ThrowFlag)
@@ -54,7 +54,7 @@ where
 
    - X is the term that is subject to being checked.
    - Conditions is a proper list of conditions to be evaluated left-to-right
-   - ThrowFlag is a flag that determines whether to, in certain settings, 
+   - ThrowFlag is a flag that determines whether to, in certain settings,
      preferentially throw (if it is =|true|= or =|throw|=) or fail
      (if it is anything else, including an unbound variable)
 
@@ -68,7 +68,7 @@ The more extensive
 
    check_that_named(X,Conditions,Name)
    check_that_named(X,Conditions,Name,Throw)
- 
+
 also takes a Name to designate the X that is being checked. The Name can then
 be inserted into exception messages. Generally one would not bother with this.
 
@@ -89,7 +89,7 @@ pretending to know something about _ that it doesn't or outing itself as a secon
 like var/1 that can analyze the momentary state of the computation and say that a term is indeed
 uninstantiated. In either case, it's dubious practice).
 
-The Prolog behaviour can be recovered with the tag smooth/1. However, it is preferred to use 
+The Prolog behaviour can be recovered with the tag smooth/1. However, it is preferred to use
 another tag and to explicitly check for var-ness and earlier (to the left in the list of
 conditions) and accept it (e.g. break(var)) or reject it (e.g. nonvar(X)).
 
@@ -97,7 +97,7 @@ The behaviour is as follows for the various tags allowed in conditions:
 
 break/1
 
-- Check precondition fails: 
+- Check precondition fails:
   An exception (generally a 'uninstantiated error' exception) is thrown.
 - Verification fails:
   The condition succeeds, leading to examination of the next condition to the right.
@@ -106,51 +106,51 @@ break/1
 
 smooth/1
 
-- Precondition fails: 
-  The condition fails, leading to the whole of check_that/N failing. 
+- Precondition fails:
+  The condition fails, leading to the whole of check_that/N failing.
   This is like the behaviour of prolog predicates like atom/N when
   they are given an uninstantiated term: They just fail.
-- Verification fails: 
-  The condition fails, leading to the whole of check_that/N failing. 
+- Verification fails:
+  The condition fails, leading to the whole of check_that/N failing.
 - Verification succeeds:
   The condition succeeds, leading to examination of the next condition to the right.
 
 soft/1
 
-- Precondition fails: 
+- Precondition fails:
   An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails: 
-  The condition fails, leading to the whole of check_that/N failing. 
+- Verification fails:
+  The condition fails, leading to the whole of check_that/N failing.
 - Verification succeeds:
   The condition succeeds, leading to examination of the next condition to the right.
 
 tuned/1 and the "Throw" flag is unset: behaves like soft/1
 
-- Precondition fails: 
+- Precondition fails:
   An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails: 
-  The condition fails, leading to the whole of check_that/N failing. 
+- Verification fails:
+  The condition fails, leading to the whole of check_that/N failing.
 - Verification succeeds:
   The condition succeeds, leading to examination of the next condition to the right.
 
 tuned/1 and the "Throw" flag is set: behaves like hard/1
 
-- Precondition fails: 
+- Precondition fails:
   An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails: 
+- Verification fails:
   An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
 - Verification succeeds:
   The condition succeeds, leading to examination of the next condition to the right.
-  
-hard/1 
 
-- Check precondition fails: 
+hard/1
+
+- Check precondition fails:
   An exception (generally a 'uninstantiated error' exception) is thrown.
-- Check verification fails: 
+- Check verification fails:
   An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
 - Verification succeeds:
   The condition succeeds, leading to examination of the next condition to the right.
- 
+
 Synopsis:
 
   Fail if X is not a string
@@ -653,7 +653,7 @@ precondition_X_must_be_instantiated(X,Name,Ness,Throw) :-
       throw_is_set(Throw), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
       format(string(Msg),"~s should be instantiated. Can't check for '~s-ness'",[Name2,Ness]),
-      throw_2(too_little_instantiation,Msg,X)
+      throw_2(instantiation,Msg,X)
    ).
 
 % special case precondition: the list
@@ -693,7 +693,7 @@ throw_or_fail(Error,X,Name,Throw,Ness) :-
 throw_or_fail_with_message(Msg,X,Throw) :-
    throw_is_set(Throw), % if this fails, the call fails (which is what we want)
    throw_2(type,Msg,X).
- 
+
 % ---
 % Basement throwing predicate constructing the exception term itself.
 % ---
@@ -703,7 +703,7 @@ throw_2(type(Expected),Msg,Culprit)               :- throw(error(check(type     
 throw_2(domain,Msg,Culprit)                       :- throw(error(check(domain                   ,_       ,Msg,Culprit),_)).
 throw_2(type,Msg,Culprit)                         :- throw(error(check(type                     ,_       ,Msg,Culprit),_)).
 throw_2(too_much_instantiation,Msg,Culprit)       :- throw(error(check(too_much_instantiation   ,_       ,Msg,Culprit),_)). % ISO's "uninstantiation error"
-throw_2(too_little_instantiation,Msg,Culprit)     :- throw(error(check(too_little_instantiation ,_       ,Msg,Culprit),_)). % ISO's "instantiation error"
+throw_2(instantiation,Msg,Culprit)     :- throw(error(check(instantiation ,_       ,Msg,Culprit),_)). % ISO's "instantiation error"
 throw_2(passall,Msg,Culprit)                      :- throw(error(check(passall                  ,_       ,Msg,Culprit),_)).
 throw_2(passany,Msg,Culprit)                      :- throw(error(check(passany                  ,_       ,Msg,Culprit),_)).
 throw_2(passnone,Msg,Culprit)                     :- throw(error(check(passnone                 ,_       ,Msg,Culprit),_)).
@@ -748,7 +748,7 @@ prolog:error_message(check(Type,Expected,Msg,Culprit)) -->
 extended_msg(domain,                   "the culprit is outside the required domain").
 extended_msg(type,                     "the culprit is not of the required type").
 extended_msg(too_much_instantiation,   "the culprit is already (fully) instantiated").
-extended_msg(too_little_instantiation, "the culprit is not instantiated (enough)").
+extended_msg(instantiation, "the culprit is not instantiated (enough)").
 extended_msg(not_ground,               "the culprit should be ground").
 extended_msg(random,                   "this is a random error due to the outcome of maybe/1").
 
@@ -842,7 +842,7 @@ eval(nonvar,X,Name,Throw,_TP) :-
    ->
    true
    ;
-   throw_or_fail(too_little_instantiation,X,Name,Throw,"nonvar").
+   throw_or_fail(instantiation,X,Name,Throw,"nonvar").
 
 eval(ground,X,Name,Throw,_TP) :-
    ground(X)

@@ -12,15 +12,15 @@ space_to_dot(R,O) :- re_replace("\\s"/g,".",R,O).
 % Shorty calls, easy to read.
 % ---
 
-test("simple left",   true(O == "Hello,.World........")) :- 
+test("simple left",   true(O == "Hello,.World........")) :-
    justify_left("Hello, World",20,R,string,_),
    space_to_dot(R,O).
 
-test("simple right",  true(O == "........Hello,.World")) :- 
+test("simple right",  true(O == "........Hello,.World")) :-
    justify_right("Hello, World",20,R,string,_),
    space_to_dot(R,O).
 
-test("simple center", true(O == "....Hello,.World....")) :- 
+test("simple center", true(O == "....Hello,.World....")) :-
    justify_center("Hello, World",20,R,string,_),
    space_to_dot(R,O).
 

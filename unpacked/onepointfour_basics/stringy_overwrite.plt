@@ -23,7 +23,116 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 
 % :- debug(repeatedly_overwrite).
 
-:- begin_tests(stringy_overwrite).
+:- begin_tests(stringy_overwrite_detail_tests).
+
+bg_text("The universe can still end in the time you're computing the answer.").
+fg_text("(computation is like maxing out your credit card)").
+
+test("Overwrite with positive position, in the middle of the background text") :-
+   bg_text(BgText),
+   fg_text(FgText),
+   overwrite(BgText,FgText,10,false,false,Result,string),
+   assertion(Result == "The univer(computation is like maxing out your credit card) answer.").
+
+test("Overwrite with positive position, overshooting at the right") :-
+   bg_text(BgText),
+   fg_text(FgText),
+   overwrite(BgText,FgText,29,false,false,Result,string),
+   assertion(Result == "The universe can still end in(computation is like maxing out your credit card)").
+
+test("Overwrite with negative position, overshooting at the left") :-
+   bg_text(BgText),
+   fg_text(FgText),
+   overwrite(BgText,FgText,-9,false,false,Result,string),
+   assertion(Result == "(computation is like maxing out your credit card)ou're computing the answer.").
+
+test("Overwrite with positive position, overshooting at the right, but cut on both sides") :-
+   bg_text(BgText),
+   fg_text(FgText),
+   overwrite(BgText,FgText,29,true,true,Result,string),
+   assertion(Result == "The universe can still end in(computation is like maxing out your c").
+
+test("Overwrite with negative position, overshooting at the left, but cut on both sides") :-
+   bg_text(BgText),
+   fg_text(FgText),
+   overwrite(BgText,FgText,-9,true,true,Result,string),
+   assertion(Result == "ion is like maxing out your credit card)ou're computing the answer.").
+
+test("Overwrite empty background at position 0, the result is the foreground") :-
+   fg_text(FgText),
+   overwrite("",FgText,0,false,false,Result,string),
+   assertion(Result == FgText).
+
+test("Overwrite empty background at position 0, cutting; the result is empty") :-
+   fg_text(FgText),
+   overwrite("",FgText,0,true,true,Result,string),
+   assertion(Result == "").
+
+test("Wanted output type: string") :-
+   overwrite("alfabeta","beta",0,true,true,Result,string),
+   assertion(Result == "betabeta").
+
+test("Wanted output type: atom") :-
+   overwrite('alfabeta','beta',0,true,true,Result,atom),
+   assertion(Result == 'betabeta').
+
+test("Guess the output type: string") :-
+   overwrite("alfabeta","beta",0,true,true,Result,ResultType),
+   assertion(Result == "betabeta"),
+   assertion(ResultType == string).
+
+test("Guess the output type: atom") :-
+   overwrite('alfabeta','beta',0,true,true,Result,ResultType),
+   assertion(Result == 'betabeta'),
+   assertion(ResultType == atom).
+
+test("Guess the output type: can't",error(check(instantiation,_,_,_))) :-
+   overwrite('alfabeta',"beta",0,true,true,_Result,_ResultType).
+
+test("Accept result: Correct #1") :-
+   overwrite("alfabeta","beta",0,true,true,"betabeta",_).
+
+test("Accept result: Correct #2") :-
+   overwrite("alfabeta","beta",0,true,true,"betabeta",string).
+
+test("Accept result: Correct #3") :-
+   overwrite('alfabeta','beta',0,true,true,"betabeta",string).
+
+test("Accept result: Correct #4") :-
+   overwrite('alfabeta',"beta",0,true,true,"betabeta",string).
+
+test("Accept result: Correct #5") :-
+   overwrite("alfabeta","beta",0,true,true,'betabeta',_).
+
+test("Accept result: Correct #6") :-
+   overwrite("alfabeta","beta",0,true,true,'betabeta',atom).
+
+test("Accept result: Fail, Bad type #1",fail) :-
+   overwrite("alfabeta","beta",0,true,true,'betabeta',string).
+
+test("Accept result: Fail, Bad type #2",fail) :-
+   overwrite("alfabeta","beta",0,true,true,"betabeta",atom).
+
+test("Accept result: Fail, Bad string, free type",fail) :-
+   overwrite("alfabeta","beta",0,true,true,"foo",_).
+
+test("Accept result: Fail, Bad string, correct type",fail) :-
+   overwrite("alfabeta","beta",0,true,true,"foo",string).
+
+test("Accept result: Fail, Bad string, bad type",fail) :-
+   overwrite("alfabeta","beta",0,true,true,"foo",atom).
+
+test("Accept result: Fail, Bad result type",fail) :-
+   overwrite("alfabeta","beta",0,true,true,122,_). % Should this throw or fail? Make tunable!
+
+test("Bad ResultType leads to exception",error(check(domain,_,_,_),_)) :-
+   overwrite("alfabeta","beta",0,true,true,_Result,foo).
+
+:- end_tests(stringy_overwrite_detail_tests).
+
+% ----------------
+
+:- begin_tests(stringy_overwrite_mass_tests).
 
 repeatedly_overwrite(
       range(StartPos,EndPos),
@@ -32,7 +141,7 @@ repeatedly_overwrite(
       cutflags(CutLeft,CutRight),
       out(FgPos,Result),
       aux(Want)) :-
-   between(StartPos,EndPos,FgPos), 
+   between(StartPos,EndPos,FgPos),
    call(Goal,Bg,Fg,FgPos,CutLeft,CutRight,Result,Want),
    debug(repeatedly_overwrite,"[~d,~q],",[FgPos,Result]).
 
@@ -353,5 +462,5 @@ test("Char-by-Char 7",[true(T)]) :-
 test("Runs 7",[true(T)]) :-
    repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(overwrite_using_runs,T).
 
-:- end_tests(stringy_overwrite).
+:- end_tests(stringy_overwrite_mass_tests).
 

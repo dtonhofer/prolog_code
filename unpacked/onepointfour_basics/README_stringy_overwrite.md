@@ -1,6 +1,6 @@
 # `stringy_overwrite.pl`
 
-- [`stringy_overwrite.pl`](stringy_overwrite.pl) (MIT license) 
+- [`stringy_overwrite.pl`](stringy_overwrite.pl) (MIT license)
 - [`stringy_overwrite.plt`](stringy_overwrite.plt) (0BSD license)
 
 ## Synopsis
@@ -24,7 +24,7 @@ overwrite(+BgText:stringy,
 Explicitly selecting processing by "chars" or "runs":
 
 ```
-overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType)  
+overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType)
 ```
 
 ```
@@ -33,7 +33,7 @@ overwrite_using_chars(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType)
 
 ## Description
 
-The predicate `overwrite/7`, described as 
+The predicate `overwrite/7`, described as
 
 ```
 overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
