@@ -5,6 +5,10 @@ A more powerful replacement for the venerable [`must_be/2`](https://eu.swi-prolo
 - [`checks.pl`](checks.pl) (MIT license)
 - [`checks.plt`](checks.plt) (0BSD license)
 
+TODO:
+
+I seems one sometimes wants to provide an explicit error message instead of having check_that construct a confusing one. Make that possible!
+
 This page needs completion. For now, all the description is in [`checks.pl`](checks.pl).
 
 ## Keywords implemented so far
