@@ -3,6 +3,36 @@
 - [`stringy_overwrite.pl`](stringy_overwrite.pl) (MIT license) 
 - [`stringy_overwrite.plt`](stringy_overwrite.plt) (0BSD license)
 
+## Synopsis
+
+- Overwriting is done using "runs" (i.e. strings), not character-by-character.
+- A "stringy" is an atom or string.
+- A "stringy_typeid" is one of the atoms `atom` or `string`.
+
+Default:
+
+```
+overwrite(+BgText:stringy,
+          +FgText:stringy,
+          +FgPos:integer,
+          +CutLeft:boolean,
+          +CutRight:boolean,
+          -Result:stringy,
+          ?ResultType:stringy_typeid)
+```
+
+Explicitly selecting processing by "chars" or "runs":
+
+```
+overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType)  
+```
+
+```
+overwrite_using_chars(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType)
+```
+
+## Description
+
 The predicate `overwrite/7`, described as 
 
 ```
