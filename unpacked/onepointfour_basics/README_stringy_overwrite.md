@@ -140,3 +140,7 @@ against the one using strings.
 
 Please refer to the [README.md](README.md) file.
 
+## TODO
+
+- Add a predicate taking a `Throw` boolean to make the predicate throw if `Result` is provided but out-of-type (e.g. an integer).
+
