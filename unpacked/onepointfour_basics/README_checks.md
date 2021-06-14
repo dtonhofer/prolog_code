@@ -220,9 +220,10 @@ uninstantiated. In either case, we have something dubious.
 | `list`,`proper_list`                | throws          | proper list, including the empty list. (**TODO: open lists**) |
 | `nonempty_list`                     | throws          | proper list that is not empty. |
 | `dict`                              | throws          | SWI-Prolog _dict_ (which is a compound term following some special requirements). |
-| `cyclic`                            | covered by test | term that has a cyclic structure _now_.<br>An unbound TBC leads to failure (if `soft/1`) |
-| `acyclic_now`                       | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground.<br>`check_that(_,hard(acyclic_now)).` succeeds. |
-| `acyclic_forever`                   | covered by test | term that is both ground and acyclic and will never become cyclic. |
+| `cyclic`                            | throws          | term for which one can unambiguously decide whether it is cyclic. |
+| `cyclic_now`                        | covered by test | term that has a cyclic structure _now_.<br>`check_that(_,soft(cyclic_now))` fails. |
+| `acyclic_now`                       | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground.<br>`check_that(_,soft(acyclic_now)).` succeeds. |
+| `acyclic_forever`                   | covered by test | term that is both ground and acyclic and will never become cyclic.<br>`check_that(_,soft(acyclic_forever)).` fails. |
 | `stream`                            | throws          | term that is either "stream name" (certain _atoms_) or a valid _stream handle_ (certain _blobs_).<br>The known stream names are `user_input`, `user_output`, `user_error`, `current_input`, `current_output`. |
 | `unifies(Z)`                        | covered by test | term that unifies with `Z`. Unification is rolled back by use `\+ \+`. |
 | `member(ListOfValues)`              | throws          | term that is member of the `ListOfValues`. Membership test is _unification_, as for `member/2`. |
