@@ -274,7 +274,34 @@ Consider the "instantiation career" of a term, going from "most uninstantiated" 
         ground acylic                ground cyclic
 ```
 
-We would like to see predicates which throw until they can be sure:
+For example
+
+```
+                             X=_
+                   not "cyclic", "acyclic"
+                             |
+                             V
+              +--------------+-------------+
+              |                            |
+              V                            |
+            X=s(_)                         |
+   not "cyclic", "acyclic"                 |
+              |                            |
+              +----------------------------+
+              |                            |
+              |                            V
+              |                         X=s(X,_)
+              |                 "cyclic", not "acyclic"
+              |                            |
+              V                            V
+            X=s(a)                      X=s(X,a)
+    not "cyclic", "acyclic"              X=s(X)
+                                "cyclic", not "acyclic"
+```
+
+We would like to see predicates which throw until they can be sure, which is not the case with
+the SWI-Prolog builtins [`cyclic_term/1`](https://eu.swi-prolog.org/pldoc/doc_for?object=cyclic_term/1)
+and [`acyclic_term/1`](https://eu.swi-prolog.org/pldoc/man?predicate=acyclic_term/1).
 
 "noncylic" or "acyclic_now" means that the term has currently no cyclic structures, but may acquire them later.
 
