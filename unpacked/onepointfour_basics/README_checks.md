@@ -169,7 +169,7 @@ uninstantiated. In either case, we have something dubious.
 | :--                                 | :--             | :-- |
 | `true`                              | doesn't care    | This check always succeeds, whatever TBC is. |
 | `false`,`fail`                      | doesn't care    | This check always fails, whatever TBC is. |
-| `random(Probability)`               | doesn't care    | This check randomly fails with probability 0 =< `Probability` =< 1. Useful for playing chaos monkey. |
+| `random(Probability)`               | doesn't care    | This check randomly fails with probability 0 =< `Probability` =< 1.<br>Useful for playing chaos monkey. |
 | `var`                               | covered by test | uninstantiated term. |
 | `nonvar`                            | covered by test | instantiated term. |
 | `nonground`                         | covered by test | nonground term (and thus may be uninstantiated). |
@@ -184,10 +184,10 @@ uninstantiated. In either case, we have something dubious.
 | `nonempty_stringy`                  | throws          | nonempty _stringy_: a _stringy_ that is different from `''` and `""`. |
 | `char`                              | throws          | _atom_ of length 1. This is the traditional Prolog _char_ type. |
 | `char_list`,`chars`                 | throws          | proper list of 0 or more _chars_. Unbound elements are not allowed. |
-| `code`                              | throws          | _integer_ between 0 and 0x10FFFF (a Unicode code point). Detailed range checks are not done. |
+| `code`                              | throws          | _integer_ between 0 and 0x10FFFF (a Unicode code point).<br>Detailed range checks are not done. |
 | `code_list,codes`                   | throws          | proper list of 0 or more _codes_. Unbound elements are not allowed. |
 | `chary`                             | throws          | _char_ or a _code_. |
-| `chary_list`,`charys`               | throws          | proper list of 0 or more _chars_ or _codes_ (but consistently only one of those). Unbound elements are not allowed. |
+| `chary_list`,`charys`               | throws          | proper list of 0 or more _chars_ or _codes_ (but consistently only one of those).<br>Unbound list elements cause an exception. |
 | `stringy_typeid`                    | throws          | one of the atoms `string` or `atom`. Compare with the check `boolean`. |
 | `chary_typeid`                      | throws          | one of the atoms `char` or `code`. Compare with the check `boolean`. |
 | `number`                            | throws          | _number_ (encompasses _float_, _rational_, _integer_). |
@@ -220,10 +220,10 @@ uninstantiated. In either case, we have something dubious.
 | `list`,`proper_list`                | throws          | proper list, including the empty list. (**TODO: open lists**) |
 | `nonempty_list`                     | throws          | proper list that is not empty. |
 | `dict`                              | throws          | SWI-Prolog _dict_ (which is a compound term following some special requirements). |
-| `cyclic`                            | covered by test | term that has a cyclic structure. |
-| `acyclic`                           | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground. |
+| `cyclic`                            | covered by test | term that has a cyclic structure _now_.<br>An unbound TBC leads to failure (if `soft/1`) |
+| `acyclic_now`                       | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground.<br>`check_that(_,hard(acyclic_now)).` succeeds. |
 | `acyclic_forever`                   | covered by test | term that is both ground and acyclic and will never become cyclic. |
-| `stream`                            | throws          | term that is either "stream name" (certain _atoms_) or a valid _stream handle_ (certain _blobs_). |
+| `stream`                            | throws          | term that is either "stream name" (certain _atoms_) or a valid _stream handle_ (certain _blobs_).<br>The known stream names are `user_input`, `user_output`, `user_error`, `current_input`, `current_output`. |
 | `unifies(Z)`                        | covered by test | term that unifies with `Z`. Unification is rolled back by use `\+ \+`. |
 | `member(ListOfValues)`              | throws          | term that is member of the `ListOfValues`. Membership test is _unification_, as for `member/2`. |
 | `forall(ListOfChecks)`              | depends         | TBC must pass all checks in `ListOfChecks`. Recursive. Same as writing the checks down normally, thus not really useful. |
@@ -386,7 +386,7 @@ false.
     3) select those which should be removed based on program structure: eg. all those in module XY should be removed
        this also seems a case for the compilation phase
        
-## Desgin question especially clear in case of complex checking of lists:
+## Design question especially clear in case of complex checking of lists:
 
   - The structure to test may have multiple layers of testing. For example, for a "proper list of char":
     - X is a var             -> fail or exception
@@ -406,5 +406,31 @@ false.
     X uninstantiated -> throw instantiation error
     X instantiated but not of the correct type (e.g. expecting integer but it's a float) -> throw type error
     X of the correct type but not in the correct domain (e.g. expecting positive integer but it's negative) -> throw domain error
+
+## Bugs
+
+Good:
+
+```
+?- check_that([a,_,b],hard(chars)).
+ERROR: check failed : instantiation error (the culprit is not instantiated (enough))
+ERROR:    message   : the value should be instantiated. Can't check for 'atom-ness'
+```
+
+```
+?- check_that([a,_,b],soft(chars)).
+ERROR: check failed : instantiation error (the culprit is not instantiated (enough))
+ERROR:    message   : the value should be instantiated. Can't check for 'atom-ness'
+```
+
+But:
+
+```
+?- check_that([1,_,b],soft(chars)).
+false.
+```
+
+because the above fails at `1`. It should throw.
+
 
 
