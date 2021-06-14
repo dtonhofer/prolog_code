@@ -221,6 +221,7 @@ uninstantiated. In either case, we have something dubious.
 | `nonempty_list`                     | throws          | proper list that is not empty. |
 | `dict`                              | throws          | SWI-Prolog _dict_ (which is a compound term following some special requirements). |
 | `cyclic`                            | covered by test | term that has a cyclic structure _now_.<br>An unbound TBC leads to failure (if `soft/1`) |
+
 | `acyclic_now`                       | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground.<br>`check_that(_,hard(acyclic_now)).` succeeds. |
 | `acyclic_forever`                   | covered by test | term that is both ground and acyclic and will never become cyclic. |
 | `stream`                            | throws          | term that is either "stream name" (certain _atoms_) or a valid _stream handle_ (certain _blobs_).<br>The known stream names are `user_input`, `user_output`, `user_error`, `current_input`, `current_output`. |
@@ -294,26 +295,28 @@ For example
               |                 "cyclic", not "acyclic"
               |                            |
               V                            V
-            X=s(a)                      X=s(X,a)
-    not "cyclic", "acyclic"              X=s(X)
-                                "cyclic", not "acyclic"
+            X=s(a)                       X=s(X)
+    not "cyclic", "acyclic"      "cyclic", not "acyclic"         
+                                
 ```
 
-We would like to see predicates which throw until they can be sure, which is not the case with
-the SWI-Prolog builtins [`cyclic_term/1`](https://eu.swi-prolog.org/pldoc/doc_for?object=cyclic_term/1)
+We would like to see a predicate which throws unless it can be sure, which is not the case with
+the builtins [`cyclic_term/1`](https://eu.swi-prolog.org/pldoc/doc_for?object=cyclic_term/1)
 and [`acyclic_term/1`](https://eu.swi-prolog.org/pldoc/man?predicate=acyclic_term/1).
 
-"noncylic" or "acyclic_now" means that the term has currently no cyclic structures, but may acquire them later.
+The predicates `cyclic_term/1` and `acyclic_term/1` are in fact "second order": They
+say something about the current state of computation, not about the term they are examining.
 
-As such that predicate is "second order": It says something about the state of computation, not about the term.
+We define the following four checks, where `acyclic_now` corresponds exactly to `acyclic_term/1`
+and `cyclic_now` corresponds exactly to `cyclic_term/1`. Conditions using those check never throw.
 
-|                         | `cyclic`           | `acyclic_now`         | `acyclic_forever` | `cyclic_now`          |
-| :--                     | :--                | :--                   | :--               | :--                   |
-| **uninstantiated**      | throw              | true (could change)   | false             | false (could change)  |
-| **nonground noncyclic** | throw              | true (could change)   | false             | false (could change)  |
-| **ground acylic**       | fail (for sure)    | true (for sure)       | true (for sure)   | false (for sure)      |
-| **nonground cyclic**    | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
-| **ground cyclic**       | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
+|                       | `cyclic`  | `cyclic_now`<br>(`cyclic_term/1`)  | `acyclic_now`<br>(`acyclic_term/1`)  | `acyclic_forever` |
+| :--                   | :--                | :--                   | :--                   | :--               |
+| **uninstantiated**    | **throw**          | false (could change)  | true (could change)   | false             |
+| **nonground acyclic** | **throw**          | false (could change)  | true (could change)   | false             |
+| **ground acylic**     | fail (for sure)    | false (for sure)      | true (for sure)       | true              |
+| **nonground cyclic**  | succeed (for sure) | true (for sure)       | false (for sure)      | false             |
+| **ground cyclic**     | succeed (for sure) | true (for sure)       | false (for sure)      | false             |
 
 ## Examples
 
