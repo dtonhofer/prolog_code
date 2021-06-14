@@ -252,7 +252,7 @@ atomoform_checks(
    list,proper_list,
    nonempty_list,
    dict,
-   cyclic,acyclic_now,acyclic_forever,
+   cyclic,cyclic_now,acyclic_now,acyclic_forever,
    stream
    ]
 ).
@@ -284,21 +284,21 @@ outcome_branching(next,_,More,X,Name,Throw)  :- !,check_that_2(More,X,Name,Throw
 outcome_branching(Outcome,Condition,_,_,_,_) :- throw_various(unknown_outcome,"bug: condition yields unknown outcome",[Condition,Outcome]).
 
 check_that_3(break(Check),X,Name,_Throw,Outcome) :-
-   eval(Check,X,Name,fail,throw) % fail for eval, throw for precondition
+   eval(Check,X,Name,false,throw) % fail for eval, throw for precondition
    ->
    Outcome = break
    ;
    Outcome = next.
 
 check_that_3(smooth(Check),X,Name,_Throw,Outcome) :-
-   eval(Check,X,Name,fail,fail)  % fail for eval, fail for precondition
+   eval(Check,X,Name,false,false)  % fail for eval, fail for precondition
    ->
    Outcome = next
    ;
    Outcome = fail.
 
 check_that_3(soft(Check),X,Name,_Throw,Outcome) :-
-   eval(Check,X,Name,fail,throw)  % fail for eval, throw for precondition
+   eval(Check,X,Name,false,throw)  % fail for eval, throw for precondition
    ->
    Outcome = next
    ;
@@ -333,16 +333,16 @@ throw_is_set(Throw) :- Throw==throw.
 % ---
 
 precondition_X_must_be_instantiated(X,Name,Ness,Throw) :-
-   nonvar(X)
+   var(X)
    ->
-   true
-   ;
    (
       throw_is_set(Throw), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
-      format(string(Msg),"~s should be instantiated. Can't check for '~s-ness'",[Name2,Ness]),
+      format(string(Msg),"~s must not be uninstantiated. Can't check for '~s-ness'",[Name2,Ness]),
       throw_2(instantiation,Msg,X)
-   ).
+   )
+   ;
+   true.
 
 % special case precondition: the list
 
@@ -354,9 +354,26 @@ precondition_X_must_be_list(X,Name,Ness,Throw) :-
    (
       throw_is_set(Throw), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
-      format(string(Msg),"~s should be a proper list. Can't check for '~s-ness'",[Name2,Ness]),
+      format(string(Msg),"~s must be a proper list. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
    ).
+
+precondition_X_must_allow_to_decide_whether_cyclic(X,Name,Throw) :-
+   var(X),
+   !, % commit, then fail or throw
+   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+   select_name(Name,Name2),
+   format(string(Msg),"~s must not be uninstantiated. Can't say anything about cyclic-ness.",[Name2]),
+   throw_2(instantiation,Msg,X).
+precondition_X_must_allow_to_decide_whether_cyclic(X,Name,Throw) :-
+   \+ground(X),
+   acyclic_term(X),
+   !, % commit, then fail or throw
+   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+   select_name(Name,Name2),
+   format(string(Msg),"~s must not be 'nonground and cyclic'. Can't say anything about cyclic-ness.",[Name2]),
+   throw_2(instantiation,Msg,X).
+precondition_X_must_allow_to_decide_whether_cyclic(_,_,_). % default accepts anything
 
 % ---
 % Predicates which check whether the Throw flag is set, and if so,
@@ -994,36 +1011,34 @@ eval(fail(Msg),X,_,Throw,_) :-
 eval(unifies(Z),X,_,_,_) :-
    \+ \+ (Z = X).
 
-% These REALLY are "second order" (i.e. about how the terms are represented)
-% Indeed, asking whether an unbound variable is cyclic or not makes some.
-% These questoins are actually too rough.
-% One might have:
-% 1) Assuredly cyclic
-% 2) Not cyclic for now but can become cyclic later (case of any nonground
-%    compound, including the unbound variable)
-% 3) Not cyclic now and cannot become cyclic later (case of atomic or
-%    ground compound)
-
-eval(cyclic,X,Name,Throw,_TP) :-
-   cyclic_term(X) % fails on X unbound, which is ok
+eval(acyclic_now,X,Name,Throw,_) :-
+   acyclic_term(X) % never throws
    ->
    true
    ;
-   throw_or_fail(type,X,Name,Throw,"cyclic").
+   throw_or_fail(domain,X,Name,Throw,"acyclic_now"). % is domain right here?
 
-eval(acyclic_now,X,Name,Throw,_TP) :-
-   \+ cyclic_term(X)
+eval(cyclic_now,X,Name,Throw,_) :-
+   cyclic_term(X) % never throws
    ->
    true
    ;
-   throw_or_fail(type,X,Name,Throw,"tentatively acyclic").
+   throw_or_fail(domain,X,Name,Throw,"cyclic_now"). % is domain right here?
 
-eval(acyclic_forever,X,Name,Throw,_TP) :-
-   (ground(X),\+ cyclic_term(X))
+eval(acyclic_forever,X,Name,Throw,_) :-
+   (ground(X),acyclic_term(X)) % never throws
    ->
    true
    ;
-   throw_or_fail(type,X,Name,Throw,"acyclic now and cannot become cyclic later").
+   throw_or_fail(domain,X,Name,Throw,"acyclic_forever"). % is domain right here?
+
+eval(cyclic,X,Name,Throw,TP) :-
+   precondition_X_must_allow_to_decide_whether_cyclic(X,Name,TP),
+   (cyclic_term(X)
+    ->
+    true
+    ;
+    throw_or_fail(domain,X,Name,Throw,"cyclic")). % is domain right here?
 
 eval(stream,X,Name,Throw,TP) :-
    precondition_X_must_be_instantiated(X,Name,"stream",TP),

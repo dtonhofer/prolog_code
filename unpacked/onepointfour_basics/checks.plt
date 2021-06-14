@@ -36,10 +36,10 @@ test("no conditions always succeed #2") :-
 :- begin_tests(check_that_using_var).
 
 test("var, success") :-
-   check_that(_,[tuned(var)]).
+   check_that(_,[soft(var)]).
 
 test("var, failure", fail) :-
-   check_that(foo,[tuned(var)]).
+   check_that(foo,[soft(var)]).
 
 test("var, failure, throw", error(check(uninstantiation,_,_,_))) :-
    check_that(foo,[hard(var)]).
@@ -51,10 +51,10 @@ test("var, failure, throw", error(check(uninstantiation,_,_,_))) :-
 :- begin_tests(check_that_using_nonvar).
 
 test("nonvar, success") :-
-   check_that(foo,[tuned(nonvar)]).
+   check_that(foo,[soft(nonvar)]).
 
 test("nonvar, failure", fail) :-
-   check_that(_,[tuned(nonvar)]).
+   check_that(_,[soft(nonvar)]).
 
 test("nonvar, failure, throw", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(nonvar)]).
@@ -68,11 +68,11 @@ test("nonvar, failure, throw", error(check(instantiation,_,_,_))) :-
 test("nonground, success") :-
    forall(
       member(X,[_,f(_)]),
-      check_that(X,[tuned(nonground)])
+      check_that(X,[soft(nonground)])
    ).
 
 test("nonground, failure", fail) :-
-   check_that(foo,[tuned(nonground)]).
+   check_that(foo,[soft(nonground)]).
 
 test("nonground, failure, throw", error(check(domain,_,_,_))) :-
    check_that(foo,[hard(nonground)]).
@@ -84,12 +84,12 @@ test("nonground, failure, throw", error(check(domain,_,_,_))) :-
 :- begin_tests(check_that_using_ground).
 
 test("ground, success") :-
-   check_that(foo,[tuned(ground)]).
+   check_that(foo,[soft(ground)]).
 
 test("ground, failure") :-
    forall(
       member(X,[_,f(_)]),
-      \+ check_that(X,[tuned(ground)])
+      \+ check_that(X,[soft(ground)])
    ).
 
 test("ground, failure on var, throw", error(check(domain,_,_,_))) :-
@@ -105,24 +105,21 @@ test("ground, failure on nonvar, throw", error(check(domain,_,_,_))) :-
 :- begin_tests(check_that_using_atom).
 
 test("atom, success") :-
-   check_that(foo,[tuned(atom)]).
+   check_that(foo,[soft(atom)]).
 
-test("atom, lenient, failure") :-
+test("atom, soft, failure") :-
    forall(
       member(X,[1,f(g),"lol",f(_)]),
-      \+ check_that(X,[tuned(atom)])
+      \+ check_that(X,[soft(atom)])
    ).
 
-test("atom, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("atom, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(444,[hard(atom)]).
 
-test("atom, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("atom, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(atom)]).
 
-test("atom, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(atom)]).
-
-test("atom, fully lenient, fail on nonground X", fail) :-
+test("atom, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(atom)]).
 
 :- end_tests(check_that_using_atom).
@@ -134,22 +131,19 @@ test("atom, fully lenient, fail on nonground X", fail) :-
 test("atomic, success") :-
    forall(
       member(X,[1,foo,"lol"]),
-      check_that(X,[tuned(atomic)])
+      check_that(X,[soft(atomic)])
    ).
 
 test("atomic, failure",fail) :-
-   check_that(f(g(x)),[tuned(atomic)]).
+   check_that(f(g(x)),[soft(atomic)]).
 
-test("atomic, strict failure, throw type error", error(check(type,_,_,_))) :-
+test("atomic, hard failure, throw type error", error(check(type,_,_,_))) :-
    check_that(f(g),[hard(atomic)]).
 
-test("atomic, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("atomic, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(atomic)]).
 
-test("atomic, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(atomic)]).
-
-test("atomic, fully lenient, fail on uninstantiated X", fail) :-
+test("atomic, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(atomic)]).
 
 :- end_tests(check_that_using_atomic).
@@ -161,25 +155,22 @@ test("atomic, fully lenient, fail on uninstantiated X", fail) :-
 test("compound, success") :-
    forall(
       member(X,[f(g),f(_)]),
-      check_that(X,[tuned(compound)])
+      check_that(X,[soft(compound)])
    ).
 
 test("compound, failure") :-
    forall(
       member(X,[1,foo,"lol"]),
-      \+check_that(X,[tuned(compound)])
+      \+check_that(X,[soft(compound)])
    ).
 
-test("compound, strict failure, throw type error", error(check(type,_,_,_))) :-
+test("compound, hard failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(compound)]).
 
-test("compound, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("compound, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(compound)]).
 
-test("compound, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(compound)]).
-
-test("compound, fully lenient, fail on uninstantiated X", fail) :-
+test("compound, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(compound)]).
 
 :- end_tests(check_that_using_compound).
@@ -191,37 +182,34 @@ test("compound, fully lenient, fail on uninstantiated X", fail) :-
 test("boolean, success") :-
    forall(
       member(X,[false,true]),
-      check_that(X,[tuned(boolean)])
+      check_that(X,[soft(boolean)])
    ).
 
 test("boolean, failure") :-
    forall(
       member(X,[1,0,y,n,yes,no,f(x),f(_),alpha,[],'',"","false","true"]),
-      \+check_that(X,[tuned(boolean)])
+      \+check_that(X,[soft(boolean)])
    ).
 
-test("boolean, strict, type exception") :-
+test("boolean, hard, type exception") :-
    forall(
       member(X,[1,0,f(x),f(_),"false","true"]),
       catch(check_that(X,[hard(boolean)]),error(check(type,_,_,_),_),true)
    ).
 
-test("boolean, strict, domain exception") :-
+test("boolean, hard, domain exception") :-
    forall(
       member(X,[yes,no,'']),
       catch(check_that(X,[hard(boolean)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("boolean, strict failure, throw type error", error(check(type,_,_,_))) :-
+test("boolean, hard failure, throw type error", error(check(type,_,_,_))) :-
    check_that(g(g),[hard(boolean)]).
 
-test("boolean, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("boolean, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(boolean)]).
 
-test("boolean, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(boolean)]).
-
-test("boolean, fully lenient, fail on uninstantiated X", fail) :-
+test("boolean, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(boolean)]).
 
 :- end_tests(check_that_using_boolean).
@@ -233,34 +221,31 @@ test("boolean, fully lenient, fail on uninstantiated X", fail) :-
 test("stringy_typeid, success") :-
    forall(
       member(X,[atom,string]),
-      check_that(X,[tuned(stringy_typeid)])
+      check_that(X,[soft(stringy_typeid)])
    ).
 
 test("stringy_typeid, failure") :-
    forall(
       member(X,[foo,"","atom","string",1,0]),
-      \+check_that(X,[tuned(stringy_typeid)])
+      \+check_that(X,[soft(stringy_typeid)])
    ).
 
-test("stringy_typeid, strict, type exception") :-
+test("stringy_typeid, hard, type exception") :-
    forall(
       member(X,[1,0,f(x),"atom","string"]),
       catch(check_that(X,[hard(stringy_typeid)]),error(check(type,_,_,_),_),true)
    ).
 
-test("stringy_typeid, strict, domain exception") :-
+test("stringy_typeid, hard, domain exception") :-
    forall(
       member(X,[yes,no,'']),
       catch(check_that(X,[hard(stringy_typeid)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("stringy_typeid, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("stringy_typeid, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(stringy_typeid)]).
 
-test("stringy_typeid, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(stringy_typeid)]).
-
-test("stringy_typeid, fully lenient, fail on uninstantiated X", fail) :-
+test("stringy_typeid, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(stringy_typeid)]).
 
 
@@ -273,34 +258,31 @@ test("stringy_typeid, fully lenient, fail on uninstantiated X", fail) :-
 test("chary_typeid, success") :-
    forall(
       member(X,[char,code]),
-      check_that(X,[tuned(chary_typeid)])
+      check_that(X,[soft(chary_typeid)])
    ).
 
 test("chary_typeid, failure") :-
    forall(
       member(X,[foo,"","char","code",1,0]),
-      \+check_that(X,[tuned(chary_typeid)])
+      \+check_that(X,[soft(chary_typeid)])
    ).
 
-test("chary_typeid, strict, type exception") :-
+test("chary_typeid, hard, type exception") :-
    forall(
       member(X,[1,0,f(x),"char","code"]),
       catch(check_that(X,[hard(chary_typeid)]),error(check(type,_,_,_),_),true)
    ).
 
-test("chary_typeid, strict, domain exception") :-
+test("chary_typeid, hard, domain exception") :-
    forall(
       member(X,[yes,no,'']),
       catch(check_that(X,[hard(chary_typeid)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("chary_typeid, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("chary_typeid, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(chary_typeid)]).
 
-test("chary_typeid, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(chary_typeid)]).
-
-test("chary_typeid, fully lenient, fail on uninstantiated X", fail) :-
+test("chary_typeid, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(chary_typeid)]).
 
 :- end_tests(check_that_using_chary_typeid).
@@ -312,34 +294,31 @@ test("chary_typeid, fully lenient, fail on uninstantiated X", fail) :-
 test("pair, success") :-
    forall(
       member(X,[a-b,1-2,_-_]),
-      check_that(X,[tuned(pair)])
+      check_that(X,[soft(pair)])
    ).
 
 test("pair, failure") :-
    forall(
       member(X,[f(x),-(1,2,3),pair,'-']),
-      \+check_that(X,[tuned(pair)])
+      \+check_that(X,[soft(pair)])
    ).
 
-test("pair, strict, type exception") :-
+test("pair, hard, type exception") :-
    forall(
       member(X,[1,0,hello]),
       catch(check_that(X,[hard(pair)]),error(check(type,_,_,_),_),true)
    ).
 
-test("pair, strict, domain exception") :-
+test("pair, hard, domain exception") :-
    forall(
       member(X,[f(x),-(_,_,_),-(1,2,3)]),
       catch(check_that(X,[hard(pair)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("pair, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("pair, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(pair)]).
 
-test("pair, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(pair)]).
-
-test("pair, fully lenient, fail on uninstantiated X", fail) :-
+test("pair, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(pair)]).
 
 :- end_tests(check_that_using_pair).
@@ -351,25 +330,22 @@ test("pair, fully lenient, fail on uninstantiated X", fail) :-
 test("string, success") :-
    forall(
       member(X,["","foo"]),
-      check_that(X,[tuned(string)])
+      check_that(X,[soft(string)])
    ).
 
 test("string, failure") :-
    forall(
       member(X,[1,foo,f(x)]),
-      \+check_that(X,[tuned(string)])
+      \+check_that(X,[soft(string)])
    ).
 
-test("string, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("string, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(string)]).
 
-test("string, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("string, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(string)]).
 
-test("string, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(string)]).
-
-test("string, fully lenient, fail on uninstantiated X", fail) :-
+test("string, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(string)]).
 
 :- end_tests(check_that_using_string).
@@ -381,25 +357,22 @@ test("string, fully lenient, fail on uninstantiated X", fail) :-
 test("stringy, success") :-
    forall(
       member(X,["","foo",'','foo']),
-      check_that(X,[tuned(stringy)])
+      check_that(X,[soft(stringy)])
    ).
 
 test("stringy, failure") :-
    forall(
       member(X,[1,f(x)]),
-      \+check_that(X,[tuned(stringy)])
+      \+check_that(X,[soft(stringy)])
    ).
 
-test("stringy, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("stringy, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(444,[hard(stringy)]).
 
-test("stringy, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("stringy, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(stringy)]).
 
-test("stringy, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(stringy)]).
-
-test("stringy, fully lenient, fail on uninstantiated X", fail) :-
+test("stringy, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(stringy)]).
 
 :- end_tests(check_that_using_stringy).
@@ -411,13 +384,13 @@ test("stringy, fully lenient, fail on uninstantiated X", fail) :-
 test("nonempty stringy, success") :-
    forall(
       member(X,["foo",foo]),
-      check_that(X,[tuned(nonempty_stringy)])
+      check_that(X,[soft(nonempty_stringy)])
    ).
 
 test("nonempty stringy, failure") :-
    forall(
       member(X,[1,"",'',f(x)]),
-      \+check_that(X,[tuned(nonempty_stringy)])
+      \+check_that(X,[soft(nonempty_stringy)])
    ).
 
 test("nonempty stringy, stringy, failure, throw type exception", error(check(type,_,_,_))) :-
@@ -426,13 +399,10 @@ test("nonempty stringy, stringy, failure, throw type exception", error(check(typ
 test("nonempty stringy, stringy, failure, throw domain exception", error(check(domain,_,_,_))) :-
    check_that("",[hard(nonempty_stringy)]).
 
-test("nonempty stringy, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("nonempty stringy, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(nonempty_stringy)]).
 
-test("nonempty stringy, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(nonempty_stringy)]).
-
-test("nonempty stringy, fully lenient, fail on uninstantiated X", fail) :-
+test("nonempty stringy, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(nonempty_stringy)]).
 
 :- end_tests(check_that_using_nonempty_stringy).
@@ -444,13 +414,13 @@ test("nonempty stringy, fully lenient, fail on uninstantiated X", fail) :-
 test("char, success") :-
    forall(
       member(X,[a,b,c,d]),
-      check_that(X,[tuned(char)])
+      check_that(X,[soft(char)])
    ).
 
 test("char, failure") :-
    forall(
       member(X,[1,f(x),ab,"a","b","",'',[]]),
-      \+check_that(X,[tuned(char)])
+      \+check_that(X,[soft(char)])
    ).
 
 test("char, failure, throw type exception", error(check(type,_,_,_))) :-
@@ -459,13 +429,10 @@ test("char, failure, throw type exception", error(check(type,_,_,_))) :-
 test("char, failure, throw domain exception", error(check(domain,_,_,_))) :-
    check_that(foo,[hard(char)]).
 
-test("char, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("char, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(char)]).
 
-test("char, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(char)]).
-
-test("char, fully lenient, fail on uninstantiated X", fail) :-
+test("char, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(char)]).
 
 :- end_tests(check_that_using_char).
@@ -477,13 +444,13 @@ test("char, fully lenient, fail on uninstantiated X", fail) :-
 test("code, success") :-
    forall(
       member(X,[0,1,2,3,0x10FFFF]),
-      check_that(X,[tuned(code)])
+      check_that(X,[soft(code)])
    ).
 
 test("code, failure") :-
    forall(
       member(X,[f(x),ab,a,"a",-1,1.0,0xFFFFFFF]),
-      \+check_that(X,[tuned(code)])
+      \+check_that(X,[soft(code)])
    ).
 
 test("code, failure, throw type exception", error(check(type,_,_,_))) :-
@@ -492,13 +459,10 @@ test("code, failure, throw type exception", error(check(type,_,_,_))) :-
 test("code, failure, throw domain exception", error(check(domain,_,_,_))) :-
    check_that(-1,[hard(code)]).
 
-test("code, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("code, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(code)]).
 
-test("code, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(code)]).
-
-test("code, fully lenient, fail on uninstantiated X", fail) :-
+test("code, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(code)]).
 
 :- end_tests(check_that_using_code).
@@ -510,31 +474,28 @@ test("code, fully lenient, fail on uninstantiated X", fail) :-
 test("chary, success") :-
    forall(
       member(X,[0,1,2,3,a,b,c]),
-      check_that(X,[tuned(chary)])
+      check_that(X,[soft(chary)])
    ).
 
 test("chary, failure") :-
    forall(
       member(X,[f(x),ab,"a",'',"",-1,[]]),
-      \+check_that(X,[tuned(chary)])
+      \+check_that(X,[soft(chary)])
    ).
 
-test("chary, strict, failure, type exception", error(check(type,_,_,_))) :-
+test("chary, hard, failure, type exception", error(check(type,_,_,_))) :-
    check_that("foo",[hard(chary)]).
 
-test("chary, strict, failure, domain exception") :-
+test("chary, hard, failure, domain exception") :-
    forall(
       member(X,[foo,-1]),
       catch(check_that(X,[hard(chary)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("chary, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("chary, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(chary)]).
 
-test("chary, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(chary)]).
-
-test("chary, fully lenient, fail on uninstantiated X", fail) :-
+test("chary, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(chary)]).
 
 :- end_tests(check_that_using_chary).
@@ -548,25 +509,22 @@ test("number, success") :-
    Inf is -1.0Inf,
    forall(
       member(X,[0,1,-1,1.0,-1.0,1r12,-1r12,NaN,Inf,-0.0]),
-      check_that(X,[tuned(number)])
+      check_that(X,[soft(number)])
    ).
 
 test("number, failure") :-
    forall(
       member(X,[a,"a",'0']),
-      \+check_that(X,[tuned(number)])
+      \+check_that(X,[soft(number)])
    ).
 
-test("number, istrict, failure, throw type error", error(check(type,_,_,_))) :-
+test("number, ihard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(number)]).
 
-test("number, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("number, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(number)]).
-
-test("number, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(number)]).
-
-test("number, fully lenient, fail on uninstantiated X", fail) :-
+   
+test("number, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(number)]).
 
 :- end_tests(check_that_using_number).
@@ -580,25 +538,22 @@ test("float, success") :-
    Inf is -1.0Inf,
    forall(
       member(X,[1.0,-1.0,NaN,Inf,-0.0,3.1415]),
-      check_that(X,[tuned(float)])
+      check_that(X,[soft(float)])
    ).
 
 test("float, failure") :-
    forall(
       member(X,[1,1r12,foo]),
-      \+check_that(X,[tuned(float)])
+      \+check_that(X,[soft(float)])
    ).
 
-test("float, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("float, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(float)]).
 
-test("float, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("float, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(float)]).
 
-test("float, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(float)]).
-
-test("float, fully lenient, fail on uninstantiated X", fail) :-
+test("float, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(float)]).
 
 :- end_tests(check_that_using_float).
@@ -610,25 +565,22 @@ test("float, fully lenient, fail on uninstantiated X", fail) :-
 test("integer, success") :-
    forall(
       member(X,[1,0,-1]),
-      check_that(X,[tuned(integer)])
+      check_that(X,[soft(integer)])
    ).
 
 test("integer, failure") :-
    forall(
       member(X,[0.0,1r12,-1.0]),
-      \+check_that(X,[tuned(integer)])
+      \+check_that(X,[soft(integer)])
    ).
 
-test("integer, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("integer, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(integer)]).
 
-test("integer, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("integer, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(integer)]).
 
-test("integer, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(integer)]).
-
-test("integer, fully lenient, fail on uninstantiated X", fail) :-
+test("integer, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(integer)]).
 
 :- end_tests(check_that_using_integer).
@@ -640,7 +592,7 @@ test("integer, fully lenient, fail on uninstantiated X", fail) :-
 test("rational, success") :-
    forall(
       member(X,[1,0,-1,1r12,-1r12]),
-      check_that(X,[tuned(rational)])
+      check_that(X,[soft(rational)])
    ).
 
 test("rational, failure") :-
@@ -648,19 +600,16 @@ test("rational, failure") :-
    Inf is -1.0Inf,
    forall(
       member(X,[0.0,3.1415,foo,NaN,Inf]),
-      \+check_that(X,[tuned(rational)])
+      \+check_that(X,[soft(rational)])
    ).
 
-test("rational, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("rational, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(rational)]).
 
-test("rational, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("rational, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(rational)]).
 
-test("rational, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(rational)]).
-
-test("rational, fully lenient, fail on uninstantiated X", fail) :-
+test("rational, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(rational)]).
 
 :- end_tests(check_that_using_rational).
@@ -672,28 +621,25 @@ test("rational, fully lenient, fail on uninstantiated X", fail) :-
 test("nonint_rational, success") :-
    forall(
       member(X,[1r12,-1r12]),
-      check_that(X,[tuned(nonint_rational)])
+      check_that(X,[soft(nonint_rational)])
    ).
 
 test("nonint_rational, failure") :-
    forall(
       member(X,[0.0,3.1415,foo,1,2,3,4,5]),
-      \+check_that(X,[tuned(nonint_rational)])
+      \+check_that(X,[soft(nonint_rational)])
    ).
 
-test("nonint_rational, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("nonint_rational, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(nonint_rational)]).
 
-test("nonint_rational, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("nonint_rational, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(777,[hard(nonint_rational)]).
 
-test("nonint_rational, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("nonint_rational, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(nonint_rational)]).
 
-test("nonint_rational, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(nonint_rational)]).
-
-test("nonint_rational, fully lenient, fail on uninstantiated X", fail) :-
+test("nonint_rational, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(nonint_rational)]).
 
 :- end_tests(check_that_using_nonint_rational).
@@ -706,7 +652,7 @@ test("negnumber, success") :-
    MinusInf is -1.0Inf,
    forall(
       member(X,[-1,-1.0,-1r12,MinusInf]),
-      check_that(X,[tuned(negnumber)])
+      check_that(X,[soft(negnumber)])
    ).
 
 test("negnumber, failure") :-
@@ -714,22 +660,19 @@ test("negnumber, failure") :-
    NaN is nan,
    forall(
       member(X,[foo,0,-0.0,0.0,1,1.0,1r12,NaN,PlusInf]),
-      \+check_that(X,[tuned(negnumber)])
+      \+check_that(X,[soft(negnumber)])
    ).
 
-test("negnumber, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("negnumber, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(negnumber)]).
 
-test("negnumber, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("negnumber, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(+1,[hard(negnumber)]).
 
-test("negnumber, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("negnumber, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(negnumber)]).
 
-test("negnumber, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(negnumber)]).
-
-test("negnumber, fully lenient, fail on uninstantiated X", fail) :-
+test("negnumber, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(negnumber)]).
 
 :- end_tests(check_that_using_negnumber).
@@ -742,7 +685,7 @@ test("posnumber, success") :-
    PlusInf is +1.0Inf,
    forall(
       member(X,[1,1.0,1r12,PlusInf]),
-      check_that(X,[tuned(posnumber)])
+      check_that(X,[soft(posnumber)])
    ).
 
 test("posnumber, failure") :-
@@ -750,22 +693,19 @@ test("posnumber, failure") :-
    NaN is nan,
    forall(
       member(X,[foo,0,+0.0,-1,-1.0,-1r12,NaN,MinusInf]),
-      \+check_that(X,[tuned(posnumber)])
+      \+check_that(X,[soft(posnumber)])
    ).
 
-test("posnumber, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("posnumber, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(posnumber)]).
 
 test("posnumber, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(-1,[hard(posnumber)]).
 
-test("posnumber, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("posnumber, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(posnumber)]).
 
-test("posnumber, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(posnumber)]).
-
-test("posnumber, fully lenient, fail on uninstantiated X", fail) :-
+test("posnumber, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(posnumber)]).
 
 :- end_tests(check_that_using_posnumber).
@@ -777,28 +717,25 @@ test("posnumber, fully lenient, fail on uninstantiated X", fail) :-
 test("non0number, success") :-
    forall(
       member(X,[1,1.0,-1.0,-1,1r12]),
-      check_that(X,[tuned(non0number)])
+      check_that(X,[soft(non0number)])
    ).
 
 test("non0number, failure") :-
    forall(
       member(X,[foo,"foo",0,0.0,-0.0,0r1]),
-      \+check_that(X,[tuned(non0number)])
+      \+check_that(X,[soft(non0number)])
    ).
 
-test("non0number, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("non0number, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(non0number)]).
 
-test("non0number, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("non0number, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(0.0,[hard(non0number)]).
 
-test("non0number, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("non0number, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(non0number)]).
 
-test("non0number, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(non0number)]).
-
-test("non0number, fully lenient, fail on uninstantiated X", fail) :-
+test("non0number, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(non0number)]).
 
 :- end_tests(check_that_using_non0number).
@@ -812,30 +749,27 @@ test("float_not_nan, success") :-
    PosInf is +1.0Inf,
    forall(
       member(X,[NegInf,-1.0,0.0,-1.0,PosInf]),
-      check_that(X,[tuned(float_not_nan)])
+      check_that(X,[soft(float_not_nan)])
    ).
 
 test("float_not_nan, failure") :-
    NaN is nan,
    forall(
       member(X,[foo,"foo",1,NaN]),
-      \+check_that(X,[tuned(float_not_nan)])
+      \+check_that(X,[soft(float_not_nan)])
    ).
 
-test("float_not_nan, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("float_not_nan, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(float_not_nan)]).
 
-test("float_not_nan, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("float_not_nan, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    NaN is nan,
    check_that(NaN,[hard(float_not_nan)]).
 
-test("float_not_nan, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("float_not_nan, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(float_not_nan)]).
 
-test("float_not_nan, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(float_not_nan)]).
-
-test("float_not_nan, fully lenient, fail on uninstantiated X", fail) :-
+test("float_not_nan, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(float_not_nan)]).
 
 :- end_tests(check_that_using_float_not_nan).
@@ -848,7 +782,7 @@ test("float_not_inf, success") :-
    NaN is nan,
    forall(
       member(X,[-1.0,0.0,-1.0,NaN]),
-      check_that(X,[tuned(float_not_inf)])
+      check_that(X,[soft(float_not_inf)])
    ).
 
 test("float_not_inf, failure") :-
@@ -856,23 +790,20 @@ test("float_not_inf, failure") :-
    PosInf is +1.0Inf,
    forall(
       member(X,[foo,"foo",1,NegInf,PosInf]),
-      \+check_that(X,[tuned(float_not_inf)])
+      \+check_that(X,[soft(float_not_inf)])
    ).
 
-test("float_not_inf, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("float_not_inf, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(float_not_inf)]).
 
-test("float_not_inf, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("float_not_inf, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    NegInf is -1.0Inf,
    check_that(NegInf,[hard(float_not_inf)]).
 
-test("float_not_inf, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("float_not_inf, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(float_not_inf)]).
 
-test("float_not_inf, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(float_not_inf)]).
-
-test("float_not_inf, fully lenient, fail on uninstantiated X", fail) :-
+test("float_not_inf, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(float_not_inf)]).
 
 :- end_tests(check_that_using_float_not_inf).
@@ -886,30 +817,27 @@ test("float_not_neginf, success") :-
    PosInf is +1.0Inf,
    forall(
       member(X,[-1.0,0.0,-1.0,NaN,PosInf]),
-      check_that(X,[tuned(float_not_neginf)])
+      check_that(X,[soft(float_not_neginf)])
    ).
 
 test("float_not_neginf, failure") :-
    NegInf is -1.0Inf,
    forall(
       member(X,[foo,"foo",1,NegInf]),
-      \+check_that(X,[tuned(float_not_neginf)])
+      \+check_that(X,[soft(float_not_neginf)])
    ).
 
-test("float_not_neginf, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("float_not_neginf, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(float_not_neginf)]).
 
-test("float_not_neginf, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("float_not_neginf, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    NegInf is -1.0Inf,
    check_that(NegInf,[hard(float_not_neginf)]).
 
-test("float_not_neginf, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("float_not_neginf, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(float_not_neginf)]).
 
-test("float_not_neginf, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(float_not_neginf)]).
-
-test("float_not_neginf, fully lenient, fail on uninstantiated X", fail) :-
+test("float_not_neginf, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(float_not_neginf)]).
 
 :- end_tests(check_that_using_float_not_neginf).
@@ -923,30 +851,27 @@ test("float_not_posinf, success") :-
    NegInf is -1.0Inf,
    forall(
       member(X,[-1.0,0.0,-1.0,NaN,NegInf]),
-      check_that(X,[tuned(float_not_posinf)])
+      check_that(X,[soft(float_not_posinf)])
    ).
 
 test("float_not_posinf, failure") :-
    PosInf is +1.0Inf,
    forall(
       member(X,[foo,"foo",1,PosInf]),
-      \+check_that(X,[tuned(float_not_posinf)])
+      \+check_that(X,[soft(float_not_posinf)])
    ).
 
-test("float_not_posinf, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("float_not_posinf, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(float_not_posinf)]).
 
-test("float_not_posinf, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("float_not_posinf, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    PosInf is +1.0Inf,
    check_that(PosInf,[hard(float_not_posinf)]).
 
-test("float_not_posinf, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("float_not_posinf, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(float_not_posinf)]).
 
-test("float_not_posinf, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(float_not_posinf)]).
-
-test("float_not_posinf, fully lenient, fail on uninstantiated X", fail) :-
+test("float_not_posinf, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(float_not_posinf)]).
 
 :- end_tests(check_that_using_float_not_posinf).
@@ -958,28 +883,25 @@ test("float_not_posinf, fully lenient, fail on uninstantiated X", fail) :-
 test("negint, success") :-
    forall(
       member(X,[-2,-1,-6r3]),
-      check_that(X,[tuned(negint)])
+      check_that(X,[soft(negint)])
    ).
 
 test("negint, failure") :-
    forall(
       member(X,[foo,"foo",1,0,-1.0,-1r12]),
-      \+check_that(X,[tuned(negint)])
+      \+check_that(X,[soft(negint)])
   ).
 
-test("negint, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("negint, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(negint)]).
 
-test("negint, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("negint, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(1,[hard(negint)]).
 
-test("negint, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("negint, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(negint)]).
 
-test("negint, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(negint)]).
-
-test("negint, fully lenient, fail on uninstantiated X", fail) :-
+test("negint, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(negint)]).
 
 :- end_tests(check_that_using_negint).
@@ -991,28 +913,25 @@ test("negint, fully lenient, fail on uninstantiated X", fail) :-
 test("posint, success") :-
    forall(
       member(X,[2,1,6r3]),
-      check_that(X,[tuned(posint)])
+      check_that(X,[soft(posint)])
    ).
 
 test("posint, failure") :-
    forall(
       member(X,[foo,"foo",-1,0,1.0,1r12]),
-      \+check_that(X,[tuned(posint)])
+      \+check_that(X,[soft(posint)])
    ).
 
-test("posint, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("posint, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(posint)]).
 
-test("posint, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("posint, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(-1,[hard(posint)]).
 
-test("posint, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("posint, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(posint)]).
 
-test("posint, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(posint)]).
-
-test("posint, fully lenient, fail on uninstantiated X", fail) :-
+test("posint, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(posint)]).
 
 :- end_tests(check_that_using_posint).
@@ -1024,28 +943,25 @@ test("posint, fully lenient, fail on uninstantiated X", fail) :-
 test("neg0int, success") :-
    forall(
       member(X,[-2,-1,-6r3,0]),
-      check_that(X,[tuned(neg0int)])
+      check_that(X,[soft(neg0int)])
    ).
 
 test("neg0int, failure") :-
    forall(
       member(X,[foo,"foo",1,-1.0,-1r12,0.0]),
-      \+check_that(X,[tuned(neg0int)])
+      \+check_that(X,[soft(neg0int)])
    ).
 
-test("neg0int, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("neg0int, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(neg0int)]).
 
-test("neg0int, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("neg0int, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(1,[hard(neg0int)]).
 
-test("neg0int, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("neg0int, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(neg0int)]).
 
-test("neg0int, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(neg0int)]).
-
-test("neg0int, fully lenient, fail on uninstantiated X", fail) :-
+test("neg0int, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(neg0int)]).
 
 :- end_tests(check_that_using_neg0int).
@@ -1059,28 +975,25 @@ test("neg0int, fully lenient, fail on uninstantiated X", fail) :-
 test("pos0int, success") :-
    forall(
       member(X,[2,1,6r3,0]),
-      check_that(X,[tuned(pos0int)])
+      check_that(X,[soft(pos0int)])
    ).
 
 test("pos0int, failure") :-
    forall(
       member(X,[foo,"foo",-1,1.0,1r12,0.0]),
-      \+check_that(X,[tuned(pos0int)])
+      \+check_that(X,[soft(pos0int)])
    ).
 
-test("pos0int, strict, failure, throw type error", error(check(type,_,_,_))) :-
+test("pos0int, hard, failure, throw type error", error(check(type,_,_,_))) :-
    check_that(foo,[hard(pos0int)]).
 
-test("pos0int, strict, failure, throw domain error", error(check(domain,_,_,_))) :-
+test("pos0int, hard, failure, throw domain error", error(check(domain,_,_,_))) :-
    check_that(-1,[hard(pos0int)]).
 
-test("pos0int, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("pos0int, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(pos0int)]).
-
-test("pos0int, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(pos0int)]).
-
-test("pos0int, fully lenient, fail on uninstantiated X", fail) :-
+   
+test("pos0int, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(pos0int)]).
 
 :- end_tests(check_that_using_pos0int).
@@ -1092,7 +1005,7 @@ test("pos0int, fully lenient, fail on uninstantiated X", fail) :-
 test("inty, success") :-
    forall(
       member(X,[1, 0, -1, 1.0, 0.0, -0.0, 7777777, 7777777.0]),
-      check_that(X,[tuned(inty)])
+      check_that(X,[soft(inty)])
    ).
 
 test("inty, failure") :-
@@ -1101,10 +1014,10 @@ test("inty, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1r12, -1.5, +1.5, NegInf, PosInf, NaN, 0.00000001]),
-      \+check_that(X,[tuned(inty)])
+      \+check_that(X,[soft(inty)])
    ).
 
-test("inty, strict, type exception") :-
+test("inty, hard, type exception") :-
    NegInf is -1.0Inf,
    PosInf is +1.0Inf,
    NaN is nan,
@@ -1113,13 +1026,10 @@ test("inty, strict, type exception") :-
       catch(check_that(X,[hard(inty)]),error(check(type,_,_,_),_),true)
    ).
 
-test("inty, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("inty, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(inty)]).
 
-test("inty, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(inty)]).
-
-test("inty, fully lenient, fail on uninstantiated X", fail) :-
+test("inty, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(inty)]).
 
 :- end_tests(check_that_using_inty).
@@ -1131,7 +1041,7 @@ test("inty, fully lenient, fail on uninstantiated X", fail) :-
 test("posinty, success") :-
    forall(
       member(X,[1, 1.0, 7777777, 7777777.0]),
-      check_that(X,[tuned(posinty)])
+      check_that(X,[soft(posinty)])
    ).
 
 test("posinty, failure") :-
@@ -1140,10 +1050,10 @@ test("posinty, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1r12, -1.5, +1.5, 0, 0.0, -0.0, NegInf, PosInf, NaN, 0.00000001, -1000, -1000.0]),
-      \+check_that(X,[tuned(posinty)])
+      \+check_that(X,[soft(posinty)])
    ).
 
-test("posinty, strict, type exception") :-
+test("posinty, hard, type exception") :-
    NegInf is -1.0Inf,
    PosInf is +1.0Inf,
    NaN is nan,
@@ -1152,19 +1062,16 @@ test("posinty, strict, type exception") :-
       catch(check_that(X,[hard(posinty)]),error(check(type,_,_,_),_),true)
    ).
 
-test("posinty, strict, domain exception") :-
+test("posinty, hard, domain exception") :-
    forall(
       member(X,[-1000, -1000.0]),
       catch(check_that(X,[hard(posinty)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("posinty, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("posinty, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(posinty)]).
-
-test("posinty, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(posinty)]).
-
-test("posinty, fully lenient, fail on uninstantiated X", fail) :-
+   
+test("posinty, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(posinty)]).
 
 :- end_tests(check_that_using_posinty).
@@ -1176,7 +1083,7 @@ test("posinty, fully lenient, fail on uninstantiated X", fail) :-
 test("neginty, success") :-
    forall(
       member(X,[-1, -1.0, -7777777, -7777777.0]),
-      check_that(X,[tuned(neginty)])
+      check_that(X,[soft(neginty)])
    ).
 
 test("neginty, failure") :-
@@ -1185,10 +1092,10 @@ test("neginty, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1r12, -1.5, +1.5, 0, 0.0, -0.0, NegInf, PosInf, NaN, 0.00000001, 1000, 1000.0]),
-      \+check_that(X,[tuned(neginty)])
+      \+check_that(X,[soft(neginty)])
    ).
 
-test("neginty, strict, type exception") :-
+test("neginty, hard, type exception") :-
    NegInf is -1.0Inf,
    PosInf is +1.0Inf,
    NaN is nan,
@@ -1197,19 +1104,16 @@ test("neginty, strict, type exception") :-
       catch(check_that(X,[hard(neginty)]),error(check(type,_,_,_),_),true)
    ).
 
-test("neginty, strict, domain exception") :-
+test("neginty, hard, domain exception") :-
    forall(
       member(X,[0, 0.0, -0.0, 1000, 1000.0]),
       catch(check_that(X,[hard(neginty)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("neginty, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("neginty, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(neginty)]).
 
-test("neginty, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(neginty)]).
-
-test("neginty, fully lenient, fail on uninstantiated X", fail) :-
+test("neginty, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(neginty)]).
 
 :- end_tests(check_that_using_neginty).
@@ -1221,7 +1125,7 @@ test("neginty, fully lenient, fail on uninstantiated X", fail) :-
 test("pos0inty, success") :-
    forall(
       member(X,[1, 1.0, 7777777, 7777777.0, 0.0, 0, -0.0]),
-      check_that(X,[tuned(pos0inty)])
+      check_that(X,[soft(pos0inty)])
    ).
 
 test("pos0inty, failure") :-
@@ -1230,22 +1134,19 @@ test("pos0inty, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1r12, -1.5, +1.5, NegInf, PosInf, NaN, 0.00000001, -1000, -1000.0]),
-      \+check_that(X,[tuned(pos0inty)])
+      \+check_that(X,[soft(pos0inty)])
    ).
 
-test("pos0inty, strict, failure, throw type exception", error(check(type,_,_,_))) :-
+test("pos0inty, hard, failure, throw type exception", error(check(type,_,_,_))) :-
    check_that(foo,[hard(pos0inty)]).
 
-test("pos0inty, strict, failure, throw domain exception", error(check(domain,_,_,_))) :-
+test("pos0inty, hard, failure, throw domain exception", error(check(domain,_,_,_))) :-
    check_that(-1.0,[hard(pos0inty)]).
 
-test("pos0inty, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("pos0inty, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(pos0inty)]).
 
-test("pos0inty, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(pos0inty)]).
-
-test("pos0inty, fully lenient, fail on uninstantiated X", fail) :-
+test("pos0inty, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(pos0inty)]).
 
 :- end_tests(check_that_using_pos0inty).
@@ -1257,7 +1158,7 @@ test("pos0inty, fully lenient, fail on uninstantiated X", fail) :-
 test("neg0inty, success") :-
    forall(
       member(X,[-1, -1.0, -7777777, -7777777.0, 0, 0.0, -0.0]),
-      check_that(X,[tuned(neg0inty)])
+      check_that(X,[soft(neg0inty)])
    ).
 
 test("neg0inty, failure") :-
@@ -1266,22 +1167,19 @@ test("neg0inty, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1r12, -1.5, +1.5, NegInf, PosInf, NaN, 0.00000001, 1000, 1000.0]),
-      \+check_that(X,[tuned(neg0inty)])
+      \+check_that(X,[soft(neg0inty)])
    ).
 
-test("neg0inty, strict, failure, throw type exception", error(check(type,_,_,_))) :-
+test("neg0inty, hard, failure, throw type exception", error(check(type,_,_,_))) :-
    check_that(foo,[hard(neg0inty)]).
 
-test("neg0inty, strict, failure, throw domain exception", error(check(domain,_,_,_))) :-
+test("neg0inty, hard, failure, throw domain exception", error(check(domain,_,_,_))) :-
    check_that(1.0,[hard(neg0inty)]).
 
-test("neg0inty, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("neg0inty, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(neg0inty)]).
 
-test("neg0inty, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(neg0inty)]).
-
-test("neg0inty, fully lenient, fail on uninstantiated X", fail) :-
+test("neg0inty, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(neg0inty)]).
 
 :- end_tests(check_that_using_neg0inty).
@@ -1294,7 +1192,7 @@ test("negfloat, success") :-
    NegInf is -1.0Inf,
    forall(
       member(X,[NegInf, -2.0, -1.0]),
-      check_that(X,[tuned(negfloat)])
+      check_that(X,[soft(negfloat)])
    ).
 
 test("negfloat, failure") :-
@@ -1302,16 +1200,16 @@ test("negfloat, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1.0, -1,0, -0.0, 0.0, PosInf, NaN]),
-      \+check_that(X,[tuned(negfloat)])
+      \+check_that(X,[soft(negfloat)])
    ).
 
-test("negfloat, strict, type exception") :-
+test("negfloat, hard, type exception") :-
    forall(
       member(X,[foo, "foo", 1r12, 0]),
       catch(check_that(X,[hard(negfloat)]),error(check(type,_,_,_),_),true)
    ).
 
-test("negfloat, strict, domain exception") :-
+test("negfloat, hard, domain exception") :-
    NaN is nan,
    PosInf is +1.0Inf,
    forall(
@@ -1319,13 +1217,10 @@ test("negfloat, strict, domain exception") :-
       catch(check_that(X,[hard(negfloat)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("negfloat, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("negfloat, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(negfloat)]).
 
-test("negfloat, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(negfloat)]).
-
-test("negfloat, fully lenient, fail on uninstantiated X", fail) :-
+test("negfloat, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(negfloat)]).
 
 :- end_tests(check_that_using_negfloat).
@@ -1338,7 +1233,7 @@ test("posfloat, success") :-
    PosInf is +1.0Inf,
    forall(
       member(X,[PosInf,2.0,1.0]),
-      check_that(X,[tuned(posfloat)])
+      check_that(X,[soft(posfloat)])
    ).
 
 test("posfloat, failure") :-
@@ -1346,16 +1241,16 @@ test("posfloat, failure") :-
    NaN is nan,
    forall(
       member(X,[foo,"foo",1,-1.0,0,0.0,1r12,NegInf,NaN]),
-      \+check_that(X,[tuned(posfloat)])
+      \+check_that(X,[soft(posfloat)])
    ).
 
-test("posfloat, strict, type exception") :-
+test("posfloat, hard, type exception") :-
    forall(
       member(X,[foo, "foo", 1r12, 0]),
       catch(check_that(X,[hard(posfloat)]),error(check(type,_,_,_),_),true)
    ).
 
-test("posfloat, strict, domain exception") :-
+test("posfloat, hard, domain exception") :-
    NaN is nan,
    NegInf is -1.0Inf,
    forall(
@@ -1363,13 +1258,10 @@ test("posfloat, strict, domain exception") :-
       catch(check_that(X,[hard(posfloat)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("posfloat, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("posfloat, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(posfloat)]).
 
-test("posfloat, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(posfloat)]).
-
-test("posfloat, fully lenient, fail on uninstantiated X", fail) :-
+test("posfloat, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(posfloat)]).
 
 :- end_tests(check_that_using_posfloat).
@@ -1382,7 +1274,7 @@ test("neg0float, success") :-
    NegInf is -1.0Inf,
    forall(
       member(X,[NegInf, -2.0, -1.0, 0.0]),
-      check_that(X,[tuned(neg0float)])
+      check_that(X,[soft(neg0float)])
    ).
 
 test("neg0float, failure") :-
@@ -1390,16 +1282,16 @@ test("neg0float, failure") :-
    NaN is nan,
    forall(
       member(X,[foo, "foo", 1r12, 0, 1000, 1000.0, 1.0, PosInf, NaN]),
-      \+check_that(X,[tuned(neg0float)])
+      \+check_that(X,[soft(neg0float)])
    ).
 
-test("neg0float, strict, type exception") :-
+test("neg0float, hard, type exception") :-
    forall(
       member(X,[foo, "foo", 1r12, 0, 1000]),
       catch(check_that(X,[hard(neg0float)]),error(check(type,_,_,_),_),true)
    ).
 
-test("neg0float, strict, domain exception") :-
+test("neg0float, hard, domain exception") :-
    NaN is nan,
    PosInf is +1.0Inf,
    forall(
@@ -1407,13 +1299,10 @@ test("neg0float, strict, domain exception") :-
       catch(check_that(X,[hard(neg0float)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("neg0float, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("neg0float, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(neg0float)]).
 
-test("neg0float, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(neg0float)]).
-
-test("neg0float, fully lenient, fail on uninstantiated X", fail) :-
+test("neg0float, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(neg0float)]).
 
 :- end_tests(check_that_using_neg0float).
@@ -1426,7 +1315,7 @@ test("pos0float, success") :-
    PosInf is +1.0Inf,
    forall(
       member(X,[PosInf,2.0,1.0,0.0]),
-      check_that(X,[tuned(pos0float)])
+      check_that(X,[soft(pos0float)])
    ).
 
 test("pos0float, failure") :-
@@ -1434,22 +1323,19 @@ test("pos0float, failure") :-
    NaN is nan,
    forall(
       member(X,[foo,"foo",1,-1.0,0,1r12,NegInf,NaN]),
-      \+check_that(X,[tuned(pos0float)])
+      \+check_that(X,[soft(pos0float)])
    ).
 
-test("pos0float, strict, failure, throw type exception", error(check(type,_,_,_))) :-
+test("pos0float, hard, failure, throw type exception", error(check(type,_,_,_))) :-
    check_that(foo,[hard(pos0float)]).
 
-test("pos0float, strict, failure, throw domain exception", error(check(domain,_,_,_))) :-
+test("pos0float, hard, failure, throw domain exception", error(check(domain,_,_,_))) :-
    check_that(-1.0,[hard(pos0float)]).
 
-test("pos0float, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("pos0float, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(pos0float)]).
 
-test("pos0float, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(pos0float)]).
-
-test("pos0float, fully lenient, fail on uninstantiated X", fail) :-
+test("pos0float, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(pos0float)]).
 
 :- end_tests(check_that_using_pos0float).
@@ -1461,25 +1347,28 @@ test("pos0float, fully lenient, fail on uninstantiated X", fail) :-
 test("list, success") :-
    forall(
       member(X,[ [], [_], [1,2,3], [_,_,_] ]),
-      check_that(X,[tuned(list)])
+      check_that(X,[soft(list)])
    ).
 
 test("list, failure") :-
    forall(
       member(X,["",[1|2],[1|_]]),
-      \+check_that(X,[tuned(list)])
+      \+check_that(X,[soft(list)])
    ).
 
-test("list, failure, strict, throw type exception", error(check(type,_,_,_))) :-
+test("list, failure, hard, throw type exception", error(check(type,_,_,_))) :-
    check_that(foo,[hard(list)]).
 
-test("list, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("list, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(list)]).
 
-test("list, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(list)]).
+test("list, failure, soft",fail) :-
+   check_that(foo,[soft(list)]).
 
-test("list, fully lenient, fail on uninstantiated X", fail) :-
+test("list, soft, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+   check_that(_,[soft(list)]).
+
+test("list, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(list)]).
 
 :- end_tests(check_that_using_list).
@@ -1488,34 +1377,40 @@ test("list, fully lenient, fail on uninstantiated X", fail) :-
 
 :- begin_tests(check_that_using_nonempty_list).
 
-test("nonempty list, success") :-
+test("nonempty list, success because these are nonempty lists") :-
    forall(
       member(X,[[1,2,3],[_,_,_]]),
-      check_that(X,[tuned(nonempty_list)])
+      check_that(X,[soft(nonempty_list)])
    ).
 
-test("nonempty list, failure") :-
+test("nonempty list, soft, failure if empty list",fail) :-
+   check_that([],[soft(nonempty_list)]).
+
+test("nonempty list, soft, failure if nonlists (not the correct type)") :-
    forall(
-      member(X,["",[1|2],'',foo,123,"",[]]),
-      \+check_that(X,[tuned(nonempty_list)])
+      member(X,["",[1|2],'',foo,123,""]),
+      \+check_that(X,[soft(nonempty_list)])
    ).
 
-test("nonempty list, strict, throw type exception") :-
+test("nonempty list, hard, throw type exception if it's not a list") :-
    forall(
-      member(X,[foo, "foo", [1|2]]),
+      member(X,["",[1|2],'',foo,123,""]),
       catch(check_that(X,[hard(nonempty_list)]),error(check(type,_,_,_),_),true)
    ).
 
-test("nonempty list, strict, throw domain exception") :-
+test("nonempty list, hard, throw domain exception if it's the empty list") :-
    catch(check_that([],[hard(nonempty_list)]),error(check(domain,_,_,_),_),true).
 
-test("nonempty_list, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("nonempty list, hard, success it's a nonempty list") :-
+   check_that([1,2,3],[hard(nonempty_list)]).
+
+test("nonempty_list, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(nonempty_list)]).
 
-test("nonempty_list, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(nonempty_list)]).
+test("nonempty_list, soft, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+   check_that(_,[soft(nonempty_list)]).
 
-test("nonempty_list, fully lenient, fail on uninstantiated X", fail) :-
+test("nonempty_list, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(nonempty_list)]).
 
 :- end_tests(check_that_using_nonempty_list).
@@ -1525,32 +1420,32 @@ test("nonempty_list, fully lenient, fail on uninstantiated X", fail) :-
 :- begin_tests(check_that_using_member).
 
 test("member, success #1") :-
-   check_that(a,[tuned(member([a,b,c]))]).
+   check_that(a,[soft(member([a,b,c]))]).
 
 test("member, success #2") :-
-   check_that(a,[tuned(member([a,X,c]))]),
+   check_that(a,[soft(member([a,X,c]))]),
    assertion(var(X)).
 
 test("member, success #3") :-
-   check_that(v,[tuned(member([a,_,c]))]).
+   check_that(v,[soft(member([a,_,c]))]).
 
 test("member, failure #1",fail) :-
-   check_that(v,[tuned(member([a,b,c]))]).
+   check_that(v,[soft(member([a,b,c]))]).
 
 test("member, failure #2",fail) :-
-   check_that(v,[tuned(member([]))]).
+   check_that(v,[soft(member([]))]).
 
 test("member, X nonground",error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(member([a,b,c]))]).
+   check_that(_,[soft(member([a,b,c]))]).
 
 test("member, argument to member/1 term not a proper list #1",error(check(unknown_or_problematic_check,_,_,_))) :-
-   check_that(a,[tuned(member(_))]). % already caught in well-formedness check
+   check_that(a,[soft(member(_))]). % already caught in well-formedness check
 
 test("member, argument to member/1 term not a proper list #2",error(check(unknown_or_problematic_check,_,_,_))) :-
-   check_that(a,[tuned(member(foo))]).  % already caught in well-formedness check
+   check_that(a,[soft(member(foo))]).  % already caught in well-formedness check
 
 test("member, argument to member/1 term not a proper list #3",error(check(unknown_or_problematic_check,_,_,_))) :-
-   check_that(a,[tuned(member([a,b,c|_]))]).  % already caught in well-formedness check
+   check_that(a,[soft(member([a,b,c|_]))]).  % already caught in well-formedness check
 
 :- end_tests(check_that_using_member).
 
@@ -1572,22 +1467,19 @@ test("random until failure",error(check(random,_,_,_))) :-
 test("dict, success") :-
    forall(
       member(X,[_{},foo{},bar{a:1,b:2}]),
-      check_that(X,[tuned(dict)])
+      check_that(X,[soft(dict)])
    ).
 
 test("dict, failure") :-
    forall(
       member(X,["",foo,foo(a,b)]),
-      \+check_that(X,[tuned(dict)])
+      \+check_that(X,[soft(dict)])
    ).
 
-test("dict, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("dict, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(dict)]).
 
-test("dict, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(dict)]).
-
-test("dict, fully lenient, fail on uninstantiated X", fail) :-
+test("dict, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(dict)]).
 
 :- end_tests(check_that_using_dict).
@@ -1596,47 +1488,121 @@ test("dict, fully lenient, fail on uninstantiated X", fail) :-
 
 :- begin_tests(check_that_using_cyclic).
 
-test("cyclic, success") :-
-   A=h(a,b,c,A),
-   B=[a,b,c|B],
-   C=[1,2|B],
-   forall(
-      member(X,[A,B,C]),
-      check_that(X,[tuned(cyclic)])
-   ).
+test("cyclic, throw if uninstantiated (hard)",error(check(instantiation,_,_,_))) :-
+   check_that(_,[hard(cyclic)]).
 
-test("cyclic, failure") :-
-   forall(
-      member(X,['',[1,2,3],foo]),
-      \+check_that(X,[tuned(cyclic)])
-   ).
+test("cyclic, throw if nonground acyclic (hard)",error(check(instantiation,_,_,_))) :-
+   check_that(s(_),[hard(cyclic)]).
 
-test("unbound variable is not cyclic",fail) :-
-   check_that(_,[tuned(cyclic)]).
+
+test("cyclic, throw if uninstantiated (soft)",error(check(instantiation,_,_,_))) :-
+   check_that(_,[soft(cyclic)]).
+
+test("cyclic, throw if nonground acyclic (soft)",error(check(instantiation,_,_,_))) :-
+   check_that(s(_),[soft(cyclic)]).
+
+
+test("cyclic, fail if uninstantiated (smooth)",fail) :-
+   check_that(_,[smooth(cyclic)]).
+
+test("cyclic, fail if nonground acyclic (smooth)",fail) :-
+   check_that(s(_),[smooth(cyclic)]).
+
+
+test("cyclic, throw if ground acyclic (hard)",error(check(domain,_,_,_))) :-
+   check_that(s(a),[hard(cyclic)]).
+
+test("cyclic, fail if ground acyclic (soft)",fail) :-
+   check_that(s(a),[soft(cyclic)]).
+
+
+test("cyclic, succeed if nonground cyclic") :-
+   X=s(X,_),
+   assertion(\+ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(cyclic)]).
+
+test("cyclic, succeed if ground cyclic") :-
+   X=s(X),
+   assertion(ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(cyclic)]).
 
 :- end_tests(check_that_using_cyclic).
 
 % -------------------------------------------------------------------
 
+:- begin_tests(check_that_using_cyclic_now).
+
+test("cyclic_now, throw if uninstantiated (hard)",error(check(domain,_,_,_))) :-
+   check_that(_,[hard(cyclic_now)]).
+
+test("cyclic_now, throw if nonground acyclic (hard)",error(check(domain,_,_,_))) :-
+   check_that(s(_),[hard(cyclic_now)]).
+
+test("cyclic_now, throw if ground acyclic (hard)",error(check(domain,_,_,_))) :-
+   check_that(s(a),[hard(cyclic_now)]).
+
+test("cyclic_now, fail if uninstantiated (soft)",fail) :-
+   check_that(_,[soft(cyclic_now)]).
+
+test("cyclic_now, fail if uninstantiated (soft)",fail) :- 
+   check_that(s(_),[soft(cyclic_now)]).
+
+test("cyclic_now, fail if uninstantiated (soft)",fail) :-
+   check_that(s(a),[soft(cyclic_now)]).
+
+test("cyclic_now, succeed if nonground cyclic") :-
+   X=s(X,_),
+   assertion(\+ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(cyclic_now)]).
+
+test("cyclic_now, succeed if ground cyclic") :-
+   X=s(X),
+   assertion(ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(cyclic_now)]).
+
+:- end_tests(check_that_using_cyclic_now).
+
+
+% -------------------------------------------------------------------
+
 :- begin_tests(check_that_using_acyclic_now).
 
-test("tentatively acyclic, success") :-
-   forall(
-      member(X,['',[1,2,3],foo,[1,2,3|_]]),
-      check_that(X,[tuned(acyclic_now)])
-   ).
+test("acyclic_now, succeed if uninstantiated") :-
+   check_that(_,[hard(acyclic_now)]).
 
-test("tentatively acyclic, failure") :-
-   A=h(a,b,c,A),
-   B=[a,b,c|B],
-   C=[1,2|B],
-   forall(
-      member(X,[A,B,C]),
-      \+check_that(X,[tuned(acyclic_now)])
-   ).
+test("acyclic_now, succeed if nonground acyclic") :-
+   check_that(s(_),[hard(acyclic_now)]).
 
-test("unbound variable is tentatively acyclic") :-
-   check_that(_,[tuned(acyclic_now)]).
+test("acyclic_now, succeed if ground acyclic") :-
+   check_that(s(a),[hard(acyclic_now)]).
+
+test("acyclic_now, throw if nonground cyclic (hard)",error(check(domain,_,_,_))) :-
+   X=s(X,_),
+   assertion(\+ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(acyclic_now)]).
+
+test("acyclic_now, thriw if ground cyclic (hard)",error(check(domain,_,_,_))) :-
+   X=s(X),
+   assertion(ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(acyclic_now)]).
+
+test("acyclic_now, fail if nonground cyclic (soft)",fail) :-
+   X=s(X,_),
+   assertion(\+ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[soft(acyclic_now)]).
+
+test("acyclic_now, fail if ground cyclic (soft)",fail) :-
+   X=s(X),
+   assertion(ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[soft(acyclic_now)]).
 
 :- end_tests(check_that_using_acyclic_now).
 
@@ -1644,22 +1610,44 @@ test("unbound variable is tentatively acyclic") :-
 
 :- begin_tests(check_that_using_acyclic_forever).
 
-test("acyclic_forever, success") :-
-   forall(
-      member(X,['',[1,2,3],foo]),
-      check_that(X,[tuned(acyclic_forever)])
-   ).
+test("acyclic_forever, thwo if uninstantiated (hard)",error(check(domain,_,_,_))) :-
+   check_that(_,[hard(acyclic_forever)]).
 
-test("acyclic_forever, failure") :-
-   A=h(a,b,c,A), % definitely cyclic
-   B=[a,b,c|_],  % may become cyclic
-   forall(
-      member(X,[A,B]),
-      \+check_that(X,[tuned(acyclic_forever)])
-   ).
+test("acyclic_forever, throw if nonground acyclic (hard)",error(check(domain,_,_,_))) :-
+   check_that(s(_),[hard(acyclic_forever)]).
 
-test("unbound variable is not 'acyclic forever'",fail) :-
-   check_that(_,[tuned(acyclic_forever)]).
+test("acyclic_forever, fail if uninstantiated (soft)",fail) :-
+   check_that(_,[soft(acyclic_forever)]).
+
+test("acyclic_forever, fail if nonground acyclic (soft)",fail) :-
+   check_that(s(_),[soft(acyclic_forever)]).
+
+test("acyclic_forever, success if ground acyclic") :-
+   check_that(s(a),[hard(acyclic_forever)]).
+
+test("acyclic_forever, fail if nonground cyclic (soft)",fail) :-
+   X=s(X,_),
+   assertion(\+ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[soft(acyclic_forever)]).
+
+test("acyclic_forever, fail if ground cyclic (soft)",fail) :-
+   X=s(X),
+   assertion(ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[soft(acyclic_forever)]).
+
+test("acyclic_forever, throw if nonground cyclic (hard)",error(check(domain,_,_,_))) :-
+   X=s(X,_),
+   assertion(\+ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(acyclic_forever)]).
+
+test("acyclic_forever, throw if ground cyclic (hard)",error(check(domain,_,_,_))) :-
+   X=s(X),
+   assertion(ground(X)),
+   assertion(cyclic_term(X)),
+   check_that(X,[hard(acyclic_forever)]).
 
 :- end_tests(check_that_using_acyclic_forever).
 
@@ -1670,7 +1658,7 @@ test("unbound variable is not 'acyclic forever'",fail) :-
 test("stream atoms (aliases), success") :-
    forall(
       member(X,[user_input, user_output, user_error, current_input, current_output]),
-      check_that(X,[tuned(stream)])
+      check_that(X,[soft(stream)])
    ).
 
 test("stream atoms (aliases), failure") :-
@@ -1679,13 +1667,10 @@ test("stream atoms (aliases), failure") :-
       catch(check_that(X,[hard(stream)]),error(check(domain,_,_,_),_),true)
    ).
 
-test("stream, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("stream, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(stream)]).
 
-test("stream, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(stream)]).
-
-test("stream, fully lenient, fail on uninstantiated X", fail) :-
+test("stream, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(stream)]).
 
 :- end_tests(check_that_using_stream).
@@ -1697,37 +1682,34 @@ test("stream, fully lenient, fail on uninstantiated X", fail) :-
 test("chars, success") :-
    forall(
       member(X,[[],[a,b,c]]),
-      check_that(X,[tuned(chars)])
+      check_that(X,[soft(chars)])
    ).
 
 test("chars, failure (includes things that are not a list)") :-
    forall(
       member(X,[[1,2,3], ["a","b"], [ab,cd], [1|2], foo ]),
-      \+check_that(X,[tuned(chars)])
+      \+check_that(X,[soft(chars)])
    ).
 
-test("chars, strict, type exception (not a list, not a list of atoms)") :-
+test("chars, hard, type exception (not a list, not a list of atoms)") :-
    forall(
       member(X,[foo, "foo", [1|2], ["a","b"], [1, 2]]),
       catch(check_that(X,[hard(chars)]),error(check(type,_,_,_),_),true)
    ).
 
-test("chars, strict, domain exception (list of atoms, but one atom is not of length 1)") :-
+test("chars, hard, domain exception (list of atoms, but one atom is not of length 1)") :-
    catch(check_that([a,bb,c],[hard(chars)]),error(check(domain,_,_,_),_),true).
 
-test("chars, fullylenient, fails because of uninstantiated member",fail) :-
+test("chars, fully smooth, fails because of uninstantiated member",fail) :-
    check_that([a,b,c,_,d,e,f],[smooth(chars)]).
 
-test("chars, strict, uninstantiated exception because of uninstantiated member",error(check(instantiation,_,_,_))) :-
+test("chars, hard, uninstantiated exception because of uninstantiated member",error(check(instantiation,_,_,_))) :-
    check_that([a,b,c,_,d,e,f],[hard(chars)]).
 
-test("chars, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("chars, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(chars)]).
 
-test("chars, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(chars)]).
-
-test("chars, fully lenient, fail on uninstantiated X", fail) :-
+test("chars, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(chars)]).
 
 :- end_tests(check_that_using_chars).
@@ -1739,37 +1721,34 @@ test("chars, fully lenient, fail on uninstantiated X", fail) :-
 test("codes, success") :-
    forall(
       member(X,[[],[1,2,3]]),
-      check_that(X,[tuned(codes)])
+      check_that(X,[soft(codes)])
    ).
 
 test("codes, failure (includes things that are not a list)") :-
    forall(
       member(X,["",[1|2],'',foo,123,"",[a,b,c],["a","b"],[ab,cd],[-1,0],[0xFFFFFFFF,0]]),
-      \+check_that(X,[tuned(codes)])
+      \+check_that(X,[soft(codes)])
    ).
 
-test("codes, strict, type exception (not a list, not a list of codes)") :-
+test("codes, hard, type exception (not a list, not a list of codes)") :-
    forall(
       member(X,[foo, "foo", [1|2], ["a","b"], [a, b]]),
       catch(check_that(X,[hard(codes)]),error(check(type,_,_,_),_),true)
    ).
 
-test("codes, strict, domain exception (list of codes, but one of the codes is not in range)") :-
+test("codes, hard, domain exception (list of codes, but one of the codes is not in range)") :-
    catch(check_that([1,-1,2],[hard(codes)]),error(check(domain,_,_,_),_),true).
 
-test("codes, fullylenient, fails because of uninstantiated member",fail) :-
+test("codes, fully smooth, fails because of uninstantiated member",fail) :-
    check_that([1,2,3,_,4,5,6],[smooth(codes)]).
 
-test("codes, strict, uninstantiated exception because of uninstantiated member",error(check(instantiation,_,_,_))) :-
+test("codes, hard, uninstantiated exception because of uninstantiated member",error(check(instantiation,_,_,_))) :-
    check_that([1,2,3,_,4,5,6],[hard(codes)]).
 
-test("codes, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("codes, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(codes)]).
 
-test("codes, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(codes)]).
-
-test("codes, fully lenient, fail on uninstantiated X", fail) :-
+test("codes, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(codes)]).
 
 :- end_tests(check_that_using_codes).
@@ -1781,46 +1760,43 @@ test("codes, fully lenient, fail on uninstantiated X", fail) :-
 test("charys, success") :-
    forall(
       member(X,[[],[1,2,3]]),
-      check_that(X,[tuned(charys)])
+      check_that(X,[soft(charys)])
    ).
 
 test("charys, failure") :-
    forall(
       member(X,["",[1|2],'',foo,123,"",["a","b"],[ab,cd],[-1,0],[1,2,a],[0xFFFFFFFF,0]]),
-      \+check_that(X,[tuned(charys)])
+      \+check_that(X,[soft(charys)])
    ).
 
-test("charys, strict, type exception") :-
+test("charys, hard, type exception") :-
    forall(
       member(X,[foo, "foo", [1|2]]),
       catch(check_that(X,[hard(charys)]),error(check(type,_,_,_),_),true)
    ).
 
-test("charys, lenient, failure in case of char/code mix",fail) :-
-   check_that([1,2,a,3],[tuned(charys)]).
+test("charys, smooth, fail instead of throwing in case of char/code mix",fail) :-
+   check_that([1,2,a,3],[soft(charys)]).
 
-test("charys, strict, forany exception in case of char/code mix",error(check(forany,_,_,_),_)) :-
+test("charys, hard, forany exception in case of char/code mix",error(check(forany,_,_,_),_)) :-
    check_that([1,2,a,3],[hard(charys)]).
 
-test("charys, strict, forany exception (list of codes, but one code is not in range)") :-
+test("charys, hard, forany exception (list of codes, but one code is not in range)") :-
    catch(check_that([1,-1,2],[hard(charys)]),error(check(forany,_,_,_),_),true).
 
-test("charys, strict, forany exception (list of 1-character strings, which is not chary)") :-
+test("charys, hard, forany exception (list of 1-character strings, which is not chary)") :-
    catch(check_that(["a","b"],[hard(charys)]),error(check(forany,_,_,_),_),true).
 
-test("charys, fullylenient, fails because of uninstantiated member",fail) :-
+test("charys, smooth, fails instead of throwing because of uninstantiated member",fail) :-
    check_that([1,2,3,_,4,5,6],[smooth(charys)]).
 
-test("charys, strict, uninstantiated exception because of uninstantiated member",error(check(instantiation,_,_,_))) :-
+test("charys, hard, uninstantiated exception because of uninstantiated member",error(check(instantiation,_,_,_))) :-
    check_that([1,2,3,_,4,5,6],[hard(charys)]).
 
-test("charys, strict, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
+test("charys, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(charys)]).
 
-test("charys, lenient, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
-   check_that(_,[tuned(charys)]).
-
-test("charys, fully lenient, fail on uninstantiated X", fail) :-
+test("charys, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(charys)]).
 
 :- end_tests(check_that_using_charys).
@@ -1832,43 +1808,40 @@ test("charys, fully lenient, fail on uninstantiated X", fail) :-
 % --- forall: the single element X must pass all of the checks in the list that is "Check"
 
 test("forall, success") :-
-   check_that(12.0,[tuned(forall([float,inty,posnum]))]).
+   check_that(12.0,[soft(forall([float,inty,posnum]))]).
 
 test("forall, empty list of checks, success") :-
    check_that(12.0,[]).
 
 test("forall, failure",fail) :-
-   check_that(-12.0,[tuned(forall([float,inty,posnum]))]).
+   check_that(-12.0,[soft(forall([float,inty,posnum]))]).
 
-test("forall, strict, failure",error(check(domain,_,_,_))) :-
+test("forall, hard, failure",error(check(domain,_,_,_))) :-
    check_that(-12.0,[hard(forall([float,inty,posnum]))]). % fails on posnum
 
 % --- forany: the single element X must pass at least one of the checks in the list that is "Check"
 
 test("forany, success") :-
-   check_that(-12,[tuned(forany([float,inty,posnum]))]).
+   check_that(-12,[soft(forany([float,inty,posnum]))]).
 
 test("forany, empty list of checks, failure",fail) :-
-   check_that(-12,[tuned(forany([]))]).
+   check_that(-12,[soft(forany([]))]).
 
-test("forany, failure",fail) :-
-   check_that(-12,[tuned(forany([float,proper_rational,posnum]))]).
-
-test("forany, strict, failure",error(check(forany,_,_,_))) :-
+test("forany, hard, failure",error(check(forany,_,_,_))) :-
    check_that(-12,[hard(forany([float,proper_rational,posnum]))]).
 
 % --- fornone: the single element X must not pass any of the checks in the list that is "Check"
 
 test("fornone, success") :-
-   check_that(foo,[tuned(fornone([float,inty,posnum]))]).
+   check_that(foo,[soft(fornone([float,inty,posnum]))]).
 
 test("fornone, empty list of checks, failure", fail) :-
-   check_that(foo,[tuned(fornone([]))]).
+   check_that(foo,[soft(fornone([]))]).
 
 test("fornone, failure",fail) :-
-   check_that(12.0,[tuned(fornone([integer,negnum,inty]))]).
+   check_that(12.0,[soft(fornone([integer,negnum,inty]))]).
 
-test("fornone, strict, failure",error(check(fornone,_,_,_))) :-
+test("fornone, hard, failure",error(check(fornone,_,_,_))) :-
    check_that(12.0,[hard(fornone([integer,negnum,inty]))]).
 
 :- end_tests(check_that_using_forX).
@@ -1880,76 +1853,76 @@ test("fornone, strict, failure",error(check(fornone,_,_,_))) :-
 % --- passall: all of the elements in the list that is X must pass the single "check"
 
 test("passall, not a list as X", error(check(type,_,_,_),_)) :-
-   check_that(foo,[tuned(passall(integer))]).
+   check_that(foo,[soft(passall(integer))]).
 
 test("passall, empty list as X, success") :-
-   check_that([],[tuned(passall(integer))]).
+   check_that([],[soft(passall(integer))]).
 
 test("passall, success (all elements are inty)") :-
-   check_that([1, 0, 3.0],[tuned(passall(inty))]).
+   check_that([1, 0, 3.0],[soft(passall(inty))]).
 
 test("passall, failure (some elements are not inty)",fail) :-
-   check_that([1, 0, 3.1],[tuned(passall(inty))]).
+   check_that([1, 0, 3.1],[soft(passall(inty))]).
 
-test("passall, strict, failure, throws (type error on encountering 3.1)", error(check(type,_,_,_),_)) :-
+test("passall, hard, failure, throws (type error on encountering 3.1)", error(check(type,_,_,_),_)) :-
    check_that([1, 0, 3.1],[hard(passall(pos0inty))]).
 
-test("passall, strict, failure, throws (domain error on encountering -1)", error(check(domain,_,_,_),_)) :-
+test("passall, hard, failure, throws (domain error on encountering -1)", error(check(domain,_,_,_),_)) :-
    check_that([1, -1, 3.1],[hard(passall(pos0inty))]).
 
 % --- passany: at least one of the elements in the list that is X must pass the single "check"
 
 test("passany, not a list as X", error(check(type,_,_,_),_)) :-
-   check_that(foo,[tuned(passany(integer))]).
+   check_that(foo,[soft(passany(integer))]).
 
 test("passany, empty list as X, failure", fail) :-
-   check_that([],[tuned(passany(integer))]).
+   check_that([],[soft(passany(integer))]).
 
 test("passany, success (at least one element is inty)") :-
-   check_that([foo, g(x), 3.0],[tuned(passany(inty))]).
+   check_that([foo, g(x), 3.0],[soft(passany(inty))]).
 
 test("passany, failure (none of the elements is inty)",fail) :-
-   check_that([foo, g(x), 3.1],[tuned(passany(inty))]).
+   check_that([foo, g(x), 3.1],[soft(passany(inty))]).
 
-test("passany, strict, failure (none of the elements is posinty, they are all out-of-type)", error(check(passany,_,_,_),_)) :-
+test("passany, hard, failure (none of the elements is posinty, they are all out-of-type)", error(check(passany,_,_,_),_)) :-
    check_that([foo, g(x), 3.1],[hard(passany(inty))]).
 
-test("passany, strict, failure (one of the elements is nonground)") :-
+test("passany, hard, failure (one of the elements is nonground)") :-
    check_that([1, g(_), 1],[hard(passany(inty))]).
 
-test("passany, strict, failure (none of the elements is posinty, they are all out-of-domain)", error(check(passany,_,_,_),_)) :-
+test("passany, hard, failure (none of the elements is posinty, they are all out-of-domain)", error(check(passany,_,_,_),_)) :-
    check_that([-1, -2, 0],[hard(passany(posinty))]).
 
-test("passany, strict, failure (none of the elements is posinty, and some are uninstantiated)", error(check(instantiation,_,_,_),_)) :-
+test("passany, hard, failure (none of the elements is posinty, and some are uninstantiated)", error(check(instantiation,_,_,_),_)) :-
    check_that([-1, _, _],[hard(passany(posinty))]).
 
-test("passany, strict, failure (none of the elements is posinty, and some are uninstantiated)", error(check(instantiation,_,_,_),_)) :-
+test("passany, hard, failure (none of the elements is posinty, and some are uninstantiated)", error(check(instantiation,_,_,_),_)) :-
    check_that([-1, _, _],[hard(passany(posinty))]).
 
 % --- passnone: none of the elements in the list that is X may pass the single "check"
 
 test("passnone, not a-list-as-X", error(check(type,_,_,_),_)) :-
-   check_that(foo,[tuned(passnone(integer))]).
+   check_that(foo,[soft(passnone(integer))]).
 
 test("passnone, empty list as X, failure", fail) :-
-   check_that([],[tuned(passnone(integer))]).
+   check_that([],[soft(passnone(integer))]).
 
 test("passnone, success: there is no inty") :-
-   check_that([foo, g(x), 3.1],[tuned(passnone(inty))]).
+   check_that([foo, g(x), 3.1],[soft(passnone(inty))]).
 
 test("passnone, failure: there is an inty",fail) :-
-   check_that([foo, 2, 3.1],[tuned(passnone(inty))]).
+   check_that([foo, 2, 3.1],[soft(passnone(inty))]).
 
-test("passnone, strict, failure: there is an inty, #1", error(check(passnone,_,_,_),_)) :-
+test("passnone, hard, failure: there is an inty, #1", error(check(passnone,_,_,_),_)) :-
    check_that([foo, 2, 3.1],[tuned(passnone(inty))],throw).
 
-test("passnone, strict, failure: there is an inty, #2", error(check(passnone,_,_,_),_)) :-
+test("passnone, hard, failure: there is an inty, #2", error(check(passnone,_,_,_),_)) :-
    check_that([foo, 2, 3.1],[hard(passnone(inty))]).
 
-test("passnone, strict, failure: there is a nonground") :-
+test("passnone, hard, failure: there is a nonground") :-
    check_that([foo, g(_), 3.1],[hard(passnone(inty))]).
 
-test("passnone, strict, failure: there is an uninstantiated", error(check(instantiation,_,_,_),_)) :-
+test("passnone, hard, failure: there is an uninstantiated", error(check(instantiation,_,_,_),_)) :-
    check_that([foo, _, 3.1],[hard(passnone(inty))]).
 
 :- end_tests(check_that_using_passX).
@@ -1958,20 +1931,20 @@ test("passnone, strict, failure: there is an uninstantiated", error(check(instan
 
 :- begin_tests(check_that_multicondition).
 
-test("12 is nonvar and an integer, strict, succeeds") :-
+test("12 is nonvar and an integer, hard, succeeds") :-
    check_that(12,[hard(nonvar),hard(int)]).
 
-test("foo is nonvar and an integer, strict, throws",error(check(type,_,_,_))) :-
+test("foo is nonvar and an integer, hard, throws",error(check(type,_,_,_))) :-
    check_that(foo,[hard(nonvar),hard(int)]).
 
-test("foo is nonvar and an integer, lenient, fails", fail) :-
-   check_that(foo,[tuned(nonvar),tuned(int)]).
+test("foo is nonvar and an integer, soft, fails", fail) :-
+   check_that(foo,[soft(nonvar),soft(int)]).
 
-test("foo is nonvar and an integer, marked lenient, but is strict by switching on strictness, throws", error(check(type,_,_,_))) :-
+test("foo is nonvar and an integer, marked tuned, but is hard by switching on hardness, throws", error(check(type,_,_,_))) :-
    check_that(foo,[tuned(nonvar),tuned(int)],throw).
 
-test("a var is nonvar and an integer, lenient, fails", fail) :-
-   check_that(_,[tuned(nonvar),tuned(int)]).
+test("a var is nonvar and an integer, soft, fails", fail) :-
+   check_that(_,[soft(nonvar),soft(int)]).
 
 :- end_tests(check_that_multicondition).
 

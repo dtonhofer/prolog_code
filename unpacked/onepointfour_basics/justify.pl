@@ -1,3 +1,22 @@
+:- module(onepointfour_basic_justify,
+          [
+          justify_left/3    % justify_left(Text,Width,Result)
+         ,justify_right/3   % justify_right(Text,Width,Result)
+         ,justify_center/3  % justify_center(Text,Width,Result)
+         ,justify_how/4     % justify_how(How,Text,Width,Result)
+         ,justify_left/5    % justify_left(Text,Width,Result,Want,Nocheck)
+         ,justify_right/5   % justify_right(Text,Width,Result,Want,Nocheck)
+         ,justify_center/5  % justify_center(Text,Width,Result,Want,Nocheck)
+         ,justify/10        % justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
+          ]).
+
+:- use_module(library('onepointfour_basic_justify/space_string.pl')).
+
+:- use_module(library('heavycarbon/strings/stringy.pl')).
+:- use_module(library('heavycarbon/strings/string_overwrite.pl')).
+
+
+
 % =============================================================================
 % Straightforward "string justification": left, right, center, with cutting
 % off of fields.
@@ -33,24 +52,6 @@
 % =============================================================================
 % Latest review: Tue 19 January 2021
 % =============================================================================
-
-:- module(onepointfour_basic_justify,
-          [
-          justify_left/3    % justify_left(Text,Width,Result)
-         ,justify_right/3   % justify_right(Text,Width,Result)
-         ,justify_center/3  % justify_center(Text,Width,Result)
-         ,justify_how/4     % justify_how(How,Text,Width,Result)
-         ,justify_left/5    % justify_left(Text,Width,Result,Want,Nocheck)
-         ,justify_right/5   % justify_right(Text,Width,Result,Want,Nocheck)
-         ,justify_center/5  % justify_center(Text,Width,Result,Want,Nocheck)
-         ,justify/10        % justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
-          ]).
-
-:- use_module(library('onepointfour_basic_justify/space_string.pl')).
-
-:- use_module(library('heavycarbon/support/meta_helpers.pl')).
-:- use_module(library('heavycarbon/strings/stringy.pl')).
-:- use_module(library('heavycarbon/strings/string_overwrite.pl')).
 
 % ===
 % Simple calls that don't check and always return strings
