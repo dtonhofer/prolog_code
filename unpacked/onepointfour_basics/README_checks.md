@@ -221,7 +221,6 @@ uninstantiated. In either case, we have something dubious.
 | `nonempty_list`                     | throws          | proper list that is not empty. |
 | `dict`                              | throws          | SWI-Prolog _dict_ (which is a compound term following some special requirements). |
 | `cyclic`                            | covered by test | term that has a cyclic structure _now_.<br>An unbound TBC leads to failure (if `soft/1`) |
-
 | `acyclic_now`                       | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground.<br>`check_that(_,hard(acyclic_now)).` succeeds. |
 | `acyclic_forever`                   | covered by test | term that is both ground and acyclic and will never become cyclic. |
 | `stream`                            | throws          | term that is either "stream name" (certain _atoms_) or a valid _stream handle_ (certain _blobs_).<br>The known stream names are `user_input`, `user_output`, `user_error`, `current_input`, `current_output`. |
@@ -312,11 +311,11 @@ and `cyclic_now` corresponds exactly to `cyclic_term/1`. Conditions using those 
 
 |                       | `cyclic`  | `cyclic_now`<br>(`cyclic_term/1`)  | `acyclic_now`<br>(`acyclic_term/1`)  | `acyclic_forever` |
 | :--                   | :--                | :--                   | :--                   | :--               |
-| **uninstantiated**    | **throw**          | false (could change)  | true (could change)   | false             |
-| **nonground acyclic** | **throw**          | false (could change)  | true (could change)   | false             |
-| **ground acylic**     | fail (for sure)    | false (for sure)      | true (for sure)       | true              |
-| **nonground cyclic**  | succeed (for sure) | true (for sure)       | false (for sure)      | false             |
-| **ground cyclic**     | succeed (for sure) | true (for sure)       | false (for sure)      | false             |
+| **uninstantiated**    | **throw** (hard mode)  | false (could change)  | true (could change)   | false             |
+| **nonground acyclic** | **throw** (hard mode)  | false (could change)  | true (could change)   | false             |
+| **ground acylic**     | false (for sure)       | false (for sure)      | true (for sure)       | true              |
+| **nonground cyclic**  | true (for sure)        | true (for sure)       | false (for sure)      | false             |
+| **ground cyclic**     | true (for sure)        | true (for sure)       | false (for sure)      | false             |
 
 ## Examples
 
