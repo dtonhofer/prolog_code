@@ -42,323 +42,11 @@
 
 check_that/3 and friends: a replacement for the must_be/2 predicate of
 Prolog. must_be/2 is used to check preconditions on predicate entry, but
-is not very flexible. Can we change that?
+is not very flexible. Can we improve on that?
 
-See: https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2
+The homepage for this module is at
 
-A call to check_that/3 looks as follows:
-
-   check_that(X,Conditions,ThrowFlag)
-
-where
-
-   - X is the term that is subject to being checked.
-   - Conditions is a proper list of conditions to be evaluated left-to-right
-   - ThrowFlag is a flag that determines whether to, in certain settings,
-     preferentially throw (if it is =|true|= or =|throw|=) or fail
-     (if it is anything else, including an unbound variable)
-
-The simpler
-
-   check_that(X,List)
-
-assumes that Throw is =|false|=.
-
-The more extensive
-
-   check_that_named(X,Conditions,Name)
-   check_that_named(X,Conditions,Name,Throw)
-
-also takes a Name to designate the X that is being checked. The Name can then
-be inserted into exception messages. Generally one would not bother with this.
-
-The list of conditions
-----------------------
-
-The list of conditions behaves like a "conditional and" (aka. "short-circuiting and")
-of verifications. A condition is a compound term, a tagged check. The functor name
-of the condition specifies what to do depending on the outcome of the check.
-
-The "check precondition fails" generally means that the actual check cannot determine from the current
-state of X whether to reasonably succeed or fail because X is not instantiated enough. The check would
-then raise an instantiation exception (in the current implementation, a non-ISO exception term
-error(check(not_instantiated_enough,_,_,_),_).
-
-The Prolog default checks like atom/1 take the high way and fail in that case (atom(_) fails, either
-pretending to know something about _ that it doesn't or outing itself as a second-order predicate
-like var/1 that can analyze the momentary state of the computation and say that a term is indeed
-uninstantiated. In either case, it's dubious practice).
-
-The Prolog behaviour can be recovered with the tag smooth/1. However, it is preferred to use
-another tag and to explicitly check for var-ness and earlier (to the left in the list of
-conditions) and accept it (e.g. break(var)) or reject it (e.g. nonvar(X)).
-
-The behaviour is as follows for the various tags allowed in conditions:
-
-break/1
-
-- Check precondition fails:
-  An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails:
-  The condition succeeds, leading to examination of the next condition to the right.
-- Verification succeeds:
-  Condition processing stops and check_that succeeds overall
-
-smooth/1
-
-- Precondition fails:
-  The condition fails, leading to the whole of check_that/N failing.
-  This is like the behaviour of prolog predicates like atom/N when
-  they are given an uninstantiated term: They just fail.
-- Verification fails:
-  The condition fails, leading to the whole of check_that/N failing.
-- Verification succeeds:
-  The condition succeeds, leading to examination of the next condition to the right.
-
-soft/1
-
-- Precondition fails:
-  An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails:
-  The condition fails, leading to the whole of check_that/N failing.
-- Verification succeeds:
-  The condition succeeds, leading to examination of the next condition to the right.
-
-tuned/1 and the "Throw" flag is unset: behaves like soft/1
-
-- Precondition fails:
-  An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails:
-  The condition fails, leading to the whole of check_that/N failing.
-- Verification succeeds:
-  The condition succeeds, leading to examination of the next condition to the right.
-
-tuned/1 and the "Throw" flag is set: behaves like hard/1
-
-- Precondition fails:
-  An exception (generally a 'uninstantiated error' exception) is thrown.
-- Verification fails:
-  An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
-- Verification succeeds:
-  The condition succeeds, leading to examination of the next condition to the right.
-
-hard/1
-
-- Check precondition fails:
-  An exception (generally a 'uninstantiated error' exception) is thrown.
-- Check verification fails:
-  An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
-- Verification succeeds:
-  The condition succeeds, leading to examination of the next condition to the right.
-
-Synopsis:
-
-  Fail if X is not a string
-
-     check_that(X,[tuned(string)])
-
-  Throw if X is not a string
-
-    check_that(X,[hard(string)])
-
-  Throw if X is not an integer and then fail if X is not a positive integer
-
-    check_that(X,[hard(int),tuned(posint)])
-
-  Or you can switch "lenient" to behave "strictly":
-
-    check_that(X,[hard(int),tuned(posint)],throw)
-
-  Fail if foo is not a member of the given list with a supplementary argument:
-
-    check_that(foo,[tuned(member([alpha,bravo,charlie]))]).
-
-  Throw if foo is not a member of the given list (it would really cool if
-  one could inject the source code line into the message; that can be done
-  with term_expansion I think. Maybe later)
-
-    check_that(foo,[tuned(member([alpha,bravo,charlie]))],throw).
-    ERROR: check failed : domain error: "the culprit is outside the required domain"
-    ERROR:    message   : "the value should fulfill 'list-member-ship-ness'"
-    ERROR:    culprit   : foo
-
-Usage scenarios:
-
-  - Use check_that/2 to verify predicate entry preconditions
-    - Expecting to switch them off at "production time" (assertions) to gain performance
-    - They are also goo "live documentation" saying exactly what parts of the input space are covered by throws and which ones by fails
-      One can rely on "implicitly building" that space via the behaviour of the predicates called in turn, but may become unclear
-      what that space is. (This may be ok depending on coding style)
-    - Using check_that/2 "normally" as a guard to make the predicate
-      - throw on extremely bad arguments (i.e. badly typed ones)
-      - fail on bad arguments (i.e. out-of-domain ones)
-     - Logic/Search parts of the program will preferentially fail (or only enter the situation where a fail makes sense)
-     - Functional programming parts of the program will preferentially throw (or only enter the situation where a throw makes sense)
-  - Use check_that/2 to verify invariants inside of predicates (generally not needed as this is done by checking pre/postconditions in Prolog)
-    - Expecting to switch them off at "production time" (assertions) to gain performance
-    - TODO: Such cases must be marked as "this is not expected to be violated in running code" (throwing a really nasty exception)
-      And then the test must be switch-offable using a specific hierarchical key, just like you switch logging on or off that way.
-  - Use check_that/2 normally in code, as just a particular form of a guard, i.e. it is not expected that they will be switched off
-  - (There is no easy way to perform postconditions-on-success in Prolog except by wrapping a predicate with another predicate. Annoying.)
-
-Assertions
-
-  - Assertions are basically the subset of conditions that one does not expect to fail or throw at runtime.
-    The idea is to remove those tests because they "never fail" and the insurance will pick up the slack if they do.
-    Prolog is special in that "failing" is an integral part of its approach, so switching off checks wholesale is not an option
-    (Unless one wants to really have separate instructions for "necessary checks" and "assertion checks")
-    To "remove unnecessary checks" it must both be possible to:
-    1) identify them. This can be done my giving them a special name, e.g. lenient_assert instead of just lenient
-    2) be able to "remove them" cheaply; this can be done during compilation phase: the marked conditions can be written out
-    3) select those which should be removed based on program structure: eg. all those in module XY should be removed
-       this also seems a case for the compilation phase
-
-Desgin question especially clear in case of complex checking of lists:
-
-  - The structure to test may have multiple layers of testing. For example, for a "proper list of char":
-    - X is a var             -> fail or exception
-    - X is not a proper list -> fail or exception
-    - X contains vars        -> fail or exception
-    - X contains non-chars   -> fails or exception
-    - and finally success
-    A caller could demand throwing down to any level of the above (and possibly accept var)
-    The **proper way to have this flexibility** is exactly to use check_that/2 with the detailed
-    more-and-more-precise check sequence, going from strictness to leniency depending on taste, for example
-      check_that(X,[break(var),hard(list),hard(list(nonvar)),tuned(list(char))])
-    instead of a single monolitic
-      check_that(X,[break(var),hard(chars)])
-    However, in that case the "rightmost checks" may perform wasteful checks against that we already
-    know will succeed. So there is a need for doing bare-bones checks (maybe?). Probably not worth it.
-    Note that what exception to throw is generally made in this order:
-    X uninstantiated -> throw instantiation error
-    X instantiated but not of the correct type (e.g. expecting integer but it's a float) -> throw type error
-    X of the correct type but not in the correct domain (e.g. expecting positive integer but it's negative) -> throw domain error
-
-Note that eval generally fails (or throws, if so demanded) if the question is "about" an uninstantiated variable.
-However, passing an uninstantiated variable is actually a different level in that the question posed by the
-predicate is "ill-formed" (e.g. is "_" an atom? cannot be answered (there is not enough information) unless one
-considers this is a second-order question, in that "unbound variables" become themselves the object of discourse;
-in which case "second-order: is an unbound variable an atom" can be answered with 'false'). Anyway, should ill-formed
-questions _really_ be answered with failure/standard-throw or with an unconditional throw of a dedicated exception?
-I am unsure about this. For, it's "as usual".
-
-The Check is either an atom or a compound term from the following list of atoms and compound terms (aliases are indicated with "/")
-TODO: The unbound variable is mostly a special case and should maybe merit special handling (an unconditional exception)
-
-  true
-  false fail
-  var nonvar
-  nonground ground
-  atom/symbol
-  atomic/constant
-  compound
-  boolean                            (either the atom 'true' or the atom 'false')
-  pair                               (a compound term with functor name '-' and arity 2)
-  string                             (an SWI-Prolog string)
-  stringy                            (either an atom or an SWI-Prolog string)
-  nonempty_stringy                   (nonempty stringy: a stringy that is different from '' and "")
-  char                               (an atom of length 1, this is the traditional Prolog 'char' type)
-  char_list,chars                    (a proper list of 0 or more chars; unbound elements are not allowed)
-  code                               (any integer between 0 and 0x10FFFF meant to represent an Unicode code point)
-  code_list,codes                    (a proper list of 0 or more codes; unbound elements are not allowed)
-  chary                              (a char or a code)
-  chary_list,charys                  (a proper list of 0 or more chars or codes (but consistently only one of those); unbound elements are not allowed)
-  stringy_typeid                     (one of the atoms 'string' or 'atom'; compare to 'boolean')
-  chary_typeid                       (one of the atoms 'char' or 'code'; compare to 'boolean')
-  number                             (any number)
-  float                              (any float, including +1.0Inf, -1.0Inf, NaN, -0.0)
-  float_not_nan                      (any float, excluding NaN)
-  float_not_inf                      (any float, excluding +1.0Inf, -1.0Inf)
-  float_not_neginf                   (any float, excluding -1.0Inf)
-  float_not_posinf                   (any float, excluding +1.0Inf)
-  int/integer                        (an integer)
-  rational                           (a rational, incldues integers)
-  nonint_rational/proper_rational    (a rational that is not an integer)
-  negnum/negnumber                   (strictly negative number)
-  posnum/posnumber                   (strictly positive number)
-  neg0num/neg0number                 (negative-or-zero number)
-  pos0num/pos0number                 (positive-or-zero number)
-  non0num/non0number                 (non-zero number)
-  negint/negative_integer            (strictly negative integer)
-  posint/positive_integer            (strictly positive integer)
-  neg0int                            (negative-or-zero integer)
-  pos0int/nonneg                     (positive-or-zero integer)
-  negfloat posfloat                  (strictly negative/positive float)
-  neg0float pos0float                (negative-or-zero/positive-or-zero float)
-  inty                               (an integer or a float that represents an integer, e.g 1 or 1.0)
-  neginty posinty                    (strictly negative/positive inty)
-  neg0inty pos0inty                  (negative-or-zero/positive-or-zero inty)
-  list/proper_list                   (a proper list, including the empty list)
-  nonempty_list                      (a proper list that is not empty)
-  dict                               (an SWI-Prolog dict)
-  cyclic                             (a term that has a cyclic structure)
-  acyclic                            (a term that has no cyclic structure for now, but have acquire it later unless it is also ground)
-  acyclic_forever                    (a term that is both ground and acyclic)
-  stream                             (a term that is a stream name (atom) or a valid stream handle (blob))
-  unifies(Z)                         (unifies with Z; unification is rolled back by use \+ \+)
-  member(ListOfValues)               (member of a list of values; test is unification)
-  random(Probability)                (randomly fails with probability 0 =< Probability =< 1)
-  forall(ListOfChecks)               (recursive: the term to check must pass all checks in ListOfChecks)
-  forany(ListOfChecks)               (recursive: the term to check must pass at least one check in ListOfChecks)
-  fornone(ListOfChecks)              (recursive: the term to check must pass no check in ListOfChecks), also useful as negation
-  passall(Check)                     (all the terms in the list of terms that is the input term must pass the Check)
-  passany(Check)                     (at least one term in the list of terms that is the input term must pass the Check)
-  passnone(Check)                    (none of the terms in the list of terms that is the input term must pass the Check)
-
-Compare with: Checks from must_be/2. Those marked "Ok" have been implemented in "check_that/N"
-
-  Ok any                     : any term, including an unbound variable (this reduces to true)
-  Ok atom,symbol             : passes atom/1
-  Ok atomic,constant         : passes atomic/1
-  Ok oneof(L)                : ground term that is member of L; if there is an unbound variable in L, everything passes!
-  Ok compound                : passes compound/1, the complement of atomic/1 (includes dicts, but don't use that fact as that dict implementation through compounds may change!)
-  Ok pair                    : a key-value pair or rather a compound term -/2
-  Ok boolean                 : one of the two atoms 'true' or 'false'
-  Ok integer                 : passes integer/1
-  Ok positive_integer        : integer > 0
-  Ok negative_integer        : integer < 0
-  Ok nonneg                  : nonneg *integer*; this should really be called "nonneg_integer"
-  Ok                           ...corresponding tests >=0, >0 etc for *general* numbers are missing
-  Ok float                   : passes float/1 (in SWI-Prolog, an IEEE 64-bit float)
-  Ok rational                : a non-integer rational or an integer
-  Ok number                  : passes number/1
-     between(FloatL,FloatU)  : if FloatL is float, all other values may be float or integer (FIXME?); the limits are both INCLUSIVE; limits may be equal but NOT reversed
-     between(IntL,IntU)      : if IntL is integer, all other values must be integer; the limits are both INCLUSIVE; limits may be equal but NOT reversed
-                            FIXME: there should be specific between_int/2 and between_float/2 if one goes that way.
-  Ok acyclic                 : passes acyclic_term/1, i.e. is an acyclic term; includes unbound var (the term is a tree if one disregards "internal sharing")
-  Ok cyclic                  : passes cyclic_term/1, i.e. the term contains cycles (the term is a "rational tree"). Does not accept an unbound variable.
-  Ok char                    : atom of length 1
-  Ok chars                   : list of 1-character atoms; includes the empty list
-  Ok code                    : unicode code point (any integer between 0 and 0x10FFFF)
-  Ok codes                   : list of integers >= 0; includes the empty list
-  Ok string                  : passes string/1, an SWI-Prolog string
-     text                    : atom or string or chars or codes (but not numbers even though some predicates "textify" those)
-  Ok var                     : passes var/1; must be an unbound variable
-  Ok nonvar                  : passes nonvar/1; anything except an unbound variable
-  Ok list,proper_list        : passes is_list/1 and is a proper/closed list; empty list is allowed
-     list(Type)              : proper list with elements of type Type (must_be/2(Type,_) is called on elements); empty list is allowed;
-                               on error the index is not indicated (why~~~). A type like "list(list(integer))" is ok!
-     list_or_partial_list    : A partial list (one ending in a variable: [x|_]). This includes an unbound variable.
-     callable                : passes callable/1. Relatively usesless, as "callable" is ill-defined. Basically (atom(X);compound(X))
-  Ok dict                    : passes is_dict/1, an SWI-prolog dict (which is just a compound term of a particular form)
-     encoding                : valid name for a character encoding; see current_encoding/1, e.g. utf8 (but not "utf8" or 'utf-8'; also fails for 'iso_8859_1')
-  Ok stream                  : passes is_stream/1, is a stream name or valid stream handle
-     type                    : Meta: Term is a valid type specification for must_be/2. This is done by looking up whether a clause `has_type(Type,_) :- ....` exists.
-                               Example: must_be(type,list(integer)). However, "must_be(type,list(grofx))": OK, but "must_be(type,grofx)": NOT OK.
-Possible extension:
-
-  predicate_indicator     : A Name/Arity predicate indicator
-  nonempty_list           : A list that is also nonempty
-  list_length_X           : Tests for length of lists (larger, smaller, equal)
-  subsumes
-  does_not_unify
-  dif
-  unifiesany, the counterpart for passany
-
-## More
-
-   @license [MIT License](https://opensource.org/licenses/MIT)
-   @author David Tonhofer (ronerycoder@gluino.name)
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_checks.md
 
 */
 
@@ -628,7 +316,7 @@ check_that_3(hard(Check),X,Name,_,Outcome) :-
    ->
    Outcome = next
    ;
-   throw_various(strict_check_fails,"check should throw instead of fail",Check).
+   throw_various(hard_check_fails,"hard check should throw but instead fails",Check).
 
 check_that_3([],_,_,_,done).
 
@@ -698,24 +386,29 @@ throw_or_fail_with_message(Msg,X,Throw) :-
 % Basement throwing predicate constructing the exception term itself.
 % ---
 
-throw_2(domain(Expected),Msg,Culprit)             :- throw(error(check(domain                   ,Expected,Msg,Culprit),_)).
-throw_2(type(Expected),Msg,Culprit)               :- throw(error(check(type                     ,Expected,Msg,Culprit),_)).
-throw_2(domain,Msg,Culprit)                       :- throw(error(check(domain                   ,_       ,Msg,Culprit),_)).
-throw_2(type,Msg,Culprit)                         :- throw(error(check(type                     ,_       ,Msg,Culprit),_)).
-throw_2(uninstantiation,Msg,Culprit)       :- throw(error(check(uninstantiation   ,_       ,Msg,Culprit),_)). % ISO's "uninstantiation error"
-throw_2(instantiation,Msg,Culprit)     :- throw(error(check(instantiation ,_       ,Msg,Culprit),_)). % ISO's "instantiation error"
-throw_2(passall,Msg,Culprit)                      :- throw(error(check(passall                  ,_       ,Msg,Culprit),_)).
-throw_2(passany,Msg,Culprit)                      :- throw(error(check(passany                  ,_       ,Msg,Culprit),_)).
-throw_2(passnone,Msg,Culprit)                     :- throw(error(check(passnone                 ,_       ,Msg,Culprit),_)).
-throw_2(forall,Msg,Culprit)                       :- throw(error(check(forall                   ,_       ,Msg,Culprit),_)).
-throw_2(forany,Msg,Culprit)                       :- throw(error(check(forany                   ,_       ,Msg,Culprit),_)).
-throw_2(fornone,Msg,Culprit)                      :- throw(error(check(fornone                  ,_       ,Msg,Culprit),_)).
-throw_2(_,_,_)                                    :- throw("Bug! You forgot a throw_2/3"). % Having this saves the day when debugging.
+throw_2(domain(Expected),Msg,Culprit)             :- throw(error(check(domain          ,Expected,Msg,Culprit),_)).
+throw_2(type(Expected),Msg,Culprit)               :- throw(error(check(type            ,Expected,Msg,Culprit),_)).
+throw_2(domain,Msg,Culprit)                       :- throw(error(check(domain          ,_       ,Msg,Culprit),_)).
+throw_2(type,Msg,Culprit)                         :- throw(error(check(type            ,_       ,Msg,Culprit),_)).
+throw_2(uninstantiation,Msg,Culprit)              :- throw(error(check(uninstantiation ,_       ,Msg,Culprit),_)). % ISO's "uninstantiation error"
+throw_2(instantiation,Msg,Culprit)                :- throw(error(check(instantiation   ,_       ,Msg,Culprit),_)). % ISO's "instantiation error"
+
+% These seem dubious:
+
+throw_2(passall,Msg,Culprit)                      :- throw(error(check(passall         ,_       ,Msg,Culprit),_)).
+throw_2(passany,Msg,Culprit)                      :- throw(error(check(passany         ,_       ,Msg,Culprit),_)).
+throw_2(passnone,Msg,Culprit)                     :- throw(error(check(passnone        ,_       ,Msg,Culprit),_)).
+throw_2(forall,Msg,Culprit)                       :- throw(error(check(forall          ,_       ,Msg,Culprit),_)).
+throw_2(forany,Msg,Culprit)                       :- throw(error(check(forany          ,_       ,Msg,Culprit),_)).
+throw_2(fornone,Msg,Culprit)                      :- throw(error(check(fornone         ,_       ,Msg,Culprit),_)).
+
+% Having this at the end of throw_2/3 saves the day when debugging
+
+throw_2(_,_,_)                                    :- throw("Bug! You forgot a throw_2/3 clause in the source"). 
 
 throw_2(random,Msg)                               :- throw(error(check(random                   ,_       ,Msg,_      ),_)).
 
 throw_various(Type,Msg,Culprit)                   :- throw(error(check(Type,_,Msg,Culprit),_)).
-throw_on_bug(strict_check_just_fails,Msg,Culprit) :- throw(error(check(strict_check_just_fails,_,Msg,Culprit),_)).
 
 % ---
 % Helpers for throwing
@@ -745,12 +438,11 @@ prolog:error_message(check(Type,Expected,Msg,Culprit)) -->
 % Helpers for prolog:error_message(Formal)
 % ---
 
-extended_msg(domain,                   "the culprit is outside the required domain").
-extended_msg(type,                     "the culprit is not of the required type").
-extended_msg(uninstantiation,   "the culprit is already (fully) instantiated").
-extended_msg(instantiation, "the culprit is not instantiated (enough)").
-extended_msg(not_ground,               "the culprit should be ground").
-extended_msg(random,                   "this is a random error due to the outcome of maybe/1").
+extended_msg(domain,          "the culprit is outside the required domain").
+extended_msg(type,            "the culprit is not of the required type").
+extended_msg(uninstantiation, "the culprit is already (fully) instantiated").
+extended_msg(instantiation,   "the culprit is not instantiated (enough)").
+extended_msg(random,          "this is a random error due to the outcome of maybe/1").
 
 make_sure_it_is_string(X,X) :-
    string(X),
