@@ -5,11 +5,161 @@ A more powerful replacement for the venerable [`must_be/2`](https://eu.swi-prolo
 - [`checks.pl`](checks.pl) (MIT license)
 - [`checks.plt`](checks.plt) (0BSD license)
 
-TODO:
+## Synopsis
+
+Check that term `X` fulfills all the conditions in the list `Conditions`. 
+Conditions that are marked `tuned` will preferentially fail instead of throwing
+if the condition is not fulfilled:
+
+```
+check_that(+X,@Conditions)
+```
+
+Check that term `X` fulfills all the conditions in the list `Conditions`.
+If `Throw` is instantiated to `true` or `throw`, conditions that are marked `tuned` 
+will preferentially throw instead of failing if the condition is not fulfilled (any
+other state of `Throw`, including lack of instantiation, will yield the behaviour
+of `check_that/2`):
+
+```
+check_that(+X,@Conditions,@Throw)
+```
+
+Same as `check_that/2`, but a `Name` for `X` is given. This name will be used when
+the message for an excpetion is constructed:
+
+```
+check_that_named(X,Conditions,Name)
+```
+
+Same as `check_that/3`, but a `Name` for `X` is given. This name will be used when
+the message for an excpetion is constructed:
+
+```
+check_that_named(X,Conditions,Name,Throw)
+```       
+
+### Exception terms
+
+The exception terms thrown by `check_that/N` and `check_that_named/N` are not ISO exception terms, although they
+still retain the outer `error(Formal,Context)` structure. They are structured as follows:
+
+```       
+error(check(Type,Expected,Msg,Culprit),_).
+```       
+
+Where `Type` is an exception-identifying atom that is generally one of:
+
+- `type` - the culprit is of the wrong type to pass the check
+- `domain` - the culprit is of the correct type but of the wrong domain to pass the check
+- `uninstantiation` - the culprit is too instantiated (generally, fully instantiated when it shouldn't be)
+- `instantiation` - the culprit is not instantiated enough (generally, fully uninstantiated when it shouldn't be)
+
+and 
+
+- `Expected` - either an uninstantiated term or a string that explains what is expected
+- `Msg` - either an uninstantaited term or a string giving additional information
+- `Culprit` - the term that caused the exception to be thrown; may be large or contain sensitive information!
+
+A hook into `prolog:error_message/1` formats the exception for the toplevel printer.         
+                  
+## Description
+
+`check_that/3` and friends: a replacement for the [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2) predicate 
+of (SWI-)Prolog. `must_be/2` is used to check preconditions on predicate entry, but is not very flexible. Can we change that?
+
+A call to check_that/3 looks as follows:
+
+```
+check_that(X,Conditions,Throw)
+```
+
+where
+
+- `X` is the term that is subject to being checked.
+- `Conditions` is a proper list of conditions to be evaluated left-to-right
+- `Throw` is a flag that determines whether to, in certain settings, preferentially throw (if it is `true` or `throw`)
+  or fail (if it is anything else, including unbound)
+
+The simpler
+
+```
+check_that(X,Conditions)
+```
+
+assumes that Throw is =|false|=.
+
+The more extensive
+
+```
+check_that_named(X,Conditions,Name)
+check_that_named(X,Conditions,Name,Throw)
+```
+
+also take a `Name` to designate the `X` that is being checked. This `Name` can then
+be inserted into exception messages. Generally one would not bother with this.
+
+**TODO:**
 
 I seems one sometimes wants to provide an explicit error message instead of having check_that construct a confusing one. Make that possible!
 
-This page needs completion. For now, all the description is in [`checks.pl`](checks.pl).
+## The list of conditions
+
+The list of _conditions_ in the call `check_that(X,Conditions)` behaves like a 
+"conditional and" (aka. "short-circuiting and") of verifications. 
+
+A _condition_ is a compound term, a tagged _check_. The functor name
+of the condition specifies what to do depending on the outcome of the check.
+
+The behaviour is as given below for the various tags allowed in conditions.
+
+The "check precondition fails" generally means that the actual check cannot determine from the current
+state of X whether to reasonably succeed or fail because X is not instantiated enough. The check would
+then raise an instantiation exception (in the current implementation, a non-ISO exception term
+`error(check(instantiation,_,_,_),_)`.
+
+The Prolog default checks like `atom/1` take the high way and fail if an uninstantaited term is
+passed. However, `atom(_)` failing means that either it pretends to know something about `_`
+that it doesn't (namely that this is not an atom) or it is actually a second-order predicate
+like `var/1` that can analyze the momentary state of the computation and say that a term is indeed
+uninstantiated. In either case, we have something dubious.
+
+`break/1`
+
+- Precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
+- Verification fails: The condition succeeds, leading to examination of the next condition to the right.
+- Verification succeeds: Condition processing stops and check_that succeeds overall
+
+`smooth/1`
+
+- Precondition fails: The condition fails, leading to the whole of check_that/N failing.
+  This is like the behaviour of prolog predicates like atom/N when they are given an uninstantiated term: They just fail.
+- Verification fails: The condition fails, leading to the whole of check_that/N failing.
+- Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
+
+`soft/1`
+
+- Precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
+- Verification fails: The condition fails, leading to the whole of check_that/N failing.
+- Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
+
+`tuned/1` and the "Throw" flag is unset: behaves like `soft/1`
+
+- Precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
+- Verification fails: The condition fails, leading to the whole of check_that/N failing.
+- Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
+
+`tuned/1` and the "Throw" flag is set: behaves like `hard/1`
+
+- Precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
+- Verification fails: An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
+- Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
+
+`hard/1`
+
+- Check precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
+- Check verification fails: An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
+- Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
 
 ## Check keywords implemented so far
 
@@ -204,3 +354,57 @@ ERROR:    culprit   : bar
 ?- check_that(bar,[break(var),tuned(member([alpha,bravo,charlie]))],false).
 false.
 ```
+
+## Usage scenarios:
+
+  - Use check_that/2 to verify predicate entry preconditions
+    - Expecting to switch them off at "production time" (assertions) to gain performance
+    - They are also goo "live documentation" saying exactly what parts of the input space are covered by throws and which ones by fails
+      One can rely on "implicitly building" that space via the behaviour of the predicates called in turn, but may become unclear
+      what that space is. (This may be ok depending on coding style)
+    - Using check_that/2 "normally" as a guard to make the predicate
+      - throw on extremely bad arguments (i.e. badly typed ones)
+      - fail on bad arguments (i.e. out-of-domain ones)
+     - Logic/Search parts of the program will preferentially fail (or only enter the situation where a fail makes sense)
+     - Functional programming parts of the program will preferentially throw (or only enter the situation where a throw makes sense)
+  - Use check_that/2 to verify invariants inside of predicates (generally not needed as this is done by checking pre/postconditions in Prolog)
+    - Expecting to switch them off at "production time" (assertions) to gain performance
+    - TODO: Such cases must be marked as "this is not expected to be violated in running code" (throwing a really nasty exception)
+      And then the test must be switch-offable using a specific hierarchical key, just like you switch logging on or off that way.
+  - Use check_that/2 normally in code, as just a particular form of a guard, i.e. it is not expected that they will be switched off
+  - (There is no easy way to perform postconditions-on-success in Prolog except by wrapping a predicate with another predicate. Annoying.)
+
+## Assertions
+
+  - Assertions are basically the subset of conditions that one does not expect to fail or throw at runtime.
+    The idea is to remove those tests because they "never fail" and the insurance will pick up the slack if they do.
+    Prolog is special in that "failing" is an integral part of its approach, so switching off checks wholesale is not an option
+    (Unless one wants to really have separate instructions for "necessary checks" and "assertion checks")
+    To "remove unnecessary checks" it must both be possible to:
+    1) identify them. This can be done my giving them a special name, e.g. lenient_assert instead of just lenient
+    2) be able to "remove them" cheaply; this can be done during compilation phase: the marked conditions can be written out
+    3) select those which should be removed based on program structure: eg. all those in module XY should be removed
+       this also seems a case for the compilation phase
+       
+## Desgin question especially clear in case of complex checking of lists:
+
+  - The structure to test may have multiple layers of testing. For example, for a "proper list of char":
+    - X is a var             -> fail or exception
+    - X is not a proper list -> fail or exception
+    - X contains vars        -> fail or exception
+    - X contains non-chars   -> fails or exception
+    - and finally success
+    A caller could demand throwing down to any level of the above (and possibly accept var)
+    The **proper way to have this flexibility** is exactly to use check_that/2 with the detailed
+    more-and-more-precise check sequence, going from strictness to leniency depending on taste, for example
+      check_that(X,[break(var),hard(list),hard(list(nonvar)),tuned(list(char))])
+    instead of a single monolitic
+      check_that(X,[break(var),hard(chars)])
+    However, in that case the "rightmost checks" may perform wasteful checks against that we already
+    know will succeed. So there is a need for doing bare-bones checks (maybe?). Probably not worth it.
+    Note that what exception to throw is generally made in this order:
+    X uninstantiated -> throw instantiation error
+    X instantiated but not of the correct type (e.g. expecting integer but it's a float) -> throw type error
+    X of the correct type but not in the correct domain (e.g. expecting positive integer but it's negative) -> throw domain error
+
+
