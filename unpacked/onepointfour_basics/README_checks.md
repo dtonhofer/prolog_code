@@ -280,13 +280,13 @@ We would like to see predicates which throw until they can be sure:
 
 As such that predicate is "second order": It says something about the state of computation, not about the term.
 
-|                     | cyclic             | acyclic_now           | acyclic_forever   | cyclic_now            |
-|                     | :--                | :--                   | :--               | :--                   |
-| uninstantiated      | throw              | true (could change)   | false             | false (could change)  |
-| nonground noncyclic | throw              | true (could change)   | false             | false (could change)  |
-| ground acylic       | fail (for sure)    | true (for sure)       | true (for sure)   | false (for sure)      |
-| nonground cyclic    | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
-| ground cyclic       | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
+|                         | `cyclic`           | `acyclic_now`         | `acyclic_forever` | `cyclic_now`          |
+| :--                     | :--                | :--                   | :--               | :--                   |
+| **uninstantiated**      | throw              | true (could change)   | false             | false (could change)  |
+| **nonground noncyclic** | throw              | true (could change)   | false             | false (could change)  |
+| **ground acylic**       | fail (for sure)    | true (for sure)       | true (for sure)   | false (for sure)      |
+| **nonground cyclic**    | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
+| **ground cyclic**       | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
 
 ## Examples
 
