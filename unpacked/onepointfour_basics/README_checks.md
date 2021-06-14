@@ -251,6 +251,43 @@ uninstantiated. In either case, we have something dubious.
 - `subsumes`
 - `does_not_unify` / `dif`
   
+**A note on cyclic/acyclic**
+
+Consider the "instantiation career" of a term, going from "most uninstantiated" to "ground":
+
+
+```
+                       uninstantiated
+                             |
+                             V
+              +--------------+-------------+
+              |                            |
+              V                            |
+      nonground noncyclic                  |
+              |                            |
+              +----------------------------+
+              |                            |
+              |                            V
+              |                     nonground cyclic
+              |                            |
+              V                            V
+        ground acylic                ground cyclic
+```
+
+We would like to see predicates which throw until they can be sure:
+
+"noncylic" or "acyclic_now" means that the term has currently no cyclic structures, but may acquire them later.
+
+As such that predicate is "second order": It says something about the state of computation, not about the term.
+
+|                     | cyclic             | acyclic_now           | acyclic_forever   | cyclic_now            |
+|                     | :--                | :--                   | :--               | :--                   |
+| uninstantiated      | throw              | true (could change)   | false             | false (could change)  |
+| nonground noncyclic | throw              | true (could change)   | false             | false (could change)  |
+| ground acylic       | fail (for sure)    | true (for sure)       | true (for sure)   | false (for sure)      |
+| nonground cyclic    | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
+| ground cyclic       | succeed (for sure) | false (for sure)      | false (for sure)  | true (for sure)       |
+
 ## Examples
 
 Fail if `X` is not a _string_ (but throw if `X` is unbound): `check_that(X,[soft(string)])`
