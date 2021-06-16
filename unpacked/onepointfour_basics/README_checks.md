@@ -317,6 +317,7 @@ predicate_x/N                         |                        predicate_x_smoot
 | `list`,`proper_list`                | throws          | proper list, including the empty list. (**TODO: open lists**) |
 | `nonempty_list`                     | throws          | proper list that is not empty. |
 | `dict`                              | throws          | SWI-Prolog _dict_ (which is a compound term following some special requirements). |
+| `dict_has_key(Key)`                 | throws          | term must be a dict, and it must contain an entry for `Key`. |
 | `cyclic`                            | throws          | term for which one can unambiguously decide whether it is cyclic. |
 | `cyclic_now`                        | covered by test | term that has a cyclic structure _now_.<br>`check_that(_,soft(cyclic_now))` fails. |
 | `acyclic_now`                       | covered by test | term that has no cyclic structure _now_, but may acquire it _later_, unless the term is ground.<br>`check_that(_,soft(acyclic_now)).` succeeds. |
