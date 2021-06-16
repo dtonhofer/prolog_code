@@ -161,6 +161,103 @@ uninstantiated. In either case, we have something dubious.
 - Check verification fails: An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
 - Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
 
+## How would one use this
+
+```
+ client code                     circumspect                       "logical"
+      |                          client code                      client code
+      |                      (in particular if                         |
+      |                    it calls predicate_x/N+1                    |
+      |                       with Throw = true)                       |
+      |                               |                                |
+      |                               |                                |
+      |                               |                                |
+      V                               |                                V
+predicate_x/N                         |                        predicate_x_smooth/N
+      |                               |                       - - - - - - - - - - -
+      |                               |                     captures all the argument
+      |                               |                 subdomains where predicate_x/N+1
+      +----------------------------+  |                    would throw and *fails them*
+               Calls               |  |               (using appropriate check_that/2 calls)
+          predicate_x/N+1          |  |                                |
+               with                |  |                                |
+           Throw = false           |  |                                |
+          - - - - - - - -          |  |  +-----------------------------+
+      As a consequence, some       |  |  |                Calls
+      domains of problematic       |  |  |           predicate_x/N+1
+      arguments subdomains will    |  |  |                with
+      just cause failure instead   |  |  |            Throw = false
+      of exceptions.               |  |  |
+                                   |  |  |
+                                   |  |  |
+                                   |  |  |
+                                   V  V  V
+                                predicate_x/N+1
+                               - - - - - - - - -
+                             takes an additional
+                       "Throw" argument that determines
+                      what check_that/3 conditions tagged
+                       as "tuned/1" will do: throw or fail
+                                      |
+                                      |
+                                      |
+                                      V
+                          explicitly allow the cases
+                            of unbound arguments
+                          - - - - - - - - - - - - -
+                       This is done with calls that break        | Note that checks generally throw if they
+                         if the argument is unbound:             | are given an unbound argument, which is why
+                       check_that(X,[break(var),...])            | "break" is needed. Contrariwise, Prolog's atom(_) fails
+                                      |                          | but check_that(_,[soft(atom)]) throws "instantiation error".
+                                      |                          | Alternatively, check_that(_,[smooth(atom)]) fails.
+                                      |
+                                      V
+                            underspecified problem? ------------> throw "instantion error"
+                            - - - - - - - - - - - -               Conditions checking this should be tagged with hard/1
+                               some arguments or                  so that they always throw. If you want
+                            tuples of arguments are               to see failure, you should catch-and-fail
+                            not instantiated enough               in a wrapping predicate.
+                                      |
+                                      |
+                                      |
+                                      V
+                                  wrong type? ------------------> These conditions should be tagged with hard/1
+                               - - - - - - - -                    as such an error smells like a programming error.
+                              some arguments are                  In a "smooth" setting, one may want these to fail,
+                              of the wrong type                   in that case, you should catch-and-fail
+                       (e.g. passing 'foo' as integer arg)        in a wrapping predicate.
+                                      |
+                                      |
+                                      |
+                                      V
+                                wrong domain? ------------------> These conditions should be tagged with tuned/1
+                                - - - - - - -                     so that they throw if member(Throw,[true,throw]) but only
+                       some arguments or argument tuples          fail otherwise, thus causing predicate_x/N+1 to
+                         are out of the allowed domain            appear more relaxed regarding some problems.
+                        (such a test can become complex)
+                                      |
+                                      |
+                                      |
+                                      V
+                         cross-argument correlations -----------> Generally the same as domain errors.
+                         - - - - - - - - - - - - - -
+                  complex conditions may need to be checked;
+                  for these, use passany, passall, passnone
+                          checks. This can be costly.
+                                      |
+                                      |
+                                      |
+                                      V
+                               "BUSINESS CODE" ------------------------> Throw or fail? It depends, but if a problem is
+                  actual processing can more easily and cheaply          detected "after the entry checks" on would
+                  check additional conditions at certain points          probably want to throw.
+                      and should not refrain from doing so.
+                                                    |
+                                                    +------------------> Augment with assertion/1 calls according to taste.
+                                                                         These can be considered "live documentation" and
+                                                                         can always be compiled-out later.
+```
+
 ## Check keywords implemented so far
 
 "TBC" stands for "The term to be checked".
