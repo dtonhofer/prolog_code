@@ -11,48 +11,9 @@
           ]).
 
 :- use_module(library('onepointfour_basic_justify/space_string.pl')).
+:- use_module(library('onepointfour_basic_justify/stringy_overwrite.pl')).
 
-:- use_module(library('heavycarbon/strings/stringy.pl')).
-:- use_module(library('heavycarbon/strings/string_overwrite.pl')).
-
-
-
-% =============================================================================
-% Straightforward "string justification": left, right, center, with cutting
-% off of fields.
-%
-% Those little predicates may be called a lot of times (e.g. when formatting
-% tables), so let's not become too slow when running it!
-% Currently, there are meta-calls in there and checks and everything, so the
-% code is not necessarily fast.
-% =============================================================================
-% Running the tests
-% -----------------
-%
-% There should be a file "justify.plt" nearby.
-%
-% Then, if the root directory for "code" is on the library path:
-%
-% ?- use_module(library('heavycarbon/strings/justify.pl')).
-% ?- load_test_files([]).
-% ?- run_tests.
-%
-% TODO:
-% Justification always implies that the resulting string has the width given
-% by "Width" (via string_of_spaces(Width,Spaces)). This may not be desired in
-% that one would like to not have the trailing spaces. One more parameter!
-% TODO:
-% What happenms if you justify a string inside a field that has the length of
-% that string?
-% =============================================================================
-% David Tonhofer (ronerycoder@gluino.name) says:
-% This code is licensed under:
-% "Zero-Clause BSD / Free Public License 1.0.0 (0BSD)"
-% https://opensource.org/licenses/0BSD
-% =============================================================================
-% Latest review: Tue 19 January 2021
-% =============================================================================
-
+%! justify_left(+Te
 % ===
 % Simple calls that don't check and always return strings
 %
@@ -129,6 +90,53 @@ justify_center(Text,Width,Result,Want,Nocheck) :-
 % Result   : The Result, an atom or a string depending on 'Want'
 % ===
 
+%! justify(+Text,+NoCheck) :-
+   entry_check(NoCheck),
+
+
+
+entry_check(true,_) :- !.
+
+% get_dict_defaultily(+Key,+Dict,+Default,-Found)
+
+get_dict_defaultily(Key,Dict,Default,Found) :-
+   get_dict(Key,Dict,Found) 
+   ->
+   true
+   ;
+   Default=Found.
+
+
+
+
+
+
+
+entry_check(false,Text,Width,How,DictConfig,Throw) :-
+   check_that(Text,[hard(stringy)]),
+   check_that(Width,[hard(integer),tuned(pos0int)],Throw),
+   check_that(How,[hard(member([left,right,center,none]))]),     
+
+
+   check_that(DictConfig. ,[break(var),hard(boolean)]),
+   check_that(DictConfig. ,[break(var),hard(boolean)]),
+
+   check_that(Prefer,[break(var),hard(member([left,right]))),
+
+
+
+   assertions_intro_for_justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Want) :-
+   assertion((var(Prefer);memberchk(Prefer,[left,right]))),
+   assertion((var(Offset);integer(Offset))),
+   assertion(memberchk(Want,[atom,string])).
+
+  
+entry_check(NoCheck, ) :-
+   check_that(NoCheck,[hard(boolean)]).
+
+
+
+
 justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck) :-
    unless((Nocheck == true),assertions_intro_for_justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Want)),
    unless((var(Result);stringy(Result)),fail), % shortcut in case of "checking the result"
@@ -199,21 +207,6 @@ actual_offset(IsOddTextLen,IsOddWidth,TextLen,Width,Offset,Prefer,ActualOffset) 
 correction(left,true,false,-1) :- !.
 correction(right,false,true,1) :- !.
 correction(_,_,_,0).
-
-% ---
-% Assertions about arguments passed to justify
-% Pass them all, disregard those in which we are not interested.
-% ---
-
-assertions_intro_for_justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Want) :-
-   assertion(stringy(Text)),
-   assertion((integer(Width), Width >= 0)),
-   assertion(memberchk(How,[left,right,center,none])),
-   assertion((var(CutLeft);memberchk(CutLeft,[true,false]))),
-   assertion((var(CutRight);memberchk(CutRight,[true,false]))),
-   assertion((var(Prefer);memberchk(Prefer,[left,right]))),
-   assertion((var(Offset);integer(Offset))),
-   assertion(memberchk(Want,[atom,string])).
 
 % ---
 % Simple helpers

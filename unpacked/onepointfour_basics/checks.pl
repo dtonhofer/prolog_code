@@ -180,6 +180,7 @@ wellformed_check_or_throw(Check,X) :-
 
 wellformed_check_2(Check,_)                 :- atom(Check),!,atomoform_checks(AFCs),memberchk(Check,AFCs).
 wellformed_check_2(member(ListOfValues),_)  :- is_proper_list(ListOfValues).
+wellformed_check_2(dict_has_key(_),_).      % just test the form, leave the testing of Key and Dict type to the actual check
 wellformed_check_2(type(ListOfTypes),_)     :- is_proper_list(ListOfTypes),atomoform_checks(AFCs),maplist({AFCs}/[T]>>memberchk(T,AFCs),ListOfTypes).
 wellformed_check_2(random(Probability),_)   :- number(Probability),0=<Probability,Probability=<1.
 wellformed_check_2(unifies(_),_).
@@ -358,14 +359,45 @@ precondition_X_must_be_list(X,Name,Ness,Throw) :-
       throw_2(type,Msg,X)
    ).
 
-precondition_X_must_allow_to_decide_whether_cyclic(X,Name,Throw) :-
+% special case precondition: the dict
+
+precondition_X_must_be_dict(X,Name,Ness,Throw) :-
+   is_dict(X)
+   ->
+   true
+   ;
+   (
+      throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+      select_name(Name,Name2),
+      format(string(Msg),"~s must be a dict. Can't check for '~s'-ness.",[Name2,Ness]),
+      throw_2(type,Msg,X)
+   ).
+
+% special case precondition: atomic (used to assess dict key)
+
+precondition_X_must_be_atomic(X,Name,Ness,Throw) :-
+   atomic(X)
+   ->
+   true
+   ;
+   (
+      throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+      select_name(Name,Name2),
+      format(string(Msg),"~s must be atomic. Can't check for '~s'-ness.",[Name2,Ness]),
+      throw_2(type,Msg,X)
+   ).
+
+
+% special case precondition: X must be instantiated enough to positively say whether it is cyclic
+
+precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Throw) :-
    var(X),
    !, % commit, then fail or throw
    throw_is_set(Throw), % if this fails, the call fails (which is what we want)
    select_name(Name,Name2),
    format(string(Msg),"~s must not be uninstantiated. Can't say anything about cyclic-ness.",[Name2]),
    throw_2(instantiation,Msg,X).
-precondition_X_must_allow_to_decide_whether_cyclic(X,Name,Throw) :-
+precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Throw) :-
    \+ground(X),
    acyclic_term(X),
    !, % commit, then fail or throw
@@ -373,7 +405,7 @@ precondition_X_must_allow_to_decide_whether_cyclic(X,Name,Throw) :-
    select_name(Name,Name2),
    format(string(Msg),"~s must not be 'nonground and cyclic'. Can't say anything about cyclic-ness.",[Name2]),
    throw_2(instantiation,Msg,X).
-precondition_X_must_allow_to_decide_whether_cyclic(_,_,_). % default accepts anything
+precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(_,_,_). % default accepts anything
 
 % ---
 % Predicates which check whether the Throw flag is set, and if so,
@@ -990,13 +1022,24 @@ eval(charys,X,Name,Throw,TP) :-
    eval(chary_list,X,Name,Throw,TP).
 
 eval(member(ListOfValues),X,Name,Throw,TP) :-
-   precondition_X_must_be_instantiated(X,Name,"list_membership",TP), % must be ground or must be instantiated ? difficult ...
-   precondition_X_must_be_list(ListOfValues,Name,"list_membership",TP), % actually, it is not X but ListOfValues which must be a list!
+   precondition_X_must_be_instantiated(X,Name,"list_membership",TP),
+   precondition_X_must_be_list(ListOfValues,Name,"list_membership",TP), % predicate name is confusing here: it is not X but ListOfValues which must be a list!
    ((\+ \+ member(X,ListOfValues)) % Use \+ \+ to roll back any accidental bindings
     ->
     true
     ;
     throw_or_fail(domain,X,Name,Throw,"list_membership")).
+
+eval(dict_has_key(Key),X,Name,Throw,TP) :-
+   precondition_X_must_be_instantiated(X,Name,"dict-has-key",TP),
+   precondition_X_must_be_dict(X,Name,"dict-has-key",TP),
+   precondition_X_must_be_instantiated(Key,Name,"dict-has-key",TP),
+   precondition_X_must_be_atomic(Key,Name,"dict-has-key",TP),
+   (get_dict(Key,X,_) 
+    ->
+    true
+    ;
+    throw_or_fail(domain,[dict-X,key-Key],Name,Throw,"dict-has-key")). % domain error sounds right here for "key not in dict"
 
 eval(random(Probability),_,_,Throw,_) :-
    maybe(Probability)  % throws type error on value not in [0.0,1.0]
@@ -1033,7 +1076,7 @@ eval(acyclic_forever,X,Name,Throw,_) :-
    throw_or_fail(domain,X,Name,Throw,"acyclic_forever"). % is domain right here?
 
 eval(cyclic,X,Name,Throw,TP) :-
-   precondition_X_must_allow_to_decide_whether_cyclic(X,Name,TP),
+   precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,TP),
    (cyclic_term(X)
     ->
     true

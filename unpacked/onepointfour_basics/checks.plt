@@ -1451,6 +1451,33 @@ test("member, argument to member/1 term not a proper list #3",error(check(unknow
 
 % -------------------------------------------------------------------
 
+:- begin_tests(check_that_using_dict_has_key).
+
+test("throw if dict is uninstantiated",error(check(instantiation,_,_,_))) :-
+   check_that(_,[soft(dict_has_key(foo))]).
+
+test("throw if dict is not actually a dict",error(check(type,_,_,_))) :-
+   check_that(bar,[soft(dict_has_key(foo))]).
+
+test("throw if key is uninstantiated",error(check(instantiation,_,_,_))) :-
+   check_that(_{},[soft(dict_has_key(_))]).
+
+test("throw if key is not atomic",error(check(type,_,_,_))) :-
+   check_that(_{},[soft(dict_has_key(g(x)))]).
+
+test("throw if key is not in dict (hard mode)",error(check(domain,_,_,_))) :-
+   check_that(_{},[hard(dict_has_key(foo))]).
+
+test("fail if key is not in dict (soft mode)",fail) :-
+   check_that(_{},[soft(dict_has_key(foo))]).
+
+test("succeed if key is in dict") :-
+   check_that(_{key:value},[soft(dict_has_key(key))]).
+
+:- end_tests(check_that_using_dict_has_key).
+
+% -------------------------------------------------------------------
+
 :- begin_tests(check_that_using_random).
 
 test("random until failure",error(check(random,_,_,_))) :-
