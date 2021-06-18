@@ -15,6 +15,11 @@ Please refer to the [README.md](README.md) file.
 
 ## Synopsis
 
+- `space_stringy(?N,?Stringy,?StringyType,@Tuned)`
+- `space_stringy(?N,?Stringy,+StringyType)`
+- `space_stringy_smooth(?N,?Stringy,?StringyType)`
+- `space_stringy_lax(?N,?Stringy,?StringyType)`
+
 **`space_stringy(?N,?Stringy,?StringyType,@Tuned)`**
 
 Provide any of the following:
@@ -26,16 +31,20 @@ Provide any of the following:
 
 **`space_stringy(?N,?Stringy,+StringyType)`**
 
-As `space_stringy/4`, with `Tuned` bound to `soft`.
+As `space_stringy/4`, with `Tuned` bound to `soft`, which means we just fail if `N` is negative.
+One would generally use this predicate, and use `space_stringy(?N,?Stringy,+StringyType,hard)`
+in specific places.
 
 **`space_stringy_smooth(?N,?Stringy,?StringyType)`**
 
 As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally 
-just fails on badly typed input instead of throwing (i.e. behaves "smoothly").
+just fail on badly typed input (e.g. passing an atom as `N`) instead of throwing (i.e. the
+predicates behaves "smoothly", which is mostly not what one wants).
 
 **`space_stringy_lax(?N,?Stringy,?StringyType)`**
 
 As `space_stringy/4` but accepts negative `N`, generating the empty string or atom in that case.
+This can be useful to avoid annoying tests for special cases.
 
 ## Examples
 
@@ -104,20 +113,29 @@ N = 4, Stringy = "    ", Type = string ;
 
 Bad input:
 
-Negative length fails:
+Negative length fails by default:
 
 ```
 ?- space_stringy(-1,S,string).
 false.
 ```
 
-Unless you specify "hard":
+Unless you explicitly set the additional argument `Throw` to `hard`:
 
 ```
 ?- space_stringy(-1,S,string,hard).
 ERROR: check failed : domain error (the culprit is outside the required domain)
 ERROR:    message   : the value should fulfill 'integer that is >= 0-ness'
 ERROR:    culprit   : -1
+```
+
+As usual, it is difficult to assess whether the default should be the "hard" or the "soft" version
+
+Passing `soft` as the additional argument `Throw` recovers the default behaviour:
+
+```
+?- space_stringy(-1,S,string,soft).
+false.
 ```
 
 The lax version generates zero-length stringys if length is negative:
@@ -131,7 +149,7 @@ S = '', Type = atom ;
 S = "", Type = string.
 ```
 
-Bad argument types result in exceptions:
+Bad argument types result in exceptions by default: 
 
 ```
 ?- space_stringy(foo,S,string).
@@ -140,7 +158,8 @@ ERROR:    message   : the value should fulfill 'integer-ness'
 ERROR:    culprit   : foo
 ```
 
-Unless you use the "smooth" version:
+But the "smooth" version just fails if out-of-type arguments are provided. This
+is generally not what one wants because the predicate should just not be called this way:
 
 ```
 ?- space_stringy_smooth(foo,S,string).
