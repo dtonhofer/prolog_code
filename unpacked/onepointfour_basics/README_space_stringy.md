@@ -15,16 +15,27 @@ Please refer to the [README.md](README.md) file.
 
 ## Synopsis
 
-- `space_stringy(?N,?Stringy,?StringyType,@Tuned)`: Provide any of:
-   - `N` unbound or the length of `Stringy`;
-   - `Stringy`, the stringy, i.e. the string or atom, to generate or accept; only made of SPACE on output;
-   - `StringyType`, the type of `Stringy`; bound to `atom` or `string`;
-   - `Tuned`, an input argument: if `soft`, the predicate fails on negative `N`, if `hard`, it throws on negative `N`.
-- `space_stringy(?N,?Stringy,+StringyType)`: As `space_stringy/4`, with `Tuned` bound to `soft`.
-- `space_stringy_smooth(?N,?Stringy,?StringyType)`: As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally 
-   just fails on badly typed input instead of throwing (i.e. behaves "smoothly").
-- `space_stringy_lax(?N,?Stringy,?StringyType)`: As `space_stringy/4` but 
-   accepts negative `N`, generating the empty string or atom in that case.
+**`space_stringy(?N,?Stringy,?StringyType,@Tuned)`**
+
+Provide any of the following:
+
+   - `N`: an integer indicating the length of `Stringy`;
+   - `Stringy`: the stringy (i.e. the string or atom) to either generate or accept; only made of SPACE on output;
+   - `StringyType`: the type of `Stringy`, an atom that is either `atom` or `string`;
+   - `Tuned`: input only: if `hard`, the predicate throws on negative `N`, if `soft` (actually, anything other than `hard`), it fails on negative `N`.
+
+**`space_stringy(?N,?Stringy,+StringyType)`**
+
+As `space_stringy/4`, with `Tuned` bound to `soft`.
+
+**`space_stringy_smooth(?N,?Stringy,?StringyType)`**
+
+As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally 
+just fails on badly typed input instead of throwing (i.e. behaves "smoothly").
+
+**`space_stringy_lax(?N,?Stringy,?StringyType)`**
+
+As `space_stringy/4` but accepts negative `N`, generating the empty string or atom in that case.
 
 ## Examples
 
