@@ -96,6 +96,8 @@ ERROR:    culprit   : 1
 
 SWI-Prolog provides too many predicates dealing with atom/string concatenation
 
+### 1
+
 Predicates relating two stringys and their concatentation, and which also can split.
 They throw away information about the type of the concatenated stringy, which is known
 if it's the output, but can be arbitrary if it's the input.
@@ -121,6 +123,8 @@ A = "a",  B = "b" ;
 A = "ab", B = "".
 ```
 
+### 2
+
 A predicate taking two _atomic_ terms as input and generating an atom as
 their concatenation. This predicate cannot split because arguments 1 and 2 are too general,
 they could be numbers for example.
@@ -131,6 +135,8 @@ they could be numbers for example.
 ?- atomic_concat(1,b,X).
 X = '1b'.
 ```
+
+### 3
 
 Predicates taking a list of atomic terms as input and generating an atom or a string as
 their concatenation. Again, these predicate cannot split.
@@ -145,6 +151,8 @@ X = abc.
 ?- atomics_to_string([a,2,c],X).
 X = "a2c".
 ```
+
+### 4
 
 Predicates taking a list of concatenable atomic terms and a separator as input, and they
 _intersperse_ the separator and the atomic terms into a concatenated atom or string.
