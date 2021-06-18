@@ -4,17 +4,17 @@
 - [`stringy_concat.plt`](stringy_concat.plt)
 
 This module provides a simple predicate to relate a list of _stringys_ (a _stringy_ being something
-that is either a Prolog _atom_ or an SWI-Proog _string_) to a single stringy and its type.
-This latter stringy is the concatenation of the stringys in the list, and its type is one of the
-atoms `atom` or `string`. The predicate does not perform splitting.
+that is either a Prolog _atom_ or an SWI-Prolog _string_) to a single stringy `Result` and an atom `ResultType`.
+`Result` is stringy resulting from the concatenation of the stringys in the list, and the `ResultType` is one of the
+atoms `atom` or `string`, indicating the actual type of `Result`. The predicate does not perform splitting.
 
 It is basically a frontend to similar SWI-Prolog predicates that accepts only atoms or strings, not atomics in general,
 but for which you can either test or request the type of the concatenation stringy.
 
 ## Synposis
 
-- `stringy_concat(ListOfStringy,?Result,?ResultType)`
-- `stringy_concat(ListOfStringy,Result,ResultType,Tuned)`
+- `stringy_concat(+ListOfStringy,?Result,?ResultType)`
+- `stringy_concat(+ListOfStringy,?Result,?ResultType,@Tuned)`
  
 ## Examples
 
