@@ -16,13 +16,13 @@ check_that(+X,@Conditions)
 ```
 
 Check that term `X` fulfills all the conditions in the list `Conditions`.
-If `Throw` is instantiated to `true` or `throw`, conditions that are marked `tuned` 
-will preferentially throw instead of failing if the condition is not fulfilled (any
-other state of `Throw`, including lack of instantiation, will yield the behaviour
-of `check_that/2`):
+If `Tuned` is instantiated to `hard`, conditions that are marked `tuned` 
+will throw if the condition is not fulfilled.
+If `Tuned` is instantiated to `soft`, conditions that are marked `tuned` 
+will fail if the condition is not fulfilled.
 
 ```
-check_that(+X,@Conditions,@Throw)
+check_that(+X,@Conditions,@Tuned)
 ```
 
 Same as `check_that/2`, but a `Name` for `X` is given. This name will be used when
@@ -36,7 +36,7 @@ Same as `check_that/3`, but a `Name` for `X` is given. This name will be used wh
 the message for an excpetion is constructed:
 
 ```
-check_that_named(X,Conditions,Name,Throw)
+check_that_named(X,Conditions,Name,Tuned)
 ```       
 
 ### Exception terms
@@ -71,15 +71,15 @@ of (SWI-)Prolog. `must_be/2` is used to check preconditions on predicate entry, 
 A call to check_that/3 looks as follows:
 
 ```
-check_that(X,Conditions,Throw)
+check_that(X,Conditions,Tuned)
 ```
 
 where
 
 - `X` is the term that is subject to being checked.
 - `Conditions` is a proper list of conditions to be evaluated left-to-right
-- `Throw` is a flag that determines whether to, in certain settings, preferentially throw (if it is `true` or `throw`)
-  or fail (if it is anything else, including unbound)
+- `Tuned` is a flag that determines whether to, in certain settings, preferentially throw (if it is `hard`)
+  or fail (if it is `soft`; actually anything other than `hard`)
 
 The simpler
 
@@ -87,13 +87,13 @@ The simpler
 check_that(X,Conditions)
 ```
 
-assumes that Throw is =|false|=.
+assumes that `Tuned` is `soft`.
 
 The more extensive
 
 ```
 check_that_named(X,Conditions,Name)
-check_that_named(X,Conditions,Name,Throw)
+check_that_named(X,Conditions,Name,Tuned)
 ```
 
 also take a `Name` to designate the `X` that is being checked. This `Name` can then
@@ -143,13 +143,13 @@ uninstantiated. In either case, we have something dubious.
 - Verification fails: The condition fails, leading to the whole of check_that/N failing.
 - Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
 
-`tuned/1` and the "Throw" flag is unset: behaves like `soft/1`
+`tuned/1` and the `Tuned` flag is `soft`: behaves like `soft/1`
 
 - Precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
 - Verification fails: The condition fails, leading to the whole of check_that/N failing.
 - Verification succeeds: The condition succeeds, leading to examination of the next condition to the right.
 
-`tuned/1` and the "Throw" flag is set: behaves like `hard/1`
+`tuned/1` and the `Tuned` flag is `hard`: behaves like `hard/1`
 
 - Precondition fails: An exception (generally a 'uninstantiated error' exception) is thrown.
 - Verification fails: An exception (generally a 'type error' if X is out-of-type, and a domain error if X is 'out of domain') is thrown.
