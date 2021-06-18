@@ -53,7 +53,8 @@ Bad type value leads to failure:
 false.
 ```
 
-That can be changed by passing `hard` as additional `Tuned` parameter:
+That can be changed by passing `hard` as additional `Tuned` parameter. This
+can be very useful to hunt for bugs. 
 
 ```
 ?- stringy_concat([foo,"bar",baz,"quux"],R,nonsesuch,hard).
@@ -67,6 +68,22 @@ Switching to `soft` restores the behaviour of the 3-argument predicate:
 ```
 ?- stringy_concat([foo,"bar",baz,"quux"],R,nonsesuch,soft).
 false.
+```
+
+Passing something other than a stringy in the list always throws:
+
+```
+?- stringy_concat([foo,1],R,string,soft).
+ERROR: check failed : type error (the culprit is not of the required type)
+ERROR:    message   : the value should fulfill 'stringy-ness'
+ERROR:    culprit   : 1
+```
+
+```
+?- stringy_concat([foo,1],R,string,hard).
+ERROR: check failed : type error (the culprit is not of the required type)
+ERROR:    message   : the value should fulfill 'stringy-ness'
+ERROR:    culprit   : 1
 ```
 
 ## TODO
