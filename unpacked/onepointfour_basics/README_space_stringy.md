@@ -147,6 +147,32 @@ Unless you use the "smooth" version:
 false.
 ```
 
+## Thoughts
+
+Should the selection for "lax" and "smooth" not be done via the name of the predicate but overloaded into the `Tuned` selector?
+Maybe, maybe not.
+
+For some reason SWI-Prolog 8.3 had trouble getting determinism out of space_string_4/3 on the first argument:
+
+```
+?- space_stringy(3,S,string).
+S = "   ".
+
+?- space_stringy(3,S,atom).
+S = '   ' ;
+false.
+```
+
+so I had to add a decision and a cut to get:
+
+```
+?- space_stringy(3,S,string).
+S = "   ".
+
+?- space_stringy(3,S,atom).
+S = '   '.
+```
+
 ## Notes: Ad-hoc methods to generate strings of SPACE
 
 Another way of "generating strings of SPACE" is:
