@@ -16,7 +16,7 @@ The code is somewhat SWI-Prolog specific.
 
 ### Basics
 
-- [`checks.pl` README](unpacked/onepointfour_basics/README_checks.md) - A replacement for `must_be/2` to perform type and domain checks on predicate entry (among others).
+- [`checks.pl` README](unpacked/onepointfour_basics/README_checks.md) - A more powerful replacement for the venerable  [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2) to perform type and domain checks on predicate entry (among others).
 - [`space_stringy.pl` README](unpacked/onepointfour_basics/README_space_stringy.md) - Generate or accept strings or atoms consisting solely of SPACE characters.
  
 
