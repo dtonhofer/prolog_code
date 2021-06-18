@@ -13,8 +13,8 @@ but for which you can either test or request the type of the concatenation strin
 
 ## Synposis
 
- stringy_concat(ListOfStringy,?Result,?ResultType)
- stringy_concat(ListOfStringy,Result,ResultType,Tuned)
+- `stringy_concat(ListOfStringy,?Result,?ResultType)`
+- `stringy_concat(ListOfStringy,Result,ResultType,Tuned)`
  
 ## Examples
 
