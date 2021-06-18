@@ -1,6 +1,6 @@
 # `checks.pl`
 
-A more powerful replacement for the venerable [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2).
+A more powerful replacement for the venerable  [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2) to perform type and domain checks on predicate entry (among others).
 
 - [`checks.pl`](checks.pl) (MIT license)
 - [`checks.plt`](checks.plt) (0BSD license)
