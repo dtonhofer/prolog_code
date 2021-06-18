@@ -19,6 +19,11 @@ based on PCRE (Perl Compatible Regular Expressions) as provided by
 [`library(pcre)`](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))). 
 These tests are not essential and can be commented out if one does not want to bother with PCRE.
 
+## License information
+
+- Author: David Tonhofer (ronerycoder@gluino.name) 
+- License: [Zero-Clause BSD / Free Public License 1.0.0 (0BSD)](https://opensource.org/licenses/0BSD)
+
 ## Synopsis
 
 ```
@@ -85,9 +90,4 @@ After that:
 ## See also
 
 [Announcement on the semver issue tracker on 2021-Feb-24: Issue 667](https://github.com/semver/semver/issues/667)
-
-## License information
-
-- Author: David Tonhofer (ronerycoder@gluino.name) 
-- License: [Zero-Clause BSD / Free Public License 1.0.0 (0BSD)](https://opensource.org/licenses/0BSD)
 
