@@ -24,8 +24,7 @@ Please refer to the [README.md](README.md) file.
 
 `space_stringy(?N,?Stringy,?StringyType,@Tuned)`
 
-Provide any of the following:
-
+- Provide any of the following:
    - `N`: an integer indicating the length of `Stringy`;
    - `Stringy`: the stringy (i.e. the string or atom) to either generate or accept; only made of SPACE on output;
    - `StringyType`: the type of `Stringy`, an atom that is either `atom` or `string`;
@@ -33,20 +32,20 @@ Provide any of the following:
 
 `space_stringy(?N,?Stringy,+StringyType)`
 
-As `space_stringy/4`, with `Tuned` bound to `soft`, which means we just fail if `N` is negative.
-One would generally use this predicate, and use `space_stringy(?N,?Stringy,+StringyType,hard)`
-in specific places.
+- As `space_stringy/4`, with `Tuned` bound to `soft`, which means we just fail if `N` is negative.
+  One would generally use this predicate, and use `space_stringy(?N,?Stringy,+StringyType,hard)`
+  in specific places.
 
 `space_stringy_smooth(?N,?Stringy,?StringyType)`
 
-As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally 
-just fail on badly typed input (e.g. passing an atom as `N`) instead of throwing (i.e. the
-predicates behaves "smoothly", which is mostly not what one wants).
+- As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally 
+  just fail on badly typed input (e.g. passing an atom as `N`) instead of throwing (i.e. the
+  predicates behaves "smoothly", which is mostly not what one wants).
 
 `space_stringy_lax(?N,?Stringy,?StringyType)`
 
-As `space_stringy/4` but accepts negative `N`, generating the empty string or atom in that case.
-This can be useful to avoid annoying tests for special cases.
+- As `space_stringy/4` but accepts negative `N`, generating the empty string or atom in that case.
+  This can be useful to avoid annoying tests for special cases.
 
 ## Examples
 
