@@ -114,7 +114,9 @@ space_stringy_2(N,Stringy,StringyType) :-
    instantiate_stringy_type(TaggedStringy,TaggedStringyType), % fails if Stringy and StringyType are incompatible
    space_stringy_3(TaggedN,TaggedStringy,StringyType). % StringyType may or may not have been further instantiate by previous call
 
-instantiate_stringy_type(var(_Stringy),nonvar(_StringyType)) :- !.                   % Do nothing, decision already taken
+% this code is also used in stringy_concat.pl
+
+instantiate_stringy_type(var(_Stringy),nonvar(_StringyType)) :- !.                   % Do nothing, decision on type to generate has been provided
 instantiate_stringy_type(var(_Stringy),var(_StringyType))    :- !.                   % Do nothing, leaving indeterminism on StringyType
 instantiate_stringy_type(nonvar(Stringy),var(atom))          :- atom(Stringy),!.     % Instantiate type inside var/1 tag to 'atom' 
 instantiate_stringy_type(nonvar(Stringy),var(string))        :- string(Stringy),!.   % Instantiate type inside var/1 tag to 'string'

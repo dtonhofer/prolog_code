@@ -59,27 +59,45 @@ stringy_concat(ListOfStringy,Result,ResultType) :-
 stringy_concat(ListOfStringy,Result,ResultType,Tuned) :-
    check_that(Result,[break(var),tuned(stringy)],Tuned),
    check_that(ResultType,[break(var),tuned(stringy_typeid)],Tuned),
-   check_that([Result,ResultType],[hard(passany(nonvar))]),
-   check_that(ListOfStringy,hard(proper_list)),
-   gleichschaltung(Result,ResultType),   % may fail for certain combinations of Result and ResultType
-   assertion(nonvar(ResultType)),        % previous call has instantiated ResultType
-   % Concatenate in "string space" any maybe convert at the end
-   % Is this good policy? Difficult to say w/o performance tests.
-   % If result is already instantiated, we can perform a quick fail-check on the length
-   (nonvar(Result)
-    ->
-    quick_length_check(ListOfStringy,Result) % may fail, in which case no need to continue
-    ;
-    true),
-   stringy_concat_2(ListOfStringy,"",TmpResult),
+   check_that(ListOfStringy,hard(proper_list)), % this may be costly
+   var_tag(Result,TaggedResult),
+   var_tag(ResultType,TaggedResultType),
+   instantiate_stringy_type(TaggedResult,TaggedResultType), % fails if Result and ResultType are incompatible
+   var_tag(ResultType,RetaggedResultType),                  % ResultType may have been instantiated, so retag
+   stringy_concat_2(TaggedResult,RetaggedResultType,ListOfStringy).
+
+stringy_concat_2(var(Result),var(ResultType),ListOfStringy) :-
+   !,
+   stringy_concat_over_list(ListOfStringy,"",TmpResult),
+   (ResultType=atom;ResultType=string),                     % yields two possibilites
+   convert_maybe(ResultType,TmpResult,Result).
+stringy_concat_2(var(Result),nonvar(ResultType),ListOfStringy) :-
+   !,
+   stringy_concat_over_list(ListOfStringy,"",TmpResult),
+   convert_maybe(ResultType,TmpResult,Result).
+stringy_concat_2(nonvar(Result),nonvar(ResultType),ListOfStringy) :-
+   !,
+   quick_length_check(ListOfStringy,Result),               % may fail due to length mismatch, in which case no need to continue
+   stringy_concat_over_list(ListOfStringy,"",TmpResult),
    convert_maybe(ResultType,TmpResult,Result).
 
-stringy_concat_2([Stringy|More],RunningString,FinalString) :-
+stringy_concat_over_list([Stringy|More],RunningString,FinalString) :-
    check_that(Stringy,hard(stringy)),
    string_concat(RunningString,Stringy,NewRunningString),
-   stringy_concat_2(More,NewRunningString,FinalString).
+   stringy_concat_over_list(More,NewRunningString,FinalString).
+stringy_concat_over_list([],String,String).
 
-stringy_concat_2([],String,String).
+% this code is also used in space_string.pl
+
+instantiate_stringy_type(var(_Stringy),nonvar(_StringyType)) :- !.                   % Do nothing, decision on type to generate has been provided
+instantiate_stringy_type(var(_Stringy),var(_StringyType))    :- !.                   % Do nothing, leaving indeterminism on StringyType
+instantiate_stringy_type(nonvar(Stringy),var(atom))          :- atom(Stringy),!.     % Instantiate type inside var/1 tag to 'atom' 
+instantiate_stringy_type(nonvar(Stringy),var(string))        :- string(Stringy),!.   % Instantiate type inside var/1 tag to 'string'
+instantiate_stringy_type(nonvar(Stringy),nonvar(atom))       :- atom(Stringy),!.     % Accept only if type is 'atom'
+instantiate_stringy_type(nonvar(Stringy),nonvar(string))     :- string(Stringy).     % Accept only if type is 'string'
+
+var_tag(X,var(X))    :- var(X),!.
+var_tag(X,nonvar(X)).
 
 % Quick length testing in case "Result" was already instantiated
 
@@ -92,28 +110,8 @@ quick_length_check_2([S|More],RunningLength,MaxLength) :-
   NewRunningLength is RunningLength + AddLength,
   NewRunningLength =< MaxLength,
   quick_length_check_2(More,NewRunningLength,MaxLength).
+
 quick_length_check_2([],Length,Length). % length must match at the end
-
-% gleichschaltung(Result,ResultType)
-%
-% Predicate to make sure that "Result" and "ResultType" correspond.
-% At least one of "Result" and "ResultType" is nonvar.
-% After the call, "ResultType"'s value has been confirmed against
-% the actual type of "Result" (atom or string) or has been set
-% to reflect the actual type of "Result". Anything out of that
-% domain fails.
-
-gleichschaltung(Result,ResultType) :-
-   determine_var_tag(Result,ResultIsVar),
-   gleichschaltung_2(ResultIsVar,ResultType,Result),
-   !.
-
-gleichschaltung_2(var,_ResultType,_Result).                  % Nothing to do, ResultType is nonvar and determines the type of Result
-gleichschaltung_2(nonvar,atom,Result)     :- atom(Result).   % "The ResultType must be / must be set to 'atom' if the Result is known to be an atom"
-gleichschaltung_2(nonvar,string,Result)   :- string(Result). % "The ResultType must be / must be set to 'string' if the Result is known to be a string"
-
-determine_var_tag(X,var) :- var(X),!.
-determine_var_tag(_,nonvar).
 
 % convert_maybe(ResultType,In,Out)
 %
