@@ -136,12 +136,16 @@ space_stringy_3(nonvar(N),nonvar(Stringy),_) :-
    gen_string_of_spaces(N,StringyAsStr).                      % given N, regenerate N-space string for unification with Stringy2
 
 space_stringy_3(nonvar(N),var(Stringy),StringyType) :-        % argument 3, StringyType, may or may not have been instantiated on call
-   !,    
-   space_stringy_4(StringyType,nonvar(N),var(Stringy)).       % call another predicate for easyness-to-read; that predicate is nondeterministic on StringType.
+   !,
+   (var(StringyType)                                          % SWI-Prolog 8.3. cannot determine that space_string_4/3 has just one answer with first arg bound
+    ->                                                        % so we introduce determinism manually (this is annoying)
+     space_stringy_4(StringyType,nonvar(N),var(Stringy))      % call another predicate for easyness-to-read; that predicate is nondeterministic on StringType.
+    ;
+     (space_stringy_4(StringyType,nonvar(N),var(Stringy)),!)).
 
 space_stringy_3(var(N),var(Stringy),StringyType) :-           % argument 3, StringyType, may or may not have been instantiated on call
    between(0,inf,N),                                          % infinite backtracking on top of
-   space_stringy_4(StringyType,nonvar(N),var(Stringy)).       % two possible types if (StringyType is still unboudn at this point)
+   space_stringy_4(StringyType,nonvar(N),var(Stringy)).       % two possible types if (StringyType is still unbound at this point)
 
 
 space_stringy_4(atom,nonvar(N),var(Stringy)) :-
