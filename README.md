@@ -12,11 +12,11 @@ The code is somewhat SWI-Prolog specific.
 
 ### Semver
 
-- [unpacked/onepointfour_semver/README.md] - Handle semantic version 2.0.0 strings.
+- [README](unpacked/onepointfour_semver/README.md) - Handle semantic version 2.0.0 strings.
 
 ### Basics
 
-- [unpacked/onepointfour_basics/checks.pl](README_checks.md) - A replacement for `must_be/2` to perform type and domain checks on predicate entry (among others).
-- [unpacked/onepointfour_basics/space_stringy.pl](README_space_stringy.md) - Generate or accept strings or atoms consisting solely of SPACE characters.
+- [`checks.pl` README](unpacked/onepointfour_basics/README_checks.md) - A replacement for `must_be/2` to perform type and domain checks on predicate entry (among others).
+- [`space_stringy.pl` README](unpacked/onepointfour_basics/README_space_stringy.md) - Generate or accept strings or atoms consisting solely of SPACE characters.
  
 
