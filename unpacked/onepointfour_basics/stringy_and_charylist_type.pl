@@ -182,16 +182,16 @@ list_traversal_2(List,VarCount,CodeCount,CharCount,TotalCount,VarCount,CodeCount
 % i.e. preferentially fails on bad input.
 
 stringy_type(Stringy,Type) :-
-   stringy_type(Stringy,Type,false).
+   stringy_type(Stringy,Type,soft).
 
-% !stringy_type(@Stringy,?Type,@Throw)
+% !stringy_type(@Stringy,?Type,@Tuned)
 %
-% As stringy_type/2, but setting Throw to either =|true|= or =|throw|= will make the
-% predicate throw on bad input.
+% As stringy_type/2, but setting Tuned to =|hard|= will make the
+% predicate throw on bad input (contrary is =|soft|=)
 
-stringy_type(Stringy,Type,Throw) :-
-   check_that(Stringy,[break(var),tuned(stringy)],Throw),
-   check_that(Type,[break(var),tuned(member([var,atom,string]))],Throw),
+stringy_type(Stringy,Type,Tuned) :-
+   check_that(Stringy,[break(var),tuned(stringy)],Tuned),
+   check_that(Type,[break(var),tuned(member([var,atom,string]))],Tuned),
    stringy_type_2(Stringy,Type).
 
 stringy_type_2(Stringy,var)    :- var(Stringy),!.
@@ -206,22 +206,22 @@ stringy_type_2(Stringy,string) :- string(Stringy),!.
 % i.e. preferentially fails on bad input.
 
 stringy_type_with_length(Stringy,Type) :-
-   stringy_type_with_length(Stringy,Type,false).
+   stringy_type_with_length(Stringy,Type,soft).
 
-%! stringy_type_with_length(@Stringy,Type,Throw)
+%! stringy_type_with_length(@Stringy,Type,Tuned)
 %
-% As stringy_type_with_length/2, but setting Throw to either =|true|= or =|throw|=
+% As stringy_type_with_length/2, but setting Tuned to either =|true|= or =|throw|=
 % will make the predicate throw on bad input.
 
-stringy_type_with_length(Stringy,Type,Throw) :-
-   check_that(Stringy,[break(var),tuned(stringy)],Throw),
+stringy_type_with_length(Stringy,Type,Tuned) :-
+   check_that(Stringy,[break(var),tuned(stringy)],Tuned),
    check_that(Type,[break(var),
                     tuned(
                        forany(
                           [unifies(var),
                            unifies(atom(_)),
                            unifies(string(_))]
-                       ))],Throw),
+                       ))],Tuned),
    stringy_type_with_length_2(Stringy,Type).
 
 stringy_type_with_length_2(Stringy,var)       :- var(Stringy),!.
@@ -242,17 +242,17 @@ stringy_type_with_length_2(Stringy,string(L)) :- string(Stringy),!,string_length
 % This predicates behaves _softly_, i.e. preferentially fails on bad input.
 
 stringy_length(Stringy,Length) :-
-   stringy_length(Stringy,Length,false).
+   stringy_length(Stringy,Length,soft).
 
-%! stringy_length(+Stringy,?Length,@Throw)
+%! stringy_length(+Stringy,?Length,@Tuned)
 %
-% As stringy_length/2, but setting Throw to either =|true|= or =|throw|=
+% As stringy_length/2, but setting Tuned to either =|true|= or =|throw|=
 % will make the predicate throw on bad input.
 
-stringy_length(Stringy,Length,Throw) :-
+stringy_length(Stringy,Length,Tuned) :-
    check_that(Stringy,[hard(nonvar),hard(stringy)]),
-   check_that(Length,[break(var),hard(integer),tuned(pos0int)],Throw),
-   stringy_type_with_length(Stringy,Type,Throw),
+   check_that(Length,[break(var),hard(integer),tuned(pos0int)],Tuned),
+   stringy_type_with_length(Stringy,Type,Tuned),
    detag(Type,Length).
 
 detag(atom(Length),Length).

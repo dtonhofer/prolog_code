@@ -1,8 +1,9 @@
-:- module(onepointfour_basics_space_string,
+:- module(onepointfour_basics_space_stringy,
           [
-           space_string/2        % space_string(?N,?String)
-          ,space_string/3        % space_string(?N,?String,@Throw)
-          ,space_string_smooth/2 % space_string_smooth(?N,?Stringy)
+           space_stringy/3        % space_stringy(?N,?Stringy,+StringyType)
+          ,space_stringy/4        % space_stringy(?N,?Stringy,?StringyType,@Tuned) 
+          ,space_stringy_lax/3    % space_stringy_lax(?N,?Stringy,?StringyType)
+          ,space_stringy_smooth/3 % space_stringy_smooth(?N,?Stringy,?StringyType)
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
@@ -40,29 +41,7 @@ two distinct representations of "sequences of characters".
 
 ## Homepage for this code
 
-https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_space_string.md
-
-## Examples
-
-```
-?- use_module(library('onepointfour_basics/space_string.pl')).
-true.
-
-?- space_string(10,String).
-String = "          ".
-
-?- space_string(N,"    ").
-N = 4.
-
-?- space_string(N," hey  ").
-false.
-
-?- space_string(-1,S).
-false.
-
-?- space_string(-1,S,throw).
-ERROR: check failed : domain error (the culprit is outside the required domain)
-```
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_space_stringy.md
 
 ## History
 
@@ -70,71 +49,107 @@ ERROR: check failed : domain error (the culprit is outside the required domain)
    1. 2021-05-27: Full review.
    1. 2021-06-10: Further review.
    1. 2021-06-11: Back up on github.
+   1. 2021-06-17: Rewritten to take "StringyType" arg and generally be clearer code
 */
 
-%! space_string(?N,?Stringy)
+%! space_stringy(?N,?Stringy,+StringyType)
 %
-% Succeeds iff Stringy is a string of N _SPACE_ characters.
+% Succeeds iff Stringy is a string of N _SPACE_ characters
+% having type StringyType (either 'atom' or 'string').
 %
-% - On input, Stringy may also be an atom.
-% - On output, Stringy is always a string.
+% If both arguments N and Stringy are unbound, generates pairs 
+% (N,Stringy) with N monotonically increasing.
 %
-% If both arguments are unbound, generates pairs (N,Stringy) with
-% N monotonically increasing.
-%
-% The behaviour is _soft_: in case of bad input, the predicate
-% prefers failure to throwing an exception:
-%
-% - Fails if N is bound to an integer but < 0 .
-%
-% However, errors in type (not an integer, not a string) lead to
-% appropriate exceptions.
+% - The predicate throws if bound arguments are out-of-type
+% - the call fails for N an integer but N < 0 (any other value for Throw)
+ 
+space_stringy(N,Stringy,StringyType) :-
+   space_stringy(N,Stringy,StringyType,soft).
 
-space_string(N,Stringy) :-
-   space_string(N,Stringy,false).
-
-%! space_string_smooth(?N,?Stringy)
+%! space_stringy_smooth(?N,?Stringy,?StringyType)
 %
-% As space_string/2 but only fails, never throws.
+% As space_stringy/3 that only fails, never throws even if it
+% is given out-of-type or out-of-domain arguments.
 
-space_string_smooth(N,Stringy) :-
+space_stringy_smooth(N,Stringy,StringyType) :-
    check_that(Stringy,[break(var),soft(stringy)]),
    check_that(N,[break(var),soft(int),soft(pos0int)]),
-   space_string(N,Stringy,false).
+   check_that(StringyType,[break(var),soft(stringy_typeid)]),
+   space_stringy_2(N,Stringy,StringyType).
 
-%! space_string(?N,?Stringy,@Throw)
+%! space_stringy_lax(?N,?Stringy,?StringyType)
 %
-% As space_string/2 but whereas space_string/2 behaves _softly_
-% on bad input, space_string/3 can be told to throw on the input
-% problems that only elicit failure for space_string/2. For this,
-% instantiate Throw to one of the atoms =|throw|= or =|true|=.
+% A space_stringy/3 that accepts negative N, and just unifies
+% Stringy with an empty "" or '' in that case.
 
-space_string(N,Stringy,Throw) :-
-   nonvar(Stringy),                    % case: "accept length or determine length of 'Stringy'"
-   !,
-   check_that(Stringy,[hard(stringy)],Throw),
-   (nonvar(N)
-    ->
-    check_that(N,[hard(int),tuned(pos0int)],Throw)
+space_stringy_lax(N,Stringy,StringyType) :-
+   check_that(Stringy,[break(var),hard(stringy)]),
+   check_that(N,[break(var),hard(int)]),
+   check_that(StringyType,[break(var),hard(stringy_typeid)]),
+   ((nonvar(N))
+    -> 
+    (M is max(N,0))
     ;
-    true),
-   atom_string(Stringy,Stringy2),      % makes sure Stringy2 is a *string representation*
-   string_length(Stringy2,N),
-   gen_string_of_spaces(N,Stringy2).   % regenerate N-space string for comparison with Stringy2
+    M=N),
+   space_stringy_2(M,Stringy,StringyType).
 
-space_string(N,Stringy,Throw) :-
-   var(Stringy),
-   nonvar(N),                          % case: "generate a string"
-   !,
-   check_that(N,[hard(int),tuned(pos0int)],Throw),
-   gen_string_of_spaces(N,Stringy).    % depending on N, this fails, but does not throw
+%! space_stringy(?N,?Stringy,?StringyType,@Throw)
+%
+% As space_stringy/3 but one can request that:
+% - the call throws for N < 0 (Throw = true,throw)
+% - the call fails for N < 0 (any other value for Throw)
+ 
+space_stringy(N,Stringy,StringyType,Tuned) :-
+   check_that(Stringy,[break(var),hard(stringy)]),
+   check_that(N,[break(var),hard(int),tuned(pos0int)],Tuned),
+   check_that(StringyType,[break(var),hard(stringy_typeid)]),
+   space_stringy_2(N,Stringy,StringyType).
 
-space_string(N,Stringy,_) :-
-   var(Stringy),
-   var(N),                             % case: "generate pairs"
+% --- what lies beneath ---
+ 
+space_stringy_2(N,Stringy,StringyType) :-
+   var_tag(N,TaggedN),
+   var_tag(Stringy,TaggedStringy),
+   var_tag(StringyType,TaggedStringyType),
+   instantiate_stringy_type(TaggedStringy,TaggedStringyType), % fails if Stringy and StringyType are incompatible
+   space_stringy_3(TaggedN,TaggedStringy,StringyType). % StringyType may or may not have been further instantiate by previous call
+
+instantiate_stringy_type(var(_Stringy),nonvar(_StringyType)) :- !.                   % Do nothing, decision already taken
+instantiate_stringy_type(var(_Stringy),var(_StringyType))    :- !.                   % Do nothing, leaving indeterminism on StringyType
+instantiate_stringy_type(nonvar(Stringy),var(atom))          :- atom(Stringy),!.     % Instantiate type inside var/1 tag to 'atom' 
+instantiate_stringy_type(nonvar(Stringy),var(string))        :- string(Stringy),!.   % Instantiate type inside var/1 tag to 'string'
+instantiate_stringy_type(nonvar(Stringy),nonvar(atom))       :- atom(Stringy),!.     % Accept only if type is 'atom'
+instantiate_stringy_type(nonvar(Stringy),nonvar(string))     :- string(Stringy).     % Accept only if type is 'string'
+
+var_tag(X,var(X))    :- var(X),!.
+var_tag(X,nonvar(X)).
+
+space_stringy_3(var(N),nonvar(Stringy),_) :-
    !,
-   between(0,inf,N),                   % infinite backtracking
-   gen_string_of_spaces(N,Stringy).
+   atom_string(Stringy,StringyAsStr),                         % makes sure we have a *string representation*
+   string_length(StringyAsStr,N), 
+   gen_string_of_spaces(N,StringyAsStr).                      % given N, regenerate N-space string for unification
+
+space_stringy_3(nonvar(N),nonvar(Stringy),_) :-
+   !,
+   atom_string(Stringy,StringyAsStr),                         % makes sure we have a *string representation*
+   gen_string_of_spaces(N,StringyAsStr).                      % given N, regenerate N-space string for unification with Stringy2
+
+space_stringy_3(nonvar(N),var(Stringy),StringyType) :-        % argument 3, StringyType, may or may not have been instantiated on call
+   !,    
+   space_stringy_4(StringyType,nonvar(N),var(Stringy)).       % call another predicate for easyness-to-read; that predicate is nondeterministic on StringType.
+
+space_stringy_3(var(N),var(Stringy),StringyType) :-           % argument 3, StringyType, may or may not have been instantiated on call
+   between(0,inf,N),                                          % infinite backtracking on top of
+   space_stringy_4(StringyType,nonvar(N),var(Stringy)).       % two possible types if (StringyType is still unboudn at this point)
+
+
+space_stringy_4(atom,nonvar(N),var(Stringy)) :-
+   gen_string_of_spaces(N,StringyAsStr),                      % this may fail for bad N but does not throw
+   atom_string(Stringy,StringyAsStr).                         % we want an atom, so convert
+
+space_stringy_4(string,nonvar(N),var(Stringy)) :-     
+   gen_string_of_spaces(N,Stringy).                           % this may fail for bad N but does not throw
 
 % Generate (possibly long) strings quickly by recursively applying
 % string_concat/3 on two strings of half the desired length.

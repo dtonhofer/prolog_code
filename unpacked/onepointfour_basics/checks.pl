@@ -1,9 +1,9 @@
 :- module(onepointfour_basics_checks,
           [
            check_that/2        % check_that(X,Conditions)
-          ,check_that/3        % check_that(X,Conditions,Throw)
+          ,check_that/3        % check_that(X,Conditions,Tuned)
           ,check_that_named/3  % check_that_named(X,Conditions,Name)
-          ,check_that_named/4  % check_that_named(X,Conditions,Name,Throw)
+          ,check_that_named/4  % check_that_named(X,Conditions,Name,Tuned)
           ]).
 
 :- use_module(library(yall)).
@@ -57,40 +57,40 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 % ---
 
 check_that(X,Conditions) :-
-   check_that(X,Conditions,false).
+   check_that(X,Conditions,soft).
 
 % ---
 % 1) For this call, you can select whether tuned/1 conditions should fail or throw. If throwing is preferred,
-%    set Throw to one of the atoms =|throw|= or =|true|=. Anything else means to just failing.
-%    The condition will still throw if the precondition fails.
+%    set Tuned to the atom =|hard|=. Anything else (although we prefer to see =|soft|= for clarity)
+%    means to prefer failing.
 % 2) No specific name for the value is given, so messages in exceptions will be relatively generic.
 % If Conditions is not a list, it is transformed into a list first.
 % ---
 
-check_that(X,Conditions,Throw) :-
+check_that(X,Conditions,Tuned) :-
    is_proper_list(Conditions)
    ->
-   check_that_1(Conditions,X,"",Throw)
+   check_that_1(Conditions,X,"",Tuned)
    ;
-   check_that_1([Conditions],X,"",Throw).
+   check_that_1([Conditions],X,"",Tuned).
 
 % ---
 % As above, but additionally pass a name to be be used in messages used in exceptions
 % ---
 
 check_that_named(X,Conditions,Name) :-
-   check_that_named(X,Conditions,Name,false).
+   check_that_named(X,Conditions,Name,soft).
 
 % ---
 % As above, but additionally pass a name to be be used in messages used in exceptions
 % ---
 
-check_that_named(X,Conditions,Name,Throw) :-
+check_that_named(X,Conditions,Name,Tuned) :-
    is_proper_list(Conditions)
    ->
-   check_that_1(Conditions,X,Name,Throw)
+   check_that_1(Conditions,X,Name,Tuned)
    ;
-   check_that_1([Conditions],X,Name,Throw).
+   check_that_1([Conditions],X,Name,Tuned).
 
 
                      /*********************************************
@@ -110,12 +110,12 @@ check_that_named(X,Conditions,Name,Throw) :-
 % Prolog needs something to handle that more elegantly.
 % ---
 
-check_that_1(Conditions,X,Name,Throw) :-
+check_that_1(Conditions,X,Name,Tuned) :-
    % syntax check
    no_var_in_list_or_throw(Conditions),
    wellformed_conds_or_throw(Conditions,X),
    % evaluate the conditions
-   check_that_2(Conditions,X,Name,Throw).
+   check_that_2(Conditions,X,Name,Tuned).
 
 no_var_in_list_or_throw(Conditions) :-
    no_var_in_list(Conditions)
@@ -259,7 +259,7 @@ atomoform_checks(
 ).
 
 % ---
-% check_that_2(Conditions,TermToCheck,NameOfTerm,ThrowFlag)
+% check_that_2(Conditions,TermToCheck,NameOfTerm,Tuned)
 %
 % One we have passed the basic syntactic/well-formedness checks of
 % check_that_1/4, we can proceed to evaluate the checks in-order.
@@ -271,49 +271,49 @@ atomoform_checks(
 % well-formedness checks, this actually can't happen.
 % ---
 
-check_that_2([Condition|More],X,Name,Throw) :-
+check_that_2([Condition|More],X,Name,Tuned) :-
    exists_cond_or_throw(Condition), % always succeeds if the syntax check was passed
-   check_that_3(Condition,X,Name,Throw,Outcome), % needs no internal cut
+   check_that_3(Condition,X,Name,Tuned,Outcome), % needs no internal cut
    !, % no need to go back on success
-   outcome_branching(Outcome,Condition,More,X,Name,Throw). % recurses
+   outcome_branching(Outcome,Condition,More,X,Name,Tuned). % recurses
 check_that_2([],_,_,_).
 
 outcome_branching(break,_,_,_,_,_)           :- !.
 outcome_branching(done,_,_,_,_,_)            :- !.
 outcome_branching(fail,_,_,_,_,_)            :- !,fail.
-outcome_branching(next,_,More,X,Name,Throw)  :- !,check_that_2(More,X,Name,Throw).
+outcome_branching(next,_,More,X,Name,Tuned)  :- !,check_that_2(More,X,Name,Tuned).
 outcome_branching(Outcome,Condition,_,_,_,_) :- throw_various(unknown_outcome,"bug: condition yields unknown outcome",[Condition,Outcome]).
 
-check_that_3(break(Check),X,Name,_Throw,Outcome) :-
-   eval(Check,X,Name,false,throw) % fail for eval, throw for precondition
+check_that_3(break(Check),X,Name,_Tuned,Outcome) :-
+   eval(Check,X,Name,soft,hard) % fail for eval, throw for precondition
    ->
    Outcome = break
    ;
    Outcome = next.
 
-check_that_3(smooth(Check),X,Name,_Throw,Outcome) :-
-   eval(Check,X,Name,false,false)  % fail for eval, fail for precondition
+check_that_3(smooth(Check),X,Name,_Tuned,Outcome) :-
+   eval(Check,X,Name,soft,soft)  % fail for eval, fail for precondition
    ->
    Outcome = next
    ;
    Outcome = fail.
 
-check_that_3(soft(Check),X,Name,_Throw,Outcome) :-
-   eval(Check,X,Name,false,throw)  % fail for eval, throw for precondition
+check_that_3(soft(Check),X,Name,_Tuned,Outcome) :-
+   eval(Check,X,Name,soft,hard)  % fail for eval, throw for precondition
    ->
    Outcome = next
    ;
    Outcome = fail.
 
-check_that_3(tuned(Check),X,Name,Throw,Outcome) :-
-   eval(Check,X,Name,Throw,throw)  % tuned for eval, throw for precondition
+check_that_3(tuned(Check),X,Name,Tuned,Outcome) :-
+   eval(Check,X,Name,Tuned,hard)  % tuned for eval, throw for precondition
    ->
    Outcome = next
    ;
    Outcome = fail.
 
 check_that_3(hard(Check),X,Name,_,Outcome) :-
-   eval(Check,X,Name,throw,throw) % throw for eval, throw for precondition
+   eval(Check,X,Name,hard,hard) % throw for eval, throw for precondition
    ->
    Outcome = next
    ;
@@ -322,22 +322,25 @@ check_that_3(hard(Check),X,Name,_,Outcome) :-
 check_that_3([],_,_,_,done).
 
 % ---
-% Checking the "Throw" flag for being set
+% Checking the "Tuned" flag for being set
 % ---
 
-throw_is_set(Throw) :- Throw==true.
-throw_is_set(Throw) :- Throw==throw.
+fail_if_not_hard(Tuned) :- Tuned==hard,!.
+fail_if_not_hard(Tuned) :- Tuned==true,!,format(user_error,"The passed Tuned flag is ~q. Preferring 'hard'~q",[Tuned]).
+fail_if_not_hard(Tuned) :- Tuned==throw,!,format(user_error,"The passed Tuned flag is ~q. Preferring 'hard'~n",[Tuned]).
+fail_if_not_hard(Tuned) :- Tuned==soft,!,fail.
+fail_if_not_hard(Tuned) :- format(user_error,"The passed Tuned flag is ~q. Preferring 'soft'~n",[Tuned]),fail.
 
 % ---
 % Special precondition checks: we want to unconditionally throw if X does not have enough
 % information for a meaningful answer, i.e. if we encounter an "instantiation error"
 % ---
 
-precondition_X_must_be_instantiated(X,Name,Ness,Throw) :-
+precondition_X_must_be_instantiated(X,Name,Ness,Tuned) :-
    var(X)
    ->
    (
-      throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+      fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
       format(string(Msg),"~s must not be uninstantiated. Can't check for '~s-ness'",[Name2,Ness]),
       throw_2(instantiation,Msg,X)
@@ -347,13 +350,13 @@ precondition_X_must_be_instantiated(X,Name,Ness,Throw) :-
 
 % special case precondition: the list
 
-precondition_X_must_be_list(X,Name,Ness,Throw) :-
+precondition_X_must_be_list(X,Name,Ness,Tuned) :-
    is_proper_list(X)
    ->
    true
    ;
    (
-      throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+      fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
       format(string(Msg),"~s must be a proper list. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
@@ -361,13 +364,13 @@ precondition_X_must_be_list(X,Name,Ness,Throw) :-
 
 % special case precondition: the dict
 
-precondition_X_must_be_dict(X,Name,Ness,Throw) :-
+precondition_X_must_be_dict(X,Name,Ness,Tuned) :-
    is_dict(X)
    ->
    true
    ;
    (
-      throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+      fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
       format(string(Msg),"~s must be a dict. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
@@ -375,13 +378,13 @@ precondition_X_must_be_dict(X,Name,Ness,Throw) :-
 
 % special case precondition: atomic (used to assess dict key)
 
-precondition_X_must_be_atomic(X,Name,Ness,Throw) :-
+precondition_X_must_be_atomic(X,Name,Ness,Tuned) :-
    atomic(X)
    ->
    true
    ;
    (
-      throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+      fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
       format(string(Msg),"~s must be atomic. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
@@ -390,25 +393,25 @@ precondition_X_must_be_atomic(X,Name,Ness,Throw) :-
 
 % special case precondition: X must be instantiated enough to positively say whether it is cyclic
 
-precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Throw) :-
+precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Tuned) :-
    var(X),
    !, % commit, then fail or throw
-   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+   fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    select_name(Name,Name2),
    format(string(Msg),"~s must not be uninstantiated. Can't say anything about cyclic-ness.",[Name2]),
    throw_2(instantiation,Msg,X).
-precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Throw) :-
+precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Tuned) :-
    \+ground(X),
    acyclic_term(X),
    !, % commit, then fail or throw
-   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+   fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    select_name(Name,Name2),
    format(string(Msg),"~s must not be 'nonground and cyclic'. Can't say anything about cyclic-ness.",[Name2]),
    throw_2(instantiation,Msg,X).
 precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(_,_,_). % default accepts anything
 
 % ---
-% Predicates which check whether the Throw flag is set, and if so,
+% Predicates which check whether the Tuned flag is set, and if so,
 % construct an exception message and then throw via throw_2/3.
 % Otherwise they fail.
 %
@@ -417,18 +420,18 @@ precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(_,_,_). % de
 % "integer-ness".
 % ---
 
-throw_or_fail_for_case_random(Throw) :-
-   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+throw_or_fail_for_case_random(Tuned) :-
+   fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    throw_2(random,"random failure after calling maybe/1").
 
-throw_or_fail(Error,X,Name,Throw,Ness) :-
-   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+throw_or_fail(Error,X,Name,Tuned,Ness) :-
+   fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    select_name(Name,Name2),
    format(string(Msg),"~s should fulfill '~s-ness'",[Name2,Ness]),
    throw_2(Error,Msg,X).
 
-throw_or_fail_with_message(Msg,X,Throw) :-
-   throw_is_set(Throw), % if this fails, the call fails (which is what we want)
+throw_or_fail_with_message(Msg,X,Tuned) :-
+   fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    throw_2(type,Msg,X).
 
 % ---
@@ -535,13 +538,13 @@ lineify_culprit(_) --> [].
 % causes failure to type error.
 % ---
 
-just_an_inty(X,Name,Throw,TP) :-
+just_an_inty(X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"inty",TP),
    ((integer(X);inty_float(X))
     ->
     true
     ;
-    throw_or_fail(type(int_or_float),X,Name,Throw,"inty")).
+    throw_or_fail(type(int_or_float),X,Name,Tuned,"inty")).
 
 % ---
 % Accept a float that represents an integer
@@ -563,7 +566,7 @@ is_proper_list(L) :-
    is_list(L).
 
 % ---
-% eval(Check,TermToCheck,NameOfTerm,ThrowOrFail,ThrowOrFailForPrecondition)
+% eval(Check,TermToCheck,NameOfTerm,Tuned,PreconditionTuned)
 % This predicate needs no internal cuts as a unique decision is taken on arg 1
 % ---
 
@@ -571,123 +574,123 @@ eval(true,_,_,_,_).
 eval(false,_,_,_,_).
 eval(fail,_,_,_,_).
 
-eval(var,X,Name,Throw,_TP) :-
+eval(var,X,Name,Tuned,_TP) :-
    var(X)
    ->
    true
    ;
-   throw_or_fail(uninstantiation,X,Name,Throw,"var").
+   throw_or_fail(uninstantiation,X,Name,Tuned,"var").
 
-eval(nonvar,X,Name,Throw,_TP) :-
+eval(nonvar,X,Name,Tuned,_TP) :-
    nonvar(X)
    ->
    true
    ;
-   throw_or_fail(instantiation,X,Name,Throw,"nonvar").
+   throw_or_fail(instantiation,X,Name,Tuned,"nonvar").
 
-eval(ground,X,Name,Throw,_TP) :-
+eval(ground,X,Name,Tuned,_TP) :-
    ground(X)
    ->
    true
    ;
-   throw_or_fail(domain,X,Name,Throw,"ground").
+   throw_or_fail(domain,X,Name,Tuned,"ground").
 
-eval(nonground,X,Name,Throw,_TP) :-
+eval(nonground,X,Name,Tuned,_TP) :-
    \+ground(X)
    ->
    true
    ;
-   throw_or_fail(domain,X,Name,Throw,"nonground").
+   throw_or_fail(domain,X,Name,Tuned,"nonground").
 
-eval(atom,X,Name,Throw,TP) :-
+eval(atom,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"atom",TP),
    (atom(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"atom")).
+    throw_or_fail(type,X,Name,Tuned,"atom")).
 
-eval(symbol,X,Name,Throw,TP) :-
-   eval(atom,X,Name,Throw,TP).
+eval(symbol,X,Name,Tuned,TP) :-
+   eval(atom,X,Name,Tuned,TP).
 
-eval(atomic,X,Name,Throw,TP) :-
+eval(atomic,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"atomic",TP),
    (atomic(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"atomic")).
+    throw_or_fail(type,X,Name,Tuned,"atomic")).
 
-eval(constant,X,Name,Throw,TP) :-
-   eval(atomic,X,Name,Throw,TP).
+eval(constant,X,Name,Tuned,TP) :-
+   eval(atomic,X,Name,Tuned,TP).
 
-eval(compound,X,Name,Throw,TP) :-
+eval(compound,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"compound",TP),
    (compound(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"compound")).
+    throw_or_fail(type,X,Name,Tuned,"compound")).
 
-eval(boolean,X,Name,Throw,TP) :-
-   eval(atom,X,Name,Throw,TP),
+eval(boolean,X,Name,Tuned,TP) :-
+   eval(atom,X,Name,Tuned,TP),
    ((X==true;X==false)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"boolean")).
+    throw_or_fail(domain,X,Name,Tuned,"boolean")).
 
-eval(pair,X,Name,Throw,TP) :-
-   eval(compound,X,Name,Throw,TP),
+eval(pair,X,Name,Tuned,TP) :-
+   eval(compound,X,Name,Tuned,TP),
    (X = -(_,_)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"pair")).
+    throw_or_fail(domain,X,Name,Tuned,"pair")).
 
-eval(string,X,Name,Throw,TP) :-
+eval(string,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"string",TP),
    (string(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"string")).
+    throw_or_fail(type,X,Name,Tuned,"string")).
 
-eval(stringy,X,Name,Throw,TP) :-
+eval(stringy,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"stringy",TP),
    ((atom(X);string(X))
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"stringy")).
+    throw_or_fail(type,X,Name,Tuned,"stringy")).
 
-eval(nonempty_stringy,X,Name,Throw,TP) :-
-   eval(stringy,X,Name,Throw,TP),
+eval(nonempty_stringy,X,Name,Tuned,TP) :-
+   eval(stringy,X,Name,Tuned,TP),
    ((X\=='',X\== "")
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"nonempty stringy")).
+    throw_or_fail(domain,X,Name,Tuned,"nonempty stringy")).
 
-eval(char,X,Name,Throw,TP) :-
-   eval(atom,X,Name,Throw,TP),
+eval(char,X,Name,Tuned,TP) :-
+   eval(atom,X,Name,Tuned,TP),
    % Note that we need to test atom/1 first because atom_length/2 transforms-to-atom!
    % atom_length/2 may be too wasteful to test for a precise length (?)
    (atom_length(X,1)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"char")).
+    throw_or_fail(domain,X,Name,Tuned,"char")).
 
-eval(code,X,Name,Throw,TP) :-
-   eval(integer,X,Name,Throw,TP),
+eval(code,X,Name,Tuned,TP) :-
+   eval(integer,X,Name,Tuned,TP),
    ((0=<X,X=<0x10FFFF)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"code")).
+    throw_or_fail(domain,X,Name,Tuned,"code")).
 
-eval(chary,X,Name,Throw,TP) :-
+eval(chary,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"chary",TP),
    (integer(X)
     ->
@@ -695,7 +698,7 @@ eval(chary,X,Name,Throw,TP) :-
         ->
         true
         ;
-        throw_or_fail(domain,X,Name,Throw,"code"))
+        throw_or_fail(domain,X,Name,Tuned,"code"))
     ;
     atom(X)
     ->
@@ -703,334 +706,334 @@ eval(chary,X,Name,Throw,TP) :-
         ->
         true
         ;
-        throw_or_fail(domain,X,Name,Throw,"char"))
+        throw_or_fail(domain,X,Name,Tuned,"char"))
     ;
-    throw_or_fail(type,X,Name,Throw,"chary")).
+    throw_or_fail(type,X,Name,Tuned,"chary")).
 
-eval(number,X,Name,Throw,TP) :-
+eval(number,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"number",TP),
    (number(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"number")).
+    throw_or_fail(type,X,Name,Tuned,"number")).
 
-eval(float,X,Name,Throw,TP) :-
+eval(float,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"float",TP),
    (float(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"float")).
+    throw_or_fail(type,X,Name,Tuned,"float")).
 
-eval(int,X,Name,Throw,TP) :-
+eval(int,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"integer",TP),
    (integer(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"integer")).
+    throw_or_fail(type,X,Name,Tuned,"integer")).
 
-eval(integer,X,Name,Throw,TP) :-
-   eval(int,X,Name,Throw,TP).
+eval(integer,X,Name,Tuned,TP) :-
+   eval(int,X,Name,Tuned,TP).
 
-eval(rational,X,Name,Throw,TP) :-
+eval(rational,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"rational",TP),
    (rational(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"rational")).
+    throw_or_fail(type,X,Name,Tuned,"rational")).
 
-eval(nonint_rational,X,Name,Throw,TP) :-
+eval(nonint_rational,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"nonint_rational",TP),
    (rational(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"nonint_rational")),
+    throw_or_fail(type,X,Name,Tuned,"nonint_rational")),
    (integer(X)
     ->
-    throw_or_fail(domain,X,Name,Throw,"nonint_rational")
+    throw_or_fail(domain,X,Name,Tuned,"nonint_rational")
     ;
     true).
 
-eval(proper_rational,X,Name,Throw,TP) :-
-   eval(nonint_rational,X,Name,Throw,TP).
+eval(proper_rational,X,Name,Tuned,TP) :-
+   eval(nonint_rational,X,Name,Tuned,TP).
 
-eval(negnum,X,Name,Throw,TP) :-
-   eval(number,X,Name,Throw,TP),
+eval(negnum,X,Name,Tuned,TP) :-
+   eval(number,X,Name,Tuned,TP),
    ((X < 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly negative number")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly negative number")).
 
-eval(negnumber,X,Name,Throw,TP) :-
-   eval(negnum,X,Name,Throw,TP).
+eval(negnumber,X,Name,Tuned,TP) :-
+   eval(negnum,X,Name,Tuned,TP).
 
-eval(posnum,X,Name,Throw,TP) :-
-   eval(number,X,Name,Throw,TP),
+eval(posnum,X,Name,Tuned,TP) :-
+   eval(number,X,Name,Tuned,TP),
    ((X > 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly positive number")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly positive number")).
 
-eval(posnumber,X,Name,Throw,TP) :-
-   eval(posnum,X,Name,Throw,TP).
+eval(posnumber,X,Name,Tuned,TP) :-
+   eval(posnum,X,Name,Tuned,TP).
 
-eval(neg0num,X,Name,Throw,TP) :-
-   eval(number,X,Name,Throw,TP),
+eval(neg0num,X,Name,Tuned,TP) :-
+   eval(number,X,Name,Tuned,TP),
    ((X =< 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"number that is =< 0")).
+    throw_or_fail(domain,X,Name,Tuned,"number that is =< 0")).
 
-eval(neg0number,X,Name,Throw,TP) :-
-   eval(neg0num,X,Name,Throw,TP).
+eval(neg0number,X,Name,Tuned,TP) :-
+   eval(neg0num,X,Name,Tuned,TP).
 
-eval(pos0num,X,Name,Throw,TP) :-
-   eval(number,X,Name,Throw,TP),
+eval(pos0num,X,Name,Tuned,TP) :-
+   eval(number,X,Name,Tuned,TP),
    ((X >= 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"number that is >= 0")).
+    throw_or_fail(domain,X,Name,Tuned,"number that is >= 0")).
 
-eval(pos0number,X,Name,Throw,TP) :-
-   eval(pos0num,X,Name,Throw,TP).
+eval(pos0number,X,Name,Tuned,TP) :-
+   eval(pos0num,X,Name,Tuned,TP).
 
-eval(non0num,X,Name,Throw,TP) :-
-   eval(number,X,Name,Throw,TP),
+eval(non0num,X,Name,Tuned,TP) :-
+   eval(number,X,Name,Tuned,TP),
    ((X =\= 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"number that is not 0")).
+    throw_or_fail(domain,X,Name,Tuned,"number that is not 0")).
 
-eval(non0number,X,Name,Throw,TP) :-
-   eval(non0num,X,Name,Throw,TP).
+eval(non0number,X,Name,Tuned,TP) :-
+   eval(non0num,X,Name,Tuned,TP).
 
-eval(float_not_nan,X,Name,Throw,TP) :-
-   eval(float,X,Name,Throw,TP),
+eval(float_not_nan,X,Name,Tuned,TP) :-
+   eval(float,X,Name,Tuned,TP),
    ((NaN is nan,X \== NaN) % arithmetic comparison would fail
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"float that is not NaN")).
+    throw_or_fail(domain,X,Name,Tuned,"float that is not NaN")).
 
-eval(float_not_inf,X,Name,Throw,TP) :-
-   eval(float,X,Name,Throw,TP),
+eval(float_not_inf,X,Name,Tuned,TP) :-
+   eval(float,X,Name,Tuned,TP),
    ((X =\= -1.0Inf,X =\= +1.0Inf)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"float that is not positive or negative infinity")).
+    throw_or_fail(domain,X,Name,Tuned,"float that is not positive or negative infinity")).
 
-eval(float_not_neginf,X,Name,Throw,TP) :-
-   eval(float,X,Name,Throw,TP),
+eval(float_not_neginf,X,Name,Tuned,TP) :-
+   eval(float,X,Name,Tuned,TP),
    ((X =\= -1.0Inf)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"float that is not negative infinity")).
+    throw_or_fail(domain,X,Name,Tuned,"float that is not negative infinity")).
 
-eval(float_not_posinf,X,Name,Throw,TP) :-
-   eval(float,X,Name,Throw,TP),
+eval(float_not_posinf,X,Name,Tuned,TP) :-
+   eval(float,X,Name,Tuned,TP),
    ((X =\= +1.0Inf)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"float that is not positive infinity")).
+    throw_or_fail(domain,X,Name,Tuned,"float that is not positive infinity")).
 
-eval(negint,X,Name,Throw,TP) :-
-   eval(int,X,Name,Throw,TP),
+eval(negint,X,Name,Tuned,TP) :-
+   eval(int,X,Name,Tuned,TP),
    ((X<0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly negative integer")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly negative integer")).
 
-eval(negative_integer,X,Name,Throw,TP) :-
-   eval(negint,X,Name,Throw,TP).
+eval(negative_integer,X,Name,Tuned,TP) :-
+   eval(negint,X,Name,Tuned,TP).
 
-eval(posint,X,Name,Throw,TP) :-
-   eval(int,X,Name,Throw,TP),
+eval(posint,X,Name,Tuned,TP) :-
+   eval(int,X,Name,Tuned,TP),
    ((X>0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly positive integer")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly positive integer")).
 
-eval(positive_integer,X,Name,Throw,TP) :-
-   eval(posint,X,Name,Throw,TP).
+eval(positive_integer,X,Name,Tuned,TP) :-
+   eval(posint,X,Name,Tuned,TP).
 
-eval(neg0int,X,Name,Throw,TP) :-
-   eval(int,X,Name,Throw,TP),
+eval(neg0int,X,Name,Tuned,TP) :-
+   eval(int,X,Name,Tuned,TP),
    ((X =< 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"integer that is =< 0")).
+    throw_or_fail(domain,X,Name,Tuned,"integer that is =< 0")).
 
-eval(pos0int,X,Name,Throw,TP) :-
-   eval(int,X,Name,Throw,TP),
+eval(pos0int,X,Name,Tuned,TP) :-
+   eval(int,X,Name,Tuned,TP),
    ((X >= 0)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"integer that is >= 0")).
+    throw_or_fail(domain,X,Name,Tuned,"integer that is >= 0")).
 
-eval(nonneg,X,Name,Throw,TP) :-
-   eval(pos0int,X,Name,Throw,TP).
+eval(nonneg,X,Name,Tuned,TP) :-
+   eval(pos0int,X,Name,Tuned,TP).
 
-eval(inty,X,Name,Throw,TP) :-
-   just_an_inty(X,Name,Throw,TP).
+eval(inty,X,Name,Tuned,TP) :-
+   just_an_inty(X,Name,Tuned,TP).
 
-eval(neginty,X,Name,Throw,TP) :-
-   eval(inty,X,Name,Throw,TP),
+eval(neginty,X,Name,Tuned,TP) :-
+   eval(inty,X,Name,Tuned,TP),
    (((integer(X),X<0);(float(X),X<0.0))
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly negative inty")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly negative inty")).
 
-eval(posinty,X,Name,Throw,TP) :-
-   eval(inty,X,Name,Throw,TP),
+eval(posinty,X,Name,Tuned,TP) :-
+   eval(inty,X,Name,Tuned,TP),
    (((integer(X),X>0);(float(X),X>0.0))
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly positive inty")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly positive inty")).
 
-eval(neg0inty,X,Name,Throw,TP) :-
-   eval(inty,X,Name,Throw,TP),
+eval(neg0inty,X,Name,Tuned,TP) :-
+   eval(inty,X,Name,Tuned,TP),
    (((integer(X),X=<0);(float(X),X=<0.0))
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"inty that is =< 0")).
+    throw_or_fail(domain,X,Name,Tuned,"inty that is =< 0")).
 
-eval(pos0inty,X,Name,Throw,TP) :-
-   eval(inty,X,Name,Throw,TP),
+eval(pos0inty,X,Name,Tuned,TP) :-
+   eval(inty,X,Name,Tuned,TP),
    (((integer(X),X>=0);(float(X),X>=0.0))
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"inty that is >= 0")).
+    throw_or_fail(domain,X,Name,Tuned,"inty that is >= 0")).
 
-eval(negfloat,X,Name,Throw,TP) :-
-   eval(float_not_nan,X,Name,Throw,TP),
+eval(negfloat,X,Name,Tuned,TP) :-
+   eval(float_not_nan,X,Name,Tuned,TP),
    (X<0.0
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly negative float")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly negative float")).
 
-eval(posfloat,X,Name,Throw,TP) :-
-   eval(float_not_nan,X,Name,Throw,TP),
+eval(posfloat,X,Name,Tuned,TP) :-
+   eval(float_not_nan,X,Name,Tuned,TP),
    (X>0.0
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"strictly positive float")).
+    throw_or_fail(domain,X,Name,Tuned,"strictly positive float")).
 
-eval(neg0float,X,Name,Throw,TP) :-
-   eval(float_not_nan,X,Name,Throw,TP),
+eval(neg0float,X,Name,Tuned,TP) :-
+   eval(float_not_nan,X,Name,Tuned,TP),
    (X=<0.0
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"float that is =< 0")).
+    throw_or_fail(domain,X,Name,Tuned,"float that is =< 0")).
 
-eval(pos0float,X,Name,Throw,TP) :-
-   eval(float_not_nan,X,Name,Throw,TP),
+eval(pos0float,X,Name,Tuned,TP) :-
+   eval(float_not_nan,X,Name,Tuned,TP),
    (X>=0.0
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"float that is >= 0")).
+    throw_or_fail(domain,X,Name,Tuned,"float that is >= 0")).
 
-eval(list,X,Name,Throw,TP) :-
+eval(list,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"list",TP),
    (is_proper_list(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"proper list")).
+    throw_or_fail(type,X,Name,Tuned,"proper list")).
 
-eval(proper_list,X,Name,Throw,TP) :-
-   eval(list,X,Name,Throw,TP).
+eval(proper_list,X,Name,Tuned,TP) :-
+   eval(list,X,Name,Tuned,TP).
 
-eval(nonempty_list,X,Name,Throw,TP) :-
-   eval(list,X,Name,Throw,TP),
+eval(nonempty_list,X,Name,Tuned,TP) :-
+   eval(list,X,Name,Tuned,TP),
    (X \== []
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"proper nonempty list")).
+    throw_or_fail(domain,X,Name,Tuned,"proper nonempty list")).
 
-eval(dict,X,Name,Throw,TP) :-
+eval(dict,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"dict",TP),
    (is_dict(X)
     ->
     true
     ;
-    throw_or_fail(type,X,Name,Throw,"dict")).
+    throw_or_fail(type,X,Name,Tuned,"dict")).
 
-eval(stringy_typeid,X,Name,Throw,TP) :-
-   eval(atom,X,Name,Throw,TP),
+eval(stringy_typeid,X,Name,Tuned,TP) :-
+   eval(atom,X,Name,Tuned,TP),
    ((X==atom;X==string)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"stringy_typeid")).
+    throw_or_fail(domain,X,Name,Tuned,"stringy_typeid")).
 
-eval(chary_typeid,X,Name,Throw,TP) :-
-   eval(atom,X,Name,Throw,TP),
+eval(chary_typeid,X,Name,Tuned,TP) :-
+   eval(atom,X,Name,Tuned,TP),
    ((X==char;X==code)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"chary_typeid")).
+    throw_or_fail(domain,X,Name,Tuned,"chary_typeid")).
 
-eval(char_list,X,Name,Throw,TP) :-
+eval(char_list,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"char_list",TP),
-   precondition_X_must_be_list(X,Name,"char_list",Throw), % Dual traversal, but one is in C, so this may be faster than "unifying" to a single traversal.
-   forall(member(MX,X),eval(char,MX,Name,Throw,TP)). % TODO: Open up to get at the index
+   precondition_X_must_be_list(X,Name,"char_list",Tuned), % Dual traversal, but one is in C, so this may be faster than "unifying" to a single traversal.
+   forall(member(MX,X),eval(char,MX,Name,Tuned,TP)). % TODO: Open up to get at the index
 
-eval(chars,X,Name,Throw,TP) :-
-   eval(char_list,X,Name,Throw,TP).
+eval(chars,X,Name,Tuned,TP) :-
+   eval(char_list,X,Name,Tuned,TP).
 
-eval(code_list,X,Name,Throw,TP) :-
+eval(code_list,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"code_list",TP),
-   precondition_X_must_be_list(X,Name,"code_list",Throw), % Dual traversal, but one is in C, so this may be faster than "unifying" to a single traversal.
-   forall(member(MX,X),eval(code,MX,Name,Throw,TP)). % TODO: Open up to get at the index
+   precondition_X_must_be_list(X,Name,"code_list",Tuned), % Dual traversal, but one is in C, so this may be faster than "unifying" to a single traversal.
+   forall(member(MX,X),eval(code,MX,Name,Tuned,TP)). % TODO: Open up to get at the index
 
-eval(codes,X,Name,Throw,TP) :-
-   eval(code_list,X,Name,Throw,TP).
+eval(codes,X,Name,Tuned,TP) :-
+   eval(code_list,X,Name,Tuned,TP).
 
-eval(chary_list,X,Name,Throw,TP) :-
+eval(chary_list,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"chary_list",TP),
-   precondition_X_must_be_list(X,Name,"chary_list",Throw), % Dual traversal, but one is in C, so this may be faster than "unifying" to a single traversal.
-   eval(forany([chars,codes]),X,Name,Throw,TP).  % TODO: Open up to get at the index and get better error messages
+   precondition_X_must_be_list(X,Name,"chary_list",Tuned), % Dual traversal, but one is in C, so this may be faster than "unifying" to a single traversal.
+   eval(forany([chars,codes]),X,Name,Tuned,TP).  % TODO: Open up to get at the index and get better error messages
    % Simple, but the error is confusing for "check_that([a,2],hard(chary_list))" for example and does not give the index
 
-eval(charys,X,Name,Throw,TP) :-
-   eval(chary_list,X,Name,Throw,TP).
+eval(charys,X,Name,Tuned,TP) :-
+   eval(chary_list,X,Name,Tuned,TP).
 
-eval(member(ListOfValues),X,Name,Throw,TP) :-
+eval(member(ListOfValues),X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"list_membership",TP),
    precondition_X_must_be_list(ListOfValues,Name,"list_membership",TP), % predicate name is confusing here: it is not X but ListOfValues which must be a list!
    ((\+ \+ member(X,ListOfValues)) % Use \+ \+ to roll back any accidental bindings
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"list_membership")).
+    throw_or_fail(domain,X,Name,Tuned,"list_membership")).
 
-eval(dict_has_key(Key),X,Name,Throw,TP) :-
+eval(dict_has_key(Key),X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"dict-has-key",TP),
    precondition_X_must_be_dict(X,Name,"dict-has-key",TP),
    precondition_X_must_be_instantiated(Key,Name,"dict-has-key",TP),
@@ -1039,51 +1042,51 @@ eval(dict_has_key(Key),X,Name,Throw,TP) :-
     ->
     true
     ;
-    throw_or_fail(domain,[dict-X,key-Key],Name,Throw,"dict-has-key")). % domain error sounds right here for "key not in dict"
+    throw_or_fail(domain,[dict-X,key-Key],Name,Tuned,"dict-has-key")). % domain error sounds right here for "key not in dict"
 
-eval(random(Probability),_,_,Throw,_) :-
+eval(random(Probability),_,_,Tuned,_) :-
    maybe(Probability)  % throws type error on value not in [0.0,1.0]
    ->
    true
    ;
-   throw_or_fail_for_case_random(Throw).
+   throw_or_fail_for_case_random(Tuned).
 
-eval(fail(Msg),X,_,Throw,_) :-
-   throw_or_fail_with_message(Msg,X,Throw).
+eval(fail(Msg),X,_,Tuned,_) :-
+   throw_or_fail_with_message(Msg,X,Tuned).
 
 eval(unifies(Z),X,_,_,_) :-
    \+ \+ (Z = X).
 
-eval(acyclic_now,X,Name,Throw,_) :-
+eval(acyclic_now,X,Name,Tuned,_) :-
    acyclic_term(X) % never throws
    ->
    true
    ;
-   throw_or_fail(domain,X,Name,Throw,"acyclic_now"). % is domain right here?
+   throw_or_fail(domain,X,Name,Tuned,"acyclic_now"). % is domain right here?
 
-eval(cyclic_now,X,Name,Throw,_) :-
+eval(cyclic_now,X,Name,Tuned,_) :-
    cyclic_term(X) % never throws
    ->
    true
    ;
-   throw_or_fail(domain,X,Name,Throw,"cyclic_now"). % is domain right here?
+   throw_or_fail(domain,X,Name,Tuned,"cyclic_now"). % is domain right here?
 
-eval(acyclic_forever,X,Name,Throw,_) :-
+eval(acyclic_forever,X,Name,Tuned,_) :-
    (ground(X),acyclic_term(X)) % never throws
    ->
    true
    ;
-   throw_or_fail(domain,X,Name,Throw,"acyclic_forever"). % is domain right here?
+   throw_or_fail(domain,X,Name,Tuned,"acyclic_forever"). % is domain right here?
 
-eval(cyclic,X,Name,Throw,TP) :-
+eval(cyclic,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,TP),
    (cyclic_term(X)
     ->
     true
     ;
-    throw_or_fail(domain,X,Name,Throw,"cyclic")). % is domain right here?
+    throw_or_fail(domain,X,Name,Tuned,"cyclic")). % is domain right here?
 
-eval(stream,X,Name,Throw,TP) :-
+eval(stream,X,Name,Tuned,TP) :-
    precondition_X_must_be_instantiated(X,Name,"stream",TP),
    (atom(X)
     ->
@@ -1091,7 +1094,7 @@ eval(stream,X,Name,Throw,TP) :-
         ->
         true
         ;
-        throw_or_fail(domain,X,Name,Throw,"atom-naming-a-stream"))
+        throw_or_fail(domain,X,Name,Tuned,"atom-naming-a-stream"))
     ;
     atomic(X)
     ->
@@ -1099,34 +1102,34 @@ eval(stream,X,Name,Throw,TP) :-
         ->
         true
         ;
-        throw_or_fail(domain,X,Name,Throw,"atomic-designating-a-stream"))
+        throw_or_fail(domain,X,Name,Tuned,"atomic-designating-a-stream"))
     ;
-    throw_or_fail(type,X,Name,Throw,"atom-or-atomic")).
+    throw_or_fail(type,X,Name,Tuned,"atom-or-atomic")).
 
 % ---
 % eval with forall/forany/fornone
 % ---
 
-eval(forall(ListOfChecks),X,Name,Throw,TP) :-
-   forall_forall_loop(ListOfChecks,X,Name,Throw,TP) % Throw is passed
+eval(forall(ListOfChecks),X,Name,Tuned,TP) :-
+   forall_forall_loop(ListOfChecks,X,Name,Tuned,TP) % Tuned is passed
    ->
    true
    ;
-   throw_or_fail(forall,checks(ListOfChecks)-item(X),Name,Throw,"all of the checks succeed for the item").
+   throw_or_fail(forall,checks(ListOfChecks)-item(X),Name,Tuned,"all of the checks succeed for the item").
 
-eval(forany(ListOfChecks),X,Name,Throw,TP) :-
-   forany_forall_loop(ListOfChecks,X,Name,TP) % Throw is not upheld, can only fail
+eval(forany(ListOfChecks),X,Name,Tuned,TP) :-
+   forany_forall_loop(ListOfChecks,X,Name,TP) % Tuned is not upheld, can only fail
    ->
    true
    ;
-   throw_or_fail(forany,checks(ListOfChecks)-item(X),Name,Throw,"at least one of the checks succeeds for the item").
+   throw_or_fail(forany,checks(ListOfChecks)-item(X),Name,Tuned,"at least one of the checks succeeds for the item").
 
-eval(fornone(ListOfChecks),X,Name,Throw,TP) :-
-   fornone_forall_loop(ListOfChecks,X,Name,TP) % Throw is not upheld, can only fail
+eval(fornone(ListOfChecks),X,Name,Tuned,TP) :-
+   fornone_forall_loop(ListOfChecks,X,Name,TP) % Tuned is not upheld, can only fail
    ->
    true
    ;
-   throw_or_fail(fornone,checks(ListOfChecks)-item(X),Name,Throw,"none of the checks succeeds for the item").
+   throw_or_fail(fornone,checks(ListOfChecks)-item(X),Name,Tuned,"none of the checks succeeds for the item").
 
 % ---
 % eval with passall/passany/passnone
@@ -1136,40 +1139,40 @@ eval(fornone(ListOfChecks),X,Name,Throw,TP) :-
 %       Is fixing both of these worth the complexity?
 % ---
 
-eval(passall(Check),ListOfX,Name,Throw,TP) :-
-   passall_forall_loop(Check,ListOfX,Name,Throw,TP) % Throw is passed; thrown exception informs about problem
+eval(passall(Check),ListOfX,Name,Tuned,TP) :-
+   passall_forall_loop(Check,ListOfX,Name,Tuned,TP) % Tuned is passed; thrown exception informs about problem
    ->
    true
    ;
-   throw_or_fail(passall,check(Check)-items(ListOfX),Name,Throw,"all of the items pass the check").
+   throw_or_fail(passall,check(Check)-items(ListOfX),Name,Tuned,"all of the items pass the check").
 
-eval(passany(Check),ListOfX,Name,Throw,TP) :-
-   passany_forall_loop(Check,ListOfX,Name,TP) % Throw is not upheld, can only fail
+eval(passany(Check),ListOfX,Name,Tuned,TP) :-
+   passany_forall_loop(Check,ListOfX,Name,TP) % Tuned is not upheld, can only fail
    ->
    true
    ;
-   throw_or_fail(passany,check(Check)-items(ListOfX),Name,Throw,"at least one of the items passes the check").
+   throw_or_fail(passany,check(Check)-items(ListOfX),Name,Tuned,"at least one of the items passes the check").
 
-eval(passnone(Check),ListOfX,Name,Throw,TP) :-
-   passnone_forall_loop(Check,ListOfX,Name,TP) % Throw is not upheld, can only fail
+eval(passnone(Check),ListOfX,Name,Tuned,TP) :-
+   passnone_forall_loop(Check,ListOfX,Name,TP) % Tuned is not upheld, can only fail
    ->
    true
    ;
-   throw_or_fail(passnone,check(Check)-items(ListOfX),Name,Throw,"none of the items passes the check").
+   throw_or_fail(passnone,check(Check)-items(ListOfX),Name,Tuned,"none of the items passes the check").
 
 % ---
 % More helpers
 % ---
 
-forall_forall_loop(ListOfChecks,X,Name,Throw,TP) :-
+forall_forall_loop(ListOfChecks,X,Name,Tuned,TP) :-
   forall(                           % success of ListOfChecks is empty
       member(Check,ListOfChecks),
-      eval(Check,X,Name,Throw,TP)).
+      eval(Check,X,Name,Tuned,TP)).
 
 forany_forall_loop(ListOfChecks,X,Name,TP) :-
    \+forall(                        % failure if ListOfChecks is empty
       member(Check,ListOfChecks),
-      \+eval(Check,X,Name,false,TP)).  % disable throwing
+      \+eval(Check,X,Name,soft,TP)).  % disable throwing
 
 fornone_forall_loop(ListOfChecks,X,Name,TP) :-
    (ListOfChecks == [])             % force failure if ListOfChecks is empty
@@ -1178,17 +1181,17 @@ fornone_forall_loop(ListOfChecks,X,Name,TP) :-
    ;
    forall(
       member(Check,ListOfChecks),
-      \+eval(Check,X,Name,false,TP)). % disable throwing
+      \+eval(Check,X,Name,soft,TP)). % disable throwing
 
-passall_forall_loop(Check,ListOfX,Name,Throw,TP) :-
+passall_forall_loop(Check,ListOfX,Name,Tuned,TP) :-
   forall(                           % success if ListOfX is empty
       member(X,ListOfX),
-      eval(Check,X,Name,Throw,TP)).
+      eval(Check,X,Name,Tuned,TP)).
 
 passany_forall_loop(Check,ListOfX,Name,TP) :-
    \+forall(                        % failure if ListOfX is empty
       member(X,ListOfX),
-      \+eval(Check,X,Name,false,TP)).  % disable throwing
+      \+eval(Check,X,Name,soft,TP)).  % disable throwing
 
 passnone_forall_loop(Check,ListOfX,Name,TP) :-
    (ListOfX == [])                  % force failure if ListOfX is empty
@@ -1197,5 +1200,5 @@ passnone_forall_loop(Check,ListOfX,Name,TP) :-
    ;
    forall(
       member(X,ListOfX),
-      \+eval(Check,X,Name,false,TP)). % disable throwing
+      \+eval(Check,X,Name,soft,TP)). % disable throwing
 

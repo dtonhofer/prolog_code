@@ -190,16 +190,19 @@ test("reject length of string",fail) :-
    stringy_length("hello",4).
 
 test("accept length of string") :-
-   stringy_length("hello",5,throw).
+   stringy_length("hello",5,hard).
 
 test("reject length of string",fail) :-
-   stringy_length("hello",4,throw).
+   stringy_length("hello",4,hard).
 
-test("reject negative length",fail) :-
+test("reject negative length (default)",fail) :-
    stringy_length("hello",-1).
 
-test("throw on negative length if tuned to 'hard'",error(check(domain,_,_,_))) :-
-   stringy_length("hello",-1,throw).
+test("reject negative length if tuned to 'soft'",fail) :-
+   stringy_length("hello",-1,soft).
+
+test("exception on negative length if tuned to 'hard'",error(check(domain,_,_,_))) :-
+   stringy_length("hello",-1,hard).
 
 test("exception on unbound arg 1",error(check(instantiation,_,_,_))) :-
    stringy_length(_,_).
@@ -212,9 +215,6 @@ test("exception on non-number arg 2",error(check(type,_,_,_))) :-
 
 test("exception on non-integer arg 2",error(check(type,_,_,_))) :-
    stringy_length("hello",1.22).
-
-test("exception on negative length if strict",error(check(domain,_,_,_))) :-
-   stringy_length("hello",-1,throw).
 
 :- end_tests(stringy_length).
 

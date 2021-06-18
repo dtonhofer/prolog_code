@@ -1941,7 +1941,7 @@ test("passnone, failure: there is an inty",fail) :-
    check_that([foo, 2, 3.1],[soft(passnone(inty))]).
 
 test("passnone, hard, failure: there is an inty, #1", error(check(passnone,_,_,_),_)) :-
-   check_that([foo, 2, 3.1],[tuned(passnone(inty))],throw).
+   check_that([foo, 2, 3.1],[tuned(passnone(inty))],hard).
 
 test("passnone, hard, failure: there is an inty, #2", error(check(passnone,_,_,_),_)) :-
    check_that([foo, 2, 3.1],[hard(passnone(inty))]).
@@ -1967,8 +1967,8 @@ test("foo is nonvar and an integer, hard, throws",error(check(type,_,_,_))) :-
 test("foo is nonvar and an integer, soft, fails", fail) :-
    check_that(foo,[soft(nonvar),soft(int)]).
 
-test("foo is nonvar and an integer, marked tuned, but is hard by switching on hardness, throws", error(check(type,_,_,_))) :-
-   check_that(foo,[tuned(nonvar),tuned(int)],throw).
+test("foo is nonvar and an integer, tagge as tuned/1 but switch on hardness, throws", error(check(type,_,_,_))) :-
+   check_that(foo,[tuned(nonvar),tuned(int)],hard).
 
 test("a var is nonvar and an integer, soft, fails", fail) :-
    check_that(_,[soft(nonvar),soft(int)]).

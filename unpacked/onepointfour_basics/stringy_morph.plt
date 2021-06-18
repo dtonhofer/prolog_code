@@ -90,19 +90,19 @@ test("bad type key #1, soft mode fails",fail) :-
    stringy_morph(an_atom,an_atom,foo,foo).
 
 test("bad type key #1, hard mode throws",error(check(domain,_,_,_))) :-
-   stringy_morph(an_atom,an_atom,foo,foo,throw).
+   stringy_morph(an_atom,an_atom,foo,foo,hard).
 
 test("bad type key #2, soft mode fails",fail) :-
    stringy_morph(an_atom,an_atom,777,foo).
 
 test("bad type key #2, hard mode throws",error(check(type,_,_,_))) :-
-   stringy_morph(an_atom,an_atom,777,foo,throw).
+   stringy_morph(an_atom,an_atom,777,foo,hard).
 
 test("non-stringy value, soft mode fails",fail) :-
    stringy_morph(777,an_atom,_,_).
 
 test("non-stringy value, hard mode throws",error(check(type,_,_,_))) :-
-   stringy_morph(777,an_atom,_,_,throw).
+   stringy_morph(777,an_atom,_,_,hard).
 
 test("two vars instead of at least one stringy, soft mode throws",error(check(passany,_,_,_))) :-
    stringy_morph(_,_,string,string).
@@ -130,73 +130,73 @@ test("types correctly fully specified, stringys do match #2") :-
 
 test("transform string to anything") :-
    bagof([StringyType,CharylistType,Charylist],
-         stringy_charylist_morph("hello",Charylist,StringyType,CharylistType,throw),
+         stringy_charylist_morph("hello",Charylist,StringyType,CharylistType,hard),
          Bag),
    assertion( Bag == [ [string, chars, [h,e,l,l,o]           ],
                        [string, codes, [104,101,108,108,111] ] ] ).
 
 test("transform atom to anything") :-
    bagof([StringyType,CharylistType,Charylist],
-         stringy_charylist_morph(hello,Charylist,StringyType,CharylistType,throw), Bag),
+         stringy_charylist_morph(hello,Charylist,StringyType,CharylistType,hard), Bag),
    assertion( Bag == [ [atom, chars, [h,e,l,l,o]           ],
                        [atom, codes, [104,101,108,108,111] ] ] ).
 
 test("transform chars to anything") :-
    bagof([Stringy,StringyType,CharylistType],
-         stringy_charylist_morph(Stringy,[h,e,l,l,o],StringyType,CharylistType,throw),
+         stringy_charylist_morph(Stringy,[h,e,l,l,o],StringyType,CharylistType,hard),
          Bag),
    assertion( Bag == [ [hello,atom,chars],
                        ["hello",string,chars] ] ).
 
 test("transform codes to anything") :-
    bagof([Stringy,StringyType,CharylistType],
-         stringy_charylist_morph(Stringy,[104,101,108,108,111],StringyType,CharylistType,throw),
+         stringy_charylist_morph(Stringy,[104,101,108,108,111],StringyType,CharylistType,hard),
          Bag),
    assertion( Bag == [ [hello,atom,codes],
                        ["hello",string,codes] ] ).
 
 test("transform chars to atom") :-
-   stringy_charylist_morph(Stringy,[h,e,l,l,o],atom,_,throw),
+   stringy_charylist_morph(Stringy,[h,e,l,l,o],atom,_,hard),
    assertion( Stringy == hello ).
 
 test("transform chars to string") :-
-   stringy_charylist_morph(Stringy,[h,e,l,l,o],string,_,throw),
+   stringy_charylist_morph(Stringy,[h,e,l,l,o],string,_,hard),
    assertion( Stringy == "hello" ).
 
 test("transform string to chars") :-
-   stringy_charylist_morph("hello",Charylist,_,chars,throw),
+   stringy_charylist_morph("hello",Charylist,_,chars,hard),
    assertion( Charylist == [h,e,l,l,o] ).
 
 test("transform string to codes") :-
-   stringy_charylist_morph("hello",Charylist,_,codes,throw),
+   stringy_charylist_morph("hello",Charylist,_,codes,hard),
    assertion( Charylist == [104,101,108,108,111] ).
 
 test("accept string/codes, types unspecified") :-
-   stringy_charylist_morph("hello",[104,101,108,108,111],T1,T2,throw),
+   stringy_charylist_morph("hello",[104,101,108,108,111],T1,T2,hard),
    assertion( T1 == string ),
    assertion( T2 == codes ).
 
 test("accept string/codes, types specified") :-
-   stringy_charylist_morph("hello",[104,101,108,108,111],string,codes,throw).
+   stringy_charylist_morph("hello",[104,101,108,108,111],string,codes,hard).
 
 test("accept string/codes with codes semi-filled") :-
-   stringy_charylist_morph("hello",[104,X1,108,X2,111],T1,T2,throw),
+   stringy_charylist_morph("hello",[104,X1,108,X2,111],T1,T2,hard),
    assertion( [T1,T2,X1,X2] == [string,codes,101,108] ).
 
 test("accept string/chars with chars semi-filled") :-
-   stringy_charylist_morph("hello",[h,X1,l,X2,o],T1,T2,throw),
+   stringy_charylist_morph("hello",[h,X1,l,X2,o],T1,T2,hard),
    [T1,T2,X1,X2] == [string,chars,e,l].
 
 test("transform no chars to empty atom") :-
-   bagof([Stringy,CharylistType],stringy_charylist_morph(Stringy,[],atom,CharylistType,throw),Bag),
+   bagof([Stringy,CharylistType],stringy_charylist_morph(Stringy,[],atom,CharylistType,hard),Bag),
    assertion( Bag == [['',chars],['',codes]] ).
 
 test("transform no chars to empty string") :-
-   bagof([Stringy,CharylistType],stringy_charylist_morph(Stringy,[],string,CharylistType,throw),Bag),
+   bagof([Stringy,CharylistType],stringy_charylist_morph(Stringy,[],string,CharylistType,hard),Bag),
    assertion( Bag == [["",chars],["",codes]] ).
 
 test("transform no chars to empty stringys") :-
-   bagof([Stringy,StringyType,CharylistType],stringy_charylist_morph(Stringy,[],StringyType,CharylistType,throw),Bag),
+   bagof([Stringy,StringyType,CharylistType],stringy_charylist_morph(Stringy,[],StringyType,CharylistType,hard),Bag),
    assertion( Bag == [['',atom,chars],['',atom,codes],["",string,chars],["",string,codes]] ).
 
 :- end_tests(stringy_charylist_morph).

@@ -22,7 +22,7 @@ Please refer to the [README.md](README.md) file.
 ## Examples
 
 ```
-?- space_string(10,String).
+?- space_stringy(10,String,string).
 String = "          ".
 
 ?- space_string(N,"    ").

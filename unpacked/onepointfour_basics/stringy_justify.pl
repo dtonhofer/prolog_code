@@ -108,18 +108,89 @@ get_dict_defaultily(Key,Dict,Default,Found) :-
 
 
 
+% What is passed:
+% Argument Text       : stringy
+% Argument Width      : integer, positive or 0
+% Argument How        : atom, one of left, right, center
+% Argument ResultType : atom, one of true, false or may be instantiated to one of true, false
+% Argument Throw      : true,throw (switch tuned checks to hard) or something else (switch tuned checks to soft)
+% Argument Nocheck    : Bypass checks 
+% Argument ConfigDict : Dict (may be missing)
+%   Key 'prefer'        : left, right, default left
+%   Key 'offset'        : integer, can be negative
+%   Key 'pad_right'     : true, false, default true
+%   Key 'cut_left'      : true, false, default true
+%   Key 'cut_right'     : true, false, default true
+
+% Text     : The text to justify (spaces will be added)
+% Width    : The width of the field in which the text shall be justified (an integer >= 0)
+% How      : One of the atoms 'left', 'right', 'center', 'none'. No default is accepted.
+% Want     : One of 'atom' or 'string' to indicate what the "Result" should be. No default is accepted.
+% CutLeft  : Cut off on the left (lower than position 0?). One of 'true' or 'false' or leave it at _, in which case 'true' is assumed (and unified).
+% CutRight : Cut off on the right (higher than position Width?). One of 'true' or 'false' or leave it at _, in which case 'true' is assumed (and unified).
+% Prefer   : In case of "How" = 'center', should the mass of the text be moved leftwards or rightwards if there is 1 leftover character? One of 'left' or 'right' or leave it at _, in which case 'left' is assumed (and unified).
+% Offset   : An offset to apply in any case. For a positive value: When How == 'left', move rightwards, When How == 'right', move leftwards, When How == 'center', move leftwards. Leave at _ for 0.
+% Nocheck  : Bypass assertions on intro (if they haven't been compiled-out already). If 'true', then bypass. Anything else, including _: do not bypass.
+% Result   : The Result, an atom or a string depending on 'Want'
+%
+
+
+left
+
+   |-------------------------- width -----------------------------|
+   |--offset--|------- text ------|-------------pad---------------|
+              |---------------width available---------------------|
+
+WidthAvailable is Width - Offset.
+stringy_length(Text,TextLen),
+
+
+right
+
+   |************************FieldWidth****************************|
+   |-------PadWidth-----------|*********TextWidth******|**Offset**|
+   |---------------AvailableWidth----------------------|
+
+stringy_length(Text,TextWidth),
+PadWidth is FieldWidth-TextWidth-Offset
+
+
+PadWidth is AvailableWidth-TextWidth,
+
+space_string(PasPadding),
+
+center
+
+   |-------------------------- width -----------------------------|
+   |--offset--|------pad------|------- text ------|------pad------|
+              |---------------width available---------------------|
+
+WidthAvailable is Width - Offset.
+stringy_length(Text,TextLen),
 
 
 
 
-entry_check(false,Text,Width,How,DictConfig,Throw) :-
+       
+
+
+
+
+
+
+ 
+
+
+
+
+entry_check(false,Text,Width,How,ConfigDict,Throw) :-
    check_that(Text,[hard(stringy)]),
    check_that(Width,[hard(integer),tuned(pos0int)],Throw),
    check_that(How,[hard(member([left,right,center,none]))]),     
 
 
-   check_that(DictConfig. ,[break(var),hard(boolean)]),
-   check_that(DictConfig. ,[break(var),hard(boolean)]),
+   check_that(ConfigDict,[break(var),hard(boolean)]),
+   check_that(ConfigDict,[break(var),hard(boolean)]),
 
    check_that(Prefer,[break(var),hard(member([left,right]))),
 

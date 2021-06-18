@@ -6,7 +6,7 @@
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
-:- use_module(library('onepointfour_basics/space_string.pl')).
+:- use_module(library('onepointfour_basics/space_stringy.pl')).
 :- use_module(library('onepointfour_basics/stringy_concat.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
@@ -167,7 +167,7 @@ filler_between_end_of_fg_and_position0(FgEnd,CutLeft,Rprev,Rnew,ResultType) :-
    (Rnew=Rprev) % do nothing
    ;
    (Len is -FgEnd,
-    space_string(Len,Run,throw),                  % gives a string
+    space_stringy(Len,Run,ResultType,throw), 
     stringy_concat([Rprev,Run],Rnew,ResultType)). % gives sth corresponding to "ResultType"
 
 bg_visible_between_position0_and_start_of_fg(FgPos,BgLen,Bg,Rprev,Rnew,ResultType) :-
@@ -198,7 +198,7 @@ bg_visible_between_end_of_fg_and_end_of_bg(BgText,FgEnd,BgLen,Rprev,Rnew,ResultT
    ;
    (Len is min(BgLen,BgLen-FgEnd),
     StartPos is max(0,FgEnd),
-    sub_atom(BgText,StartPos,Len,_,Run),         % gives an atom
+    sub_atom(BgText,StartPos,Len,_,Run),           % gives an atom
     stringy_concat([Rprev,Run],Rnew,ResultType)).  % gives sth corresponding to "ResultType"
 
 filler_between_end_of_bg_and_start_of_fg(FgPos,BgLen,CutRight,Rprev,Rnew,ResultType) :-
@@ -207,7 +207,7 @@ filler_between_end_of_bg_and_start_of_fg(FgPos,BgLen,CutRight,Rprev,Rnew,ResultT
    (Rnew=Rprev) % do nothing
    ;
    (Len is FgPos-BgLen,
-    space_string(Len,Run,throw),                 % gives a string
+    space_stringy(Len,Run,ResultType,throw),      
     stringy_concat([Rprev,Run],Rnew,ResultType)).  % gives sth corresponding to "ResultType"
 
 fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,Rprev,Rnew,ResultType) :-

@@ -1,9 +1,9 @@
 :- module(onepointfour_basics_stringy_morph,
           [
            stringy_morph/4            % stringy_morph(StringyA,StringyB,TypeA,TypeB)
-          ,stringy_morph/5            % stringy_morph(StringyA,StringyB,TypeA,TypeB,Throw)
+          ,stringy_morph/5            % stringy_morph(StringyA,StringyB,TypeA,TypeB,Tuned)
           ,stringy_charylist_morph/4  % stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType)
-          ,stringy_charylist_morph/5  % stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType,Throw)
+          ,stringy_charylist_morph/5  % stringy_charylist_morph(Stringy,Charylist,StringyType,CharylistType,Tuned)
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
@@ -75,9 +75,9 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 % values are passed.
 
 stringy_morph(StringyA,StringyB,TypeA,TypeB) :-
-   stringy_morph(StringyA,StringyB,TypeA,TypeB,false).
+   stringy_morph(StringyA,StringyB,TypeA,TypeB,soft).
 
-%! stringy_morph(?StringyA,?StringyB,?TypeA,?TypeB,@Throw)
+%! stringy_morph(?StringyA,?StringyB,?TypeA,?TypeB,@Tuned)
 %
 % Establish the "morph" relationship between StringyA (an atom or a string)
 % and StringyB (an atom or a string) whereby
@@ -90,16 +90,17 @@ stringy_morph(StringyA,StringyB,TypeA,TypeB) :-
 %
 % Generate multiple solutions as possible.
 %
-% Throw is input only. If it is bound to =|throw|= or =|true|=, unwanted
-% argument combinations lead to exception. If Throw has any other binding
-% or is unbound, unwanted argument combinations lead to failure.
+% Tuned is input only. If it is bound to =|hard|=, unwanted
+% argument combinations lead to exception. If is bound to =|soft|=
+% (actually, anything other than =|hard|=. 
+% unwanted argument combinations lead to failure.
 
-stringy_morph(StringyA,StringyB,TypeA,TypeB,Throw) :-
+stringy_morph(StringyA,StringyB,TypeA,TypeB,Tuned) :-
    check_that([StringyA,StringyB],[hard(passany(nonvar))]),
-   check_that(StringyA,           [break(var),tuned(stringy)],Throw),
-   check_that(StringyB,           [break(var),tuned(stringy)],Throw),
-   check_that(TypeA,              [break(var),tuned(stringy_typeid)],Throw),
-   check_that(TypeB,              [break(var),tuned(stringy_typeid)],Throw),
+   check_that(StringyA,           [break(var),tuned(stringy)],Tuned),
+   check_that(StringyB,           [break(var),tuned(stringy)],Tuned),
+   check_that(TypeA,              [break(var),tuned(stringy_typeid)],Tuned),
+   check_that(TypeB,              [break(var),tuned(stringy_typeid)],Tuned),
    stringy_type(StringyA,AsGivenTypeA),
    stringy_type(StringyB,AsGivenTypeB),
    stringy_morph_2_with_increased_determinism(AsGivenTypeA,AsGivenTypeB,StringyA,StringyB,TypeA,TypeB).
@@ -144,16 +145,16 @@ stringy_morph_2( var,    string   ,  A , B ,    atom  , string ) :- atom_string(
 %! stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType)
 
 stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType) :-
-   stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,false).
+   stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,soft).
 
 %! stringy_charylist_morph(Stringy,Charylist,WantStringy,WantCharylist)
 %
 % Map a stringy to a charylist.
 
-stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,Throw) :-
-   check_that(Stringy,             [break(var),tuned(stringy)],Throw),
-   check_that(StatedStringyType,   [break(var),tuned(stringy_typeid)],Throw),
-   check_that(StatedCharylistType, [break(var),tuned(member([char,code,chars,codes]))],Throw),
+stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,Tuned) :-
+   check_that(Stringy,             [break(var),tuned(stringy)],Tuned),
+   check_that(StatedStringyType,   [break(var),tuned(stringy_typeid)],Tuned),
+   check_that(StatedCharylistType, [break(var),tuned(member([char,code,chars,codes]))],Tuned),
    fix(StatedCharylistType,StatedCharylistType2),
    % Won't fail because Stringy is well-typed after check_that/2
    stringy_type_with_length(Stringy,ActualStringyType),
@@ -162,17 +163,17 @@ stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,
     ->
     true
     ;
-    check_that(Charylist,[fail("Charylist has unrecognized type")],Throw)),
+    check_that(Charylist,[fail("Charylist has unrecognized type")],Tuned)),
    (\+underspecified(ActualStringyType,ActualCharylistType)
     ->
     true
     ;
-    check_that([Stringy,Charylist],[fail("Stringy-Charylist combination underspecifies")],Throw)),
+    check_that([Stringy,Charylist],[fail("Stringy-Charylist combination underspecifies")],Tuned)),
    (compatible_cross_combinations(ActualStringyType,ActualCharylistType)
     ->
     true
     ;
-    check_that([ActualStringyType,ActualCharylistType],[fail("Stringy-Charylist type combination incompatible")],Throw)),
+    check_that([ActualStringyType,ActualCharylistType],[fail("Stringy-Charylist type combination incompatible")],Tuned)),
    % below here it's gettign interesting; the cur is really not needed
    % fails on bad combination or may generate other solutions on redo
    enumerate_compatible_stringy_type_with_increased_determinism(ActualStringyType,StatedStringyType),

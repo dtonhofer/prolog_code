@@ -1,7 +1,7 @@
 :- module(onepointfour_basics_stringy_concat,
           [
             stringy_concat/3         % stringy_concat(ListOfStringys,?Result,+ResultType)
-           ,stringy_concat/4         % stringy_concat(ListOfStringys,?Result,+ResultType,@Throw)
+           ,stringy_concat/4         % stringy_concat(ListOfStringys,?Result,+ResultType,@Tuned)
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
@@ -48,17 +48,17 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 % type of Result, so no need to determine it first.
 
 stringy_concat(ListOfStringy,Result,ResultType) :-
-   stringy_concat(ListOfStringy,Result,ResultType,false).
+   stringy_concat(ListOfStringy,Result,ResultType,soft).
 
-%! stringy_concat(ListOfStringy,?Result,?ResultType,@Throw)
+%! stringy_concat(ListOfStringy,?Result,?ResultType,@Tuned)
 %
 % As stringy_concat/3, but you can make the call throw
 % instead of just fail if Result and ResultType are out-of-type
-% or out-of-domain, by passing =|throw|= or =|true|= for Throw.
+% or out-of-domain, by passing =|hard|= for Tuned.
 
-stringy_concat(ListOfStringy,Result,ResultType,Throw) :-
-   check_that(Result,[break(var),tuned(stringy)],Throw),
-   check_that(ResultType,[break(var),tuned(stringy_typeid)],Throw),
+stringy_concat(ListOfStringy,Result,ResultType,Tuned) :-
+   check_that(Result,[break(var),tuned(stringy)],Tuned),
+   check_that(ResultType,[break(var),tuned(stringy_typeid)],Tuned),
    check_that([Result,ResultType],[hard(passany(nonvar))]),
    check_that(ListOfStringy,hard(proper_list)),
    gleichschaltung(Result,ResultType),   % may fail for certain combinations of Result and ResultType
