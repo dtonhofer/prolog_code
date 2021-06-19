@@ -92,7 +92,7 @@ stringy_morph(StringyA,StringyB,TypeA,TypeB) :-
 %
 % Tuned is input only. If it is bound to =|hard|=, unwanted
 % argument combinations lead to exception. If is bound to =|soft|=
-% (actually, anything other than =|hard|=. 
+% (actually, anything other than =|hard|=.
 % unwanted argument combinations lead to failure.
 
 stringy_morph(StringyA,StringyB,TypeA,TypeB,Tuned) :-

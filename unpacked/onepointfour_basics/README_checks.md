@@ -7,7 +7,7 @@ A more powerful replacement for the venerable  [`must_be/2`](https://eu.swi-prol
 
 ## Synopsis
 
-Check that term `X` fulfills all the conditions in the list `Conditions`. 
+Check that term `X` fulfills all the conditions in the list `Conditions`.
 Conditions that are marked `tuned` will preferentially fail instead of throwing
 if the condition is not fulfilled:
 
@@ -16,9 +16,9 @@ check_that(+X,@Conditions)
 ```
 
 Check that term `X` fulfills all the conditions in the list `Conditions`.
-If `Tuned` is instantiated to `hard`, conditions that are marked `tuned` 
+If `Tuned` is instantiated to `hard`, conditions that are marked `tuned`
 will throw if the condition is not fulfilled.
-If `Tuned` is instantiated to `soft`, conditions that are marked `tuned` 
+If `Tuned` is instantiated to `soft`, conditions that are marked `tuned`
 will fail if the condition is not fulfilled.
 
 ```
@@ -37,16 +37,16 @@ the message for an excpetion is constructed:
 
 ```
 check_that_named(X,Conditions,Name,Tuned)
-```       
+```
 
 ### Exception terms
 
 The exception terms thrown by `check_that/N` and `check_that_named/N` are not ISO exception terms, although they
 still retain the outer `error(Formal,Context)` structure. They are structured as follows:
 
-```       
+```
 error(check(Type,Expected,Msg,Culprit),_).
-```       
+```
 
 Where `Type` is an exception-identifying atom that is generally one of:
 
@@ -55,17 +55,17 @@ Where `Type` is an exception-identifying atom that is generally one of:
 - `uninstantiation` - the culprit is too instantiated (generally, fully instantiated when it shouldn't be)
 - `instantiation` - the culprit is not instantiated enough (generally, fully uninstantiated when it shouldn't be)
 
-and 
+and
 
 - `Expected` - either an uninstantiated term or a string that explains what is expected
 - `Msg` - either an uninstantaited term or a string giving additional information
 - `Culprit` - the term that caused the exception to be thrown; may be large or contain sensitive information!
 
-A hook into `prolog:error_message/1` formats the exception for the toplevel printer.         
-                  
+A hook into `prolog:error_message/1` formats the exception for the toplevel printer.
+
 ## Description
 
-`check_that/3` and friends: a replacement for the [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2) predicate 
+`check_that/3` and friends: a replacement for the [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2) predicate
 of (SWI-)Prolog. `must_be/2` is used to check preconditions on predicate entry, but is not very flexible. Can we change that?
 
 A call to check_that/3 looks as follows:
@@ -105,8 +105,8 @@ I seems one sometimes wants to provide an explicit error message instead of havi
 
 ## The list of conditions
 
-The list of _conditions_ in the call `check_that(X,Conditions)` behaves like a 
-"conditional and" (aka. "short-circuiting and") of verifications. 
+The list of _conditions_ in the call `check_that(X,Conditions)` behaves like a
+"conditional and" (aka. "short-circuiting and") of verifications.
 
 A _condition_ is a compound term, a tagged _check_. The functor name
 of the condition specifies what to do depending on the outcome of the check.
@@ -305,15 +305,15 @@ predicate_x/N                         |                        predicate_x_smoot
 | `posint`,`positive_integer`         | throws          | strictly positive _integer_. |
 | `neg0int`                           | throws          | negative-or-zero _integer_. |
 | `pos0int`,`nonneg`                  | throws          | positive-or-zero _integer_. |
-| `negfloat`,                         | throws          | strictly negative _float_. | 
+| `negfloat`,                         | throws          | strictly negative _float_. |
 | `posfloat`                          | throws          | strictly positive _float_. |
 | `neg0float`                         | throws          | negative-or-zero _float_. |
 | `pos0float`                         | throws          | positive-or-zero _float_. |
 | `inty`                              | throws          | _integer_ or a _float_ that represents an integer, e.g `1.0`. |
-| `neginty`                           | throws          | strictly negative _inty_. | 
-| `posinty`                           | throws          | strictly positive _inty_. | 
-| `neg0inty`                          | throws          | negative-or-0 _inty_. | 
-| `pos0inty`                          | throws          | positive-or-0 _inty_. | 
+| `neginty`                           | throws          | strictly negative _inty_. |
+| `posinty`                           | throws          | strictly positive _inty_. |
+| `neg0inty`                          | throws          | negative-or-0 _inty_. |
+| `pos0inty`                          | throws          | positive-or-0 _inty_. |
 | `list`,`proper_list`                | throws          | proper list, including the empty list. (**TODO: open lists**) |
 | `nonempty_list`                     | throws          | proper list that is not empty. |
 | `dict`                              | throws          | SWI-Prolog _dict_ (which is a compound term following some special requirements). |
@@ -336,7 +336,7 @@ predicate_x/N                         |                        predicate_x_smoot
 
 - `between(FloatL,FloatU)`: if FloatL is float, all other values may be float or integer (FIXME?); the limits are both INCLUSIVE; limits may be equal but NOT reversed
 - `between(IntL,IntU)`: if IntL is integer, all other values must be integer; the limits are both INCLUSIVE; limits may be equal but NOT reversed. FIXME: there should be specific between_int/2 and between_float/2 if one goes that way.
-- `text`: atom or string or chars or codes (but not numbers even though some predicates "textify" those)               
+- `text`: atom or string or chars or codes (but not numbers even though some predicates "textify" those)
 - `list(Type)`: proper list with elements of type Type (must_be/2(Type,_) is called on elements); empty list is allowed; on error the index is not indicated. A type like "list(list(integer))" is ok! Actually corresponds to `passall(Type)`
 - `list_or_partial_list`: A partial list (one ending in a variable: [x|_]). This includes an unbound variable.
 - `callable`: passes callable/1. Relatively usesless, as "callable" is ill-defined. Basically (atom(X);compound(X))
@@ -349,7 +349,7 @@ predicate_x/N                         |                        predicate_x_smoot
 - `list_length_X`: Tests for length of lists (larger, smaller, equal)
 - `subsumes`
 - `does_not_unify` / `dif`
-  
+
 **A note on cyclic/acyclic**
 
 Consider the "instantiation career" of a term, going from "most uninstantiated" to "ground":
@@ -394,8 +394,8 @@ For example
               |                            |
               V                            V
             X=s(a)                       X=s(X)
-    not "cyclic", "acyclic"      "cyclic", not "acyclic"         
-                                
+    not "cyclic", "acyclic"      "cyclic", not "acyclic"
+
 ```
 
 We would like to see a predicate which throws unless it can be sure, which is not the case with
@@ -550,7 +550,7 @@ false.
     2) be able to "remove them" cheaply; this can be done during compilation phase: the marked conditions can be written out
     3) select those which should be removed based on program structure: eg. all those in module XY should be removed
        this also seems a case for the compilation phase
-       
+
 ## Design question especially clear in case of complex checking of lists:
 
   - The structure to test may have multiple layers of testing. For example, for a "proper list of char":

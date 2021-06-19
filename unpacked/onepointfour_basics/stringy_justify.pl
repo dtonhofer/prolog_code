@@ -1,287 +1,233 @@
-:- module(onepointfour_basic_justify,
+:- module(onepointfour_basics_stringy_justify,
           [
-          justify_left/3    % justify_left(Text,Width,Result)
-         ,justify_right/3   % justify_right(Text,Width,Result)
-         ,justify_center/3  % justify_center(Text,Width,Result)
-         ,justify_how/4     % justify_how(How,Text,Width,Result)
-         ,justify_left/5    % justify_left(Text,Width,Result,Want,Nocheck)
-         ,justify_right/5   % justify_right(Text,Width,Result,Want,Nocheck)
-         ,justify_center/5  % justify_center(Text,Width,Result,Want,Nocheck)
-         ,justify/10        % justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
+           justify_right/5
+          ,justify_right/7
+          ,justify_left/5
+          ,justify_left/7
+          ,justify_center/9
           ]).
 
-:- use_module(library('onepointfour_basic_justify/space_string.pl')).
-:- use_module(library('onepointfour_basic_justify/stringy_overwrite.pl')).
+:- use_module(library('onepointfour_basics/stringy_overwrite.pl')).
 
-%! justify_left(+Te
-% ===
-% Simple calls that don't check and always return strings
-%
-% Text     : The text to justify (spaces will be added)
-% Width    : The width of the field in which the text shall be justified (an integer >= 0)
-% Result   : The Result, a string (not an atom)
-% ===
+/*  MIT License Follows (https://opensource.org/licenses/MIT)
 
-justify_left(Text,Width,Result) :-
-   justify(Text,Width,left,_,_,_,_,Result,string,false).
+    Copyright 2021 David Tonhofer <ronerycoder@gluino.name>
 
-justify_right(Text,Width,Result) :-
-   justify(Text,Width,right,_,_,_,_,Result,string,false).
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
 
-justify_center(Text,Width,Result) :-
-   justify(Text,Width,center,_,_,_,_,Result,string,false).
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
-% ===
-% Simple calls that don't check and always return strings
-%
-% How      : One of: left, right, center, none - specifies how to justify (none: just pass the text through)
-% Text     : The text to justify (spaces will be added)
-% Width    : The width of the field in which the text shall be justified (an integer >= 0)
-% Result   : The Result, a string (not an atom)
-% ===
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
-% TODO: Use switch meta-predicate here
+/* pldoc ==================================================================== */
 
-justify_how(How,Text,Width,Result) :-
-   ((How==left)
-    -> justify_left(Text,Width,Result) ;
-    (How==right)
-    -> justify_right(Text,Width,Result) ;
-    (How==center)
-    -> justify_center(Text,Width,Result) ;
-    (How==none)
-    -> stringy_ensure(Text,Result,string) ;
-   domain_error([left,right,center,none],How)).
+/** <module> Justify a text left,right or center inside a field of fixed width
 
-% ===
-% Simple calls with reduced parameter count
-%
-% Text     : The text to justify (spaces will be added)
-% Width    : The width of the field in which the text shall be justified (an integer >= 0)
-% Result   : The Result, an atom or a string depending on 'Want'
-%
-% Want     : One of 'atom' or 'string' to indicate what the "Result" should be. No default is accepted.
-% Nocheck  : Bypass assertions on intro (if they haven't been compiled-out already). If 'true', then bypass. Anything else, including _: do not bypass.
-% ===
+## Homepage for this code
 
-justify_left(Text,Width,Result,Want,Nocheck) :-
-   justify(Text,Width,left,_,_,_,_,Result,Want,Nocheck).
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_justify.md
 
-justify_right(Text,Width,Result,Want,Nocheck) :-
-   justify(Text,Width,right,_,_,_,_,Result,Want,Nocheck).
+*/
 
-justify_center(Text,Width,Result,Want,Nocheck) :-
-   justify(Text,Width,center,_,_,_,_,Result,Want,Nocheck).
+/* Justify right
 
-% ===
-% Perform text justification, the whole enchilada.
-%
-% (Prolog abosolutely needs name-based parameter passing. Productions systems traditionally have them!)
-%
-% Text     : The text to justify (spaces will be added)
-% Width    : The width of the field in which the text shall be justified (an integer >= 0)
-% How      : One of the atoms 'left', 'right', 'center', 'none'. No default is accepted.
-% Want     : One of 'atom' or 'string' to indicate what the "Result" should be. No default is accepted.
-% CutLeft  : Cut off on the left (lower than position 0?). One of 'true' or 'false' or leave it at _, in which case 'true' is assumed (and unified).
-% CutRight : Cut off on the right (higher than position Width?). One of 'true' or 'false' or leave it at _, in which case 'true' is assumed (and unified).
-% Prefer   : In case of "How" = 'center', should the mass of the text be moved leftwards or rightwards if there is 1 leftover character? One of 'left' or 'right' or leave it at _, in which case 'left' is assumed (and unified).
-% Offset   : An offset to apply in any case. For a positive value: When How == 'left', move rightwards, When How == 'right', move leftwards, When How == 'center', move leftwards. Leave at _ for 0.
-% Nocheck  : Bypass assertions on intro (if they haven't been compiled-out already). If 'true', then bypass. Anything else, including _: do not bypass.
-% Result   : The Result, an atom or a string depending on 'Want'
-% ===
-
-%! justify(+Text,+NoCheck) :-
-   entry_check(NoCheck),
-
-
-
-entry_check(true,_) :- !.
-
-% get_dict_defaultily(+Key,+Dict,+Default,-Found)
-
-get_dict_defaultily(Key,Dict,Default,Found) :-
-   get_dict(Key,Dict,Found) 
-   ->
-   true
-   ;
-   Default=Found.
-
-
-
-% What is passed:
-% Argument Text       : stringy
-% Argument Width      : integer, positive or 0
-% Argument How        : atom, one of left, right, center
-% Argument ResultType : atom, one of true, false or may be instantiated to one of true, false
-% Argument Throw      : true,throw (switch tuned checks to hard) or something else (switch tuned checks to soft)
-% Argument Nocheck    : Bypass checks 
-% Argument ConfigDict : Dict (may be missing)
-%   Key 'prefer'        : left, right, default left
-%   Key 'offset'        : integer, can be negative
-%   Key 'pad_right'     : true, false, default true
-%   Key 'cut_left'      : true, false, default true
-%   Key 'cut_right'     : true, false, default true
-
-% Text     : The text to justify (spaces will be added)
-% Width    : The width of the field in which the text shall be justified (an integer >= 0)
-% How      : One of the atoms 'left', 'right', 'center', 'none'. No default is accepted.
-% Want     : One of 'atom' or 'string' to indicate what the "Result" should be. No default is accepted.
-% CutLeft  : Cut off on the left (lower than position 0?). One of 'true' or 'false' or leave it at _, in which case 'true' is assumed (and unified).
-% CutRight : Cut off on the right (higher than position Width?). One of 'true' or 'false' or leave it at _, in which case 'true' is assumed (and unified).
-% Prefer   : In case of "How" = 'center', should the mass of the text be moved leftwards or rightwards if there is 1 leftover character? One of 'left' or 'right' or leave it at _, in which case 'left' is assumed (and unified).
-% Offset   : An offset to apply in any case. For a positive value: When How == 'left', move rightwards, When How == 'right', move leftwards, When How == 'center', move leftwards. Leave at _ for 0.
-% Nocheck  : Bypass assertions on intro (if they haven't been compiled-out already). If 'true', then bypass. Anything else, including _: do not bypass.
-% Result   : The Result, an atom or a string depending on 'Want'
-%
-
-
-left
-
-   |-------------------------- width -----------------------------|
-   |--offset--|------- text ------|-------------pad---------------|
-              |---------------width available---------------------|
-
-WidthAvailable is Width - Offset.
-stringy_length(Text,TextLen),
-
-
-right
+   case of positive offset
 
    |************************FieldWidth****************************|
    |-------PadWidth-----------|*********TextWidth******|**Offset**|
-   |---------------AvailableWidth----------------------|
 
-stringy_length(Text,TextWidth),
-PadWidth is FieldWidth-TextWidth-Offset
+   case of negative offset
 
+   |************************FieldWidth****************************|
+   |---------------------PadWidth----------------------|*********TextWidth******|
+                                                                  |***Offset****|
+*/
 
-PadWidth is AvailableWidth-TextWidth,
-
-space_string(PasPadding),
-
-center
-
-   |-------------------------- width -----------------------------|
-   |--offset--|------pad------|------- text ------|------pad------|
-              |---------------width available---------------------|
-
-WidthAvailable is Width - Offset.
-stringy_length(Text,TextLen),
-
-
-
-
-       
-
-
-
-
-
-
- 
-
-
-
-
-entry_check(false,Text,Width,How,ConfigDict,Throw) :-
-   check_that(Text,[hard(stringy)]),
-   check_that(Width,[hard(integer),tuned(pos0int)],Throw),
-   check_that(How,[hard(member([left,right,center,none]))]),     
-
-
-   check_that(ConfigDict,[break(var),hard(boolean)]),
-   check_that(ConfigDict,[break(var),hard(boolean)]),
-
-   check_that(Prefer,[break(var),hard(member([left,right]))),
-
-
-
-   assertions_intro_for_justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Want) :-
-   assertion((var(Prefer);memberchk(Prefer,[left,right]))),
-   assertion((var(Offset);integer(Offset))),
-   assertion(memberchk(Want,[atom,string])).
-
-  
-entry_check(NoCheck, ) :-
-   check_that(NoCheck,[hard(boolean)]).
-
-
-
-
-justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck) :-
-   unless((Nocheck == true),assertions_intro_for_justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Want)),
-   unless((var(Result);stringy(Result)),fail), % shortcut in case of "checking the result"
-   if_then(var(CutLeft),CutLeft=true),
-   if_then(var(CutRight),CutRight=true),
-   if_then(var(Prefer),Prefer=left),
-   if_then(var(Offset),Offset=0),
-   justify_helper(How,Prefer,Text,Width,Offset,CutLeft,CutRight,Result,Want).
-
-justify_helper(left,_,Text,Width,Offset,CutLeft,CutRight,Result,Want) :-
-   space_string(Width,Spaces,throw), % should use Want
-   overwrite_using_runs(Spaces,Text,Offset,CutLeft,CutRight,Result,Want).
-
-justify_helper(right,_,Text,Width,Offset,CutLeft,CutRight,Result,Want) :-
-   space_string(Width,Spaces,throw), % should use Want
-   stringy_length(Text,TextLen),
-   ActualOffset is Width-TextLen-Offset,
-   overwrite_using_runs(Spaces,Text,ActualOffset,CutLeft,CutRight,Result,Want).
-
-justify_helper(center,Prefer,Text,Width,Offset,CutLeft,CutRight,Result,Want) :-
-   space_string(Width,Spaces,throw), % should use Want
-   stringy_length(Text,TextLen),
-   reify(odd(TextLen),IsOddTextLen),
-   reify(odd(Width),IsOddWidth),
-   actual_offset(IsOddTextLen,IsOddWidth,TextLen,Width,Offset,Prefer,ActualOffset),
-   overwrite_using_runs(Spaces,Text,ActualOffset,CutLeft,CutRight,Result,Want).
-
-justify_helper(none,_,Text,_,_,_,_,Result,Want) :-
-   stringy_ensure(Text,Result,Want).
-
-% ---
-% Computing the actual offset to apply in case of a "centrally justified text"
+%! justify_right(FieldWidth,Offset,Text,Result,ResultType)
 %
+% Justify right, cutting at the field extremities
+
+justify_right(FieldWidth,Offset,Text,Result,ResultType) :-
+   justify_right(FieldWidth,Offset,Text,Result,ResultType,true,true).
+
+%! justify_right(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight)
 %
-%   oooooooooXiiiiiiiii       width is odd (and has a central character)
-%         aaaXbbb             text is odd (and has a central character)
-%                             ActualOffset := (Width-1)/2 - (TextLen-1)/2 + Offset
+% Justify right, and you may choose whether to cut at the field extremities or not
+
+justify_right(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight) :-
+   common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight),
+   check_that_named(Offset,[hard(integer)],"Offset"),
+   complete_result_type(Text,Result,ResultType),
+   stringy_length(Text,TextWidth),
+   PadWidth is FieldWidth-TextWidth-Offset,
+   space_stringy(FieldWidth,BgSpaceText,string),
+   overwrite(BgSpaceText,Text,PadWidth,CutLeft,CutRight,Result,ResultType).
+
+/* Justify left
+
+   case of positive offset
+
+   |************************FieldWidth****************************|
+   |**Offset**|******TextWidth*********|---------PadWidth---------|
+   |~~~~~~~~~ReducedFieldWidth~~~~~~~~~|
+
+   case of positive offset with negative PadWidth
+
+   |************************FieldWidth****************************|
+   |**Offset**|***********************TextWidth*********************************|
+   |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ReducedFieldWidth~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+                                                                  |--PadWidth---|
+
+   case of negative offset with positive PadWdith
+
+              |************************FieldWidth****************************|
+   |**Offset**|******TextWidth*********|-----------------PadWidth------------|
+   |~~~~~~~~~ReducedFieldWidth~~~~~~~~~|
+
+*/
+
+%! justify_left(FieldWidth,Offset,Text,Result,ResultType)
 %
-%   ooooooooooiiiiiiiiii      width is even
-%          aaabbb             text is even
-%                             ActualOffset := Width/2 - TextLen/2 + Offset
+% Justify left, cutting at the field extremities.
+
+justify_left(FieldWidth,Offset,Text,Result,ResultType) :-
+   justify_left(FieldWidth,Offset,Text,Result,ResultType,true,true).
+
+%! justify_left(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight)
 %
-%   ooooooooooiiiiiiiiii      width is even
-%          aaaXbbb            rightly behaviour : text is odd (and has a central character): Correction =  0 (default)
-%         aaaXbbb             leftly  behaviour : text is odd (and has a central character): Correction = -1
-%                             ActualOffset := Width/2 - (TextLen-1)/2 + Correction + (user-requested offset)
+% Justify left, and you may choose to not cut at the field extremities.
+
+justify_left(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight) :-
+   common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight),
+   check_that_named(Offset,[hard(integer)],"Offset"),
+   complete_result_type(Text,Result,ResultType),
+   space_stringy(FieldWidth,BgText,string),
+   overwrite(BgText,Text,Offset,CutLeft,CutRight,Result,ResultType).
+
+/* Justify center
+
+   case of positive offset
+
+   |********************************************FieldWidth***********************************************|
+   |**OffsetLeft**|---PadLeftWidth---|**********TextWidth*********|----PadRightWidth-----|**OffsetRight**|
+                  |~~~~~~~~~~~~~~~~~~~~~~~~ReducedFieldWidth~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+
+*/
+
+justify_center(FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly) :-
+   common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight),
+   check_that_named(OffsetLeft,[hard(integer)],"OffsetLeft"),
+   check_that_named(OffsetRight,[hard(integer)],"OffsetRight"),
+   check_that_named(LeftlyRightly,[hard(member([leftly,rightly]))],"LeftlyRightly"),
+   complete_result_type(Text,Result,ResultType),
+   stringy_length(Text,TextWidth),
+   ReducedFieldWidth is FieldWidth-OffsetLeft-OffsetRight, % could already be negative
+   ((ReducedFieldWidth < 0)
+    ->
+    deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly)
+    ;
+    deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,LeftlyRightly)).
+
+deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly) :-
+   Half           is (-ReducedFieldWidth)//2, % round towards 0 (in principle)
+   OtherHalf      is (-ReducedFieldWidth) - Half,
+   NewOffsetLeft  is OffsetLeft  - Half,
+   NewOffsetRight is OffsetRight - OtherHalf,
+   assertion(FieldWidth =:= NewOffsetLeft+NewOffsetRight),
+   justify_center(FieldWidth,NewOffsetLeft,NewOffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly).
+
+deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,LeftlyRightly) :-
+   odd_even(ReducedFieldWidth,TaggedReducedFieldWidth),
+   odd_even(TextWidth,TaggedTextWidth),
+   start_pos(TaggedReducedFieldWidth,TaggedTextWidth,LeftlyRightly,StartPos),
+   AbsoluteStartPos is OffsetLeft + StartPos,
+   space_stringy(FieldWidth,BgText,string),
+   overwrite(BgText,Text,AbsoluteStartPos,CutLeft,CutRight,Result,ResultType).
+
+odd_even(X,odd(X))  :- (X mod 2) =:= 1, !.
+odd_even(X,even(X)).
+
+% In two cases the StartPosition is computed as ReducedFieldWidth//2 - TextWidth//2
 %
-%   oooooooooXiiiiiiiii       width is odd (and has a central character)
-%          aaabbb             rightly behaviour : text is even: Correction = +1
-%         aaabbb              leftly  behviour  : text is even: Correction =  0 (default)
-%                             ActualOffset := (Width-1)/2 - (TextLen-1)/2 + Correction + (user-requested offset)
-% ---
+%   oooooooooXiiiiiiiii       ReducedFieldWidth is odd (and has a central character)
+%         aaaXbbb             TextWidth is odd (and has a central character)
+%
+%                             or
+%
+%   ooooooooooiiiiiiiiii      ReducedFieldWidth is even
+%          aaabbb             TextWidth is even
+%
+% An arbitrary decision is needed if one of the width is even and one is odd_
+%
+%   ooooooooooiiiiiiiiii      ReducedFieldWidth is even
+%          aaaXbbb            rightly behaviour
+%         aaaXbbb             leftly  behaviour
+%
+%   oooooooooXiiiiiiiii       ReducedFieldWidth is odd (and has a central character)
+%          aaabbb             rightly behaviour
+%         aaabbb              leftly  behaviour
 
-% :- debug(actual_offset).
+start_pos(odd(RFW)  ,odd(TW)  ,_       ,StartPos) :- StartPos is RFW//2 - TW//2.
+start_pos(even(RFW) ,even(TW) ,_       ,StartPos) :- StartPos is RFW//2 - TW//2.
+start_pos(odd(RFW)  ,even(TW) ,leftly  ,StartPos) :- StartPos is RFW//2 - TW//2.
+start_pos(odd(RFW)  ,even(TW) ,rightly ,StartPos) :- StartPos is RFW//2 - TW//2 + 1.
+start_pos(even(RFW) ,odd(TW)  ,leftly  ,StartPos) :- StartPos is RFW//2 - TW//2 - 1.
+start_pos(even(RFW) ,odd(TW)  ,rightly ,StartPos) :- StartPos is RFW//2 - TW//2.
 
-actual_offset(IsOddTextLen,IsOddWidth,TextLen,Width,Offset,Prefer,ActualOffset) :-
-   correction(Prefer,IsOddTextLen,IsOddWidth,Correction),
-   % debug(actual_offset,"TextLen = ~d ~q  Width = ~d ~q",[TextLen,IsOddTextLen,Width,IsOddWidth]),
-   (IsOddWidth   -> (HalfWidth    is (Width-1)/2)   ; (HalfWidth    is Width/2)), assertion(integer(HalfWidth)),
-   (IsOddTextLen -> (HalfTextLen  is (TextLen-1)/2) ; (HalfTextLen  is TextLen/2)), assertion(integer(HalfTextLen)),
-   ActualOffset is (HalfWidth - HalfTextLen + Correction + Offset).
+% In case the ResultType (here called PassedResultType) has been left uninstantiated
+% by the caller, clamp it to 'atom' or 'string', possibly by guessing.
+% Note that we demand to have a positive conclusion as to what type to deliver or
+% we complain, unlike in stringy_concat for example, where lack of a positive
+% conclusion leads to non-determinacy, with two solutions delivered.
 
-% ---
-% Determining the correction (0,-1,+1) top apply to a "centrally justified text"
-% depending on various factors
-% ---
+complete_result_type(Text,Result,PassedResultType) :-
+   has_type(Text,TextType),
+   has_type(Result,ResultType),
+   has_type(PassedResultType,PassedResultTypeType),
+   assertion(member(TextType,[atom,string])),           % has already been check_that-ed
+   assertion(member(ResultType,[var,string,atom])),     % has already been check_that-ed
+   assertion(member(PassedResultTypeType,[var,atom])),  % has already been check_that-ed (also, if atom, it is one of 'atom', 'string')
+   complete_result_type_2(TextType,ResultType,PassedResultTypeType,PassedResultType), % this throws, or fails or succeeds, with PassedResultType instantiated
+   !,                                                   % complete_result_type_2 generates choicepoint we don't want!
+   check_that(PassedResultType,[hard(stringy_typeid)]). % PassedResultType must be instantiated now!
 
-correction(left,true,false,-1) :- !.
-correction(right,false,true,1) :- !.
-correction(_,_,_,0).
+%                            ResultType
+%                    TextType    |  PassedResultTypeType
+%                       |        |        |        +-------PassedResultType (may be var on call, as indicated by the preceding arg)
+%                       |        |        |        |
+complete_result_type_2(atom   , var    , var   , atom   ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'atom' because the input texts are both atom
+complete_result_type_2(string , var    , var   , string ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'string' because the input texts are both string
+complete_result_type_2( _     , string , var   , string ).         % Set: We definitely want PassedResultType (unbound on call) to be the atom 'string' because the provided Result is a string
+complete_result_type_2( _     , atom   , var   , atom   ).         % Set: We definitely want PassedResultType (unbound on call) to be the atom 'atom' because the provided Result is an atom
+complete_result_type_2( _     , var    , atom  , _      ).         % OK: the result type is specified (atom on 4th arg) but the Result is var, so anything is ok
+complete_result_type_2( _     , string , atom  , atom   ) :- fail. % FAIL: the result is specified and 'string' but the ResultType is provided and is 'atom'
+complete_result_type_2( _     , atom   , atom  , string ) :- fail. % FAIL: the result is specified and 'atom'   but the ResultType is provided and is 'string'
+complete_result_type_2( _     , string , atom  , string ).         % OK: the result is specified and 'string' and the ResultType is provided and is 'string'
+complete_result_type_2( _     , atom   , atom  , atom   ).         % OK: the result is specified and 'atom'   and the ResultType is provided and is 'atom'
 
-% ---
-% Simple helpers
-% ---
+has_type(X,var)    :- var(X),!.
+has_type(X,atom)   :- atom(X),!.
+has_type(X,string) :- string(X).
 
-odd(X)  :- 1 =:= (X mod 2).
+common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight) :-
+   check_that_named(FieldWidth,[hard(integer),hard(pos0int)],"FieldWidth"),
+   check_that_named(Text,[hard(stringy)],"Text"),
+   check_that_named(Result,[break(var),hard(stringy)],"Result"),
+   check_that_named(ResultType,[break(var),hard(stringy_typeid)],"ResultType"),
+   check_that_named(CutLeft,[hard(boolean)],"CutLeft"),
+   check_that_named(CutRight,[hard(boolean)],"CutRight").
 

@@ -167,7 +167,7 @@ filler_between_end_of_fg_and_position0(FgEnd,CutLeft,Rprev,Rnew,ResultType) :-
    (Rnew=Rprev) % do nothing
    ;
    (Len is -FgEnd,
-    space_stringy(Len,Run,ResultType,throw), 
+    space_stringy(Len,Run,ResultType,throw),
     stringy_concat([Rprev,Run],Rnew,ResultType)). % gives sth corresponding to "ResultType"
 
 bg_visible_between_position0_and_start_of_fg(FgPos,BgLen,Bg,Rprev,Rnew,ResultType) :-
@@ -207,7 +207,7 @@ filler_between_end_of_bg_and_start_of_fg(FgPos,BgLen,CutRight,Rprev,Rnew,ResultT
    (Rnew=Rprev) % do nothing
    ;
    (Len is FgPos-BgLen,
-    space_stringy(Len,Run,ResultType,throw),      
+    space_stringy(Len,Run,ResultType,throw),
     stringy_concat([Rprev,Run],Rnew,ResultType)).  % gives sth corresponding to "ResultType"
 
 fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,Rprev,Rnew,ResultType) :-
@@ -221,28 +221,32 @@ fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,
     sub_atom(FgText,StartPosInFg,Len,_,Run),    % gives an atom
     stringy_concat([Rprev,Run],Rnew,ResultType)). % gives sth corresponding to "ResultType"
 
-% In case the ResultType has been left uninstantiated by the caller,
-% clamp it to 'atom' or 'string' if both 'FgText' and 'BgText' are
-% atoms respectively strings.
+% In case the ResultType (here called PassedResultType) has been left uninstantiated
+% by the caller, clamp it to 'atom' or 'string' if both 'FgText' and 'BgText' are
+% atoms, respectively strings. Possibly throw, possibly fail.
+% Note that we demand to have a positive conclusion as to what type to deliver or
+% we complain, unlike in stringy_concat for example, where lack of a positive
+% conclusion leads to non-determinacy, with two solutions delivered.
 
 complete_result_type(BgText,FgText,Result,PassedResultType) :-
-   reified_type(BgText,BgTextType),
-   reified_type(FgText,FgTextType),
-   reified_type(Result,ResultType),
-   reified_type(PassedResultType,PassedResultTypeType),
-   assertion((BgTextType==atom;BgTextType==string)),  % has already been check_that-ed
-   assertion((FgTextType==atom;FgTextType==string)),  % has already been check_that-ed
-   assertion((ResultType==var;ResultType==string;ResultType==atom)),  % has already been check_that-ed
-   assertion((PassedResultTypeType==var;PassedResultTypeType==atom)),  % has already been check_that-ed (also, it is one of 'atom', 'string')
+   has_type(BgText,BgTextType),
+   has_type(FgText,FgTextType),
+   has_type(Result,ResultType),
+   has_type(PassedResultType,PassedResultTypeType),
+   assertion(member(BgTextType,[atom,string])),         % has already been check_that-ed
+   assertion(member(FgTextType,[atom,string])),         % has already been check_that-ed
+   assertion(member(ResultType,[var,string,atom])),     % has already been check_that-ed
+   assertion(member(PassedResultTypeType,[var,atom])),  % has already been check_that-ed (also, if atom, it is one of 'atom', 'string')
    complete_result_type_2(BgTextType,FgTextType,ResultType,PassedResultTypeType,PassedResultType), % this throws, or fails or succeeds, with PassedResultType instantiated
-   !, % complete_result_type_2 generates choicepoint we don't want!
-   check_that(PassedResultType , [hard(stringy_typeid)]). % it must be instantiated now!
+   !,                                                       % complete_result_type_2 generates choicepoint we don't want!
+   check_that(PassedResultType , [hard(stringy_typeid)]).   % PassedResultType must be instantiated now!
 
-%                        nonvar     nonvar     nonvar     nonvar               maybe var
-% complete_result_type_2(BgTextType,FgTextType,ResultType,PassedResultTypeType,PassedResultType)
-
-complete_result_type_2(atom   , string , var    , var   , _      ) :- check_that_named(_,hard(nonvar),"If the input texts are of differing type (here, atom and string) and the Result is unbound, then ResultType must be bound").
-complete_result_type_2(string , atom   , var    , var   , _      ) :- check_that_named(_,hard(nonvar),"If the input texts are of differing type (here, string and stom) and the Result is unbound, then ResultType must be bound").
+%                             FgTextType     PassedResultTypeType
+%                  BgTextType     |   ResultType   |
+%                      |          |       |        |  PassedResultType (maybe var on call, as indicated by the preceding arg)
+%                      |          |       |        |        |
+complete_result_type_2(atom   , string , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw
+complete_result_type_2(string , atom   , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw
 complete_result_type_2(atom   , atom   , var    , var   , atom   ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'atom' because the input texts are both atom
 complete_result_type_2(string , string , var    , var   , string ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'string' because the input texts are both string
 complete_result_type_2( _     , _      , string , var   , string ).         % Set: We definitely want PassedResultType (unbound on call) to be the atom 'string' because the provided Result is a string
@@ -253,10 +257,9 @@ complete_result_type_2( _     , _      , atom   , atom  , string ) :- fail. % FA
 complete_result_type_2( _     , _      , string , atom  , string ).         % OK: the result is specified and 'string' and the ResultType is provided and is 'string'
 complete_result_type_2( _     , _      , atom   , atom  , atom   ).         % OK: the result is specified and 'atom'   and the ResultType is provided and is 'atom'
 
-reified_type(X,var)    :- var(X),!.
-reified_type(X,atom)   :- atom(X),!.
-reified_type(X,string) :- string(X),!.
-reified_type(_,other).
+has_type(X,var)    :- var(X),!.
+has_type(X,atom)   :- atom(X),!.
+has_type(X,string) :- string(X),!.
 
-
+error_msg("If the input texts are of differing type (here, atom and string) and the Result is unbound, then ResultType must be bound").
 

@@ -456,7 +456,7 @@ throw_2(fornone,Msg,Culprit)                      :- throw(error(check(fornone  
 
 % Having this at the end of throw_2/3 saves the day when debugging
 
-throw_2(_,_,_)                                    :- throw("Bug! You forgot a throw_2/3 clause in the source"). 
+throw_2(_,_,_)                                    :- throw("Bug! You forgot a throw_2/3 clause in the source").
 
 throw_2(random,Msg)                               :- throw(error(check(random                   ,_       ,Msg,_      ),_)).
 
@@ -1038,7 +1038,7 @@ eval(dict_has_key(Key),X,Name,Tuned,TP) :-
    precondition_X_must_be_dict(X,Name,"dict-has-key",TP),
    precondition_X_must_be_instantiated(Key,Name,"dict-has-key",TP),
    precondition_X_must_be_atomic(Key,Name,"dict-has-key",TP),
-   (get_dict(Key,X,_) 
+   (get_dict(Key,X,_)
     ->
     true
     ;

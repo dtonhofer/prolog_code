@@ -38,7 +38,7 @@ Please refer to the [README.md](README.md) file.
 
 `space_stringy_smooth(?N,?Stringy,?StringyType)`
 
-- As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally 
+- As `space_stringy/4`, with `Tuned` bound to `soft`, but addtionally
   just fail on badly typed input (e.g. passing an atom as `N`) instead of throwing (i.e. the
   predicates behaves "smoothly", which is mostly not what one wants).
 
@@ -107,8 +107,8 @@ N = 2, Stringy = '  ', Type = atom ;
 N = 2, Stringy = "  ", Type = string ;
 N = 3, Stringy = '   ', Type = atom ;
 N = 3, Stringy = "   ", Type = string ;
-N = 4, Stringy = '    ', Type = atom ; 
-N = 4, Stringy = "    ", Type = string ; 
+N = 4, Stringy = '    ', Type = atom ;
+N = 4, Stringy = "    ", Type = string ;
 ...
 ```
 
@@ -150,7 +150,7 @@ S = '', Type = atom ;
 S = "", Type = string.
 ```
 
-Bad argument types result in exceptions by default: 
+Bad argument types result in exceptions by default:
 
 ```
 ?- space_stringy(foo,S,string).

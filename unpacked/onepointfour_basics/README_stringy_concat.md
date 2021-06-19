@@ -15,7 +15,7 @@ but for which you can either test or request the type of the concatenation strin
 
 - `stringy_concat(ListOfStringy,?Result,?ResultType)`
 - `stringy_concat(ListOfStringy,Result,ResultType,Tuned)`
- 
+
 ## Examples
 
 Demand that concatenated stringy be a string by giving `string` as type:
@@ -54,7 +54,7 @@ false.
 ```
 
 That can be changed by passing `hard` as additional `Tuned` parameter. This
-can be very useful to hunt for bugs. 
+can be very useful to hunt for bugs.
 
 ```
 ?- stringy_concat([foo,"bar",baz,"quux"],R,nonsesuch,hard).

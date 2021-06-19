@@ -21,132 +21,275 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 
 :- use_module(library('onepointfour_basics/stringy_justify.pl')).
 
-:- begin_tests(stringy_justify).
+:- begin_tests(justify_right).
 
-space_to_dot(R,O) :- 
-   re_replace("\\s"/g,".",R,O). % PCRE-based replacement of SPACE by '.' for easier reading
+test("'hello' wandering from right to left in a cut 10-char field") :-
+   bagof([Offset,Result],
+         (between(-6,11,Offset),
+          justify_right(10,Offset,"hello",Result,string)),
+         Bag),
+   assertion(Bag ==
+      [[-6 ,"          "],
+       [-5 ,"          "],
+       [-4 ,"         h"],
+       [-3 ,"        he"],
+       [-2 ,"       hel"],
+       [-1 ,"      hell"],
+       [0  ,"     hello"], % the standard right-justification
+       [1  ,"    hello "],
+       [2  ,"   hello  "],
+       [3  ,"  hello   "],
+       [4  ," hello    "],
+       [5  ,"hello     "],
+       [6  ,"ello      "],
+       [7  ,"llo       "],
+       [8  ,"lo        "],
+       [9  ,"o         "],
+       [10 ,"          "],
+       [11 ,"          "]]).
 
-test("simple left") :-
-   justify_left("Hello, World",20,Result,string,_),
-   space_to_dot(R,RR),
-   assertion(RR == "Hello,.World........").
+test("the empty string wandering from right to left") :-
+   forall(
+      between(-6,11,Offset),
+      justify_right(10,Offset,"","          ",string)).
 
-test("simple right") :-
-   justify_right("Hello, World",20,R,string,_),
-   space_to_dot(R,RR),
-   assertion(RR == "........Hello,.World").
+test("'hello' wandering from right to left in a non-cut 10-char wide field") :-
+   bagof([Offset,Result],
+         (between(-6,11,Offset),
+          justify_right(10,Offset,"hello",Result,string,false,false)),
+         Bag),
+   assertion(Bag ==
+      [[-6,"           hello"],
+       [-5,"          hello"],
+       [-4,"         hello"],
+       [-3,"        hello"],
+       [-2,"       hello"],
+       [-1,"      hello"],
+       [0,"     hello"],
+       [1,"    hello "],
+       [2,"   hello  "],
+       [3,"  hello   "],
+       [4," hello    "],
+       [5,"hello     "],
+       [6,"hello      "],
+       [7,"hello       "],
+       [8,"hello        "],
+       [9,"hello         "],
+       [10,"hello          "],
+       [11,"hello           "]]).
 
-test("simple center") :-
-   justify_center("Hello, World",20,R,string,_),
-   space_to_dot(R,RR),
-   assertion(RR == "....Hello,.World....").
+test("a zero-width field containing 'hello' being progressively widened") :-
+   bagof([FieldWidth,Result],
+         (between(0,10,FieldWidth),
+          justify_right(FieldWidth,0,"hello",Result,string)),
+         Bag),
+   assertion(Bag ==
+      [[0,""],
+       [1,"o"],
+       [2,"lo"],
+       [3,"llo"],
+       [4,"ello"],
+       [5,"hello"],
+       [6," hello"],
+       [7,"  hello"],
+       [8,"   hello"],
+       [9,"    hello"],
+       [10,"     hello"]]).
 
+:- end_tests(justify_right).
 
-/*
-% ---
-% Full-width calls are hard to read.
-%
-% justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
-%
-% ---
+:- begin_tests(justify_left).
 
-test("full left", true(O == "Hello,.World........")) :-
-   hello_world_justify(left,R),
-   space_to_dot(R,O).
+test("'hello' wandering from left to right") :-
+   bagof([Offset,Result],
+         (between(-6,11,Offset),
+          justify_left(10,Offset,"hello",Result,string)),
+         Bag),
+   assertion(Bag ==
+      [[-6,"          "],
+       [-5,"          "],
+       [-4,"o         "],
+       [-3,"lo        "],
+       [-2,"llo       "],
+       [-1,"ello      "],
+       [0, "hello     "],
+       [1, " hello    "],
+       [2, "  hello   "],
+       [3, "   hello  "],
+       [4, "    hello "],
+       [5, "     hello"],
+       [6, "      hell"],
+       [7, "       hel"],
+       [8, "        he"],
+       [9, "         h"],
+       [10,"          "],
+       [11,"          "]]).
 
-test("full right", true(O == "........Hello,.World")) :-
-   hello_world_justify(right,R),
-   space_to_dot(R,O).
+test("a zero-width field containing 'hello' being progressively widened") :-
+   bagof([FieldWidth,Result],
+         (between(0,10,FieldWidth),
+          justify_left(FieldWidth,0,"hello",Result,string)),
+         Bag),
+   assertion(Bag ==
+      [[0, ""],
+       [1, "h"],
+       [2, "he"],
+       [3, "hel"],
+       [4, "hell"],
+       [5, "hello"],
+       [6, "hello "],
+       [7, "hello  "],
+       [8, "hello   "],
+       [9, "hello    "],
+       [10,"hello     "]]).
 
-test("full center", true(O == "....Hello,.World....")) :-
-   hello_world_justify(center,R),
-   space_to_dot(R,O).
+:- end_tests(justify_left).
 
+:- begin_tests(justify_center).
 
-test("full left offset +2", true(O ==   "..Hello,.World......")) :-
-   hello_world_justify_with_offset(left,+2,R),
-   space_to_dot(R,O).
+text("So_black_holes_are_maximal").
 
-test("full right offset +2", true(O ==  "......Hello,.World..")) :-
-   hello_world_justify_with_offset(right,+2,R),
-   space_to_dot(R,O).
+test("center, field of 10 characters, leftly") :-
+   bagof(
+        [Length,Result],
+        Text^PieceText^Before^(
+           between(0,15,Length),
+           text(Text),
+           sub_string(Text,0,Length,Before,PieceText),
+           justify_center(10,0,0,PieceText,Result,string,true,true,leftly)
+        ),
+        Bag),
+   assertion(Bag ==
+      [[0, "          "],
+       [1, "    S     "],
+       [2, "    So    "],
+       [3, "   So_    "],
+       [4, "   So_b   "],
+       [5, "  So_bl   "],
+       [6, "  So_bla  "],
+       [7, " So_blac  "],
+       [8, " So_black "],
+       [9, "So_black_ "],
+       [10,"So_black_h"],
+       [11,"o_black_ho"],
+       [12,"o_black_ho"],
+       [13,"_black_hol"],
+       [14,"_black_hol"],
+       [15,"black_hole"]]).
 
-test("full center offset +2", true(O == "......Hello,.World..")) :-
-   hello_world_justify_with_offset(center,+2,R),
-   space_to_dot(R,O).
+test("center, field of 10 characters, rightly") :-
+   bagof(
+        [Length,Result],
+        Text^PieceText^Before^(
+           between(0,15,Length),
+           text(Text),
+           sub_string(Text,0,Length,Before,PieceText),
+           justify_center(10,0,0,PieceText,Result,string,true,true,rightly)
+        ),
+        Bag),
+   assertion(Bag ==
+      [[0, "          "],
+       [1, "     S    "],
+       [2, "    So    "],
+       [3, "    So_   "],
+       [4, "   So_b   "],
+       [5, "   So_bl  "],
+       [6, "  So_bla  "],
+       [7, "  So_blac "],
+       [8, " So_black "],
+       [9, " So_black_"],
+       [10,"So_black_h"],
+       [11,"So_black_h"],
+       [12,"o_black_ho"],
+       [13,"o_black_ho"],
+       [14,"_black_hol"],
+       [15,"_black_hol"]]).
 
-test("full left offset -2", true(O ==   "llo,.World..........")) :-
-   hello_world_justify_with_offset(left,-2,R),
-   space_to_dot(R,O).
+test("center, field of 11 characters, leftly") :-
+   bagof(
+        [Length,Result],
+        Text^PieceText^Before^(
+           between(0,15,Length),
+           text(Text),
+           sub_string(Text,0,Length,Before,PieceText),
+           justify_center(11,0,0,PieceText,Result,string,true,true,leftly)
+        ),
+        Bag),
+   assertion(Bag ==
+      [[0, "           "],
+       [1, "     S     "],
+       [2, "    So     "],
+       [3, "    So_    "],
+       [4, "   So_b    "],
+       [5, "   So_bl   "],
+       [6, "  So_bla   "],
+       [7, "  So_blac  "],
+       [8, " So_black  "],
+       [9, " So_black_ "],
+       [10,"So_black_h "],
+       [11,"So_black_ho"],
+       [12,"o_black_hol"],
+       [13,"o_black_hol"],
+       [14,"_black_hole"],
+       [15,"_black_hole"]]).
 
-test("full right offset -2", true(O ==  "..........Hello,.Wor")) :-
-   hello_world_justify_with_offset(right,-2,R),
-   space_to_dot(R,O).
+test("center, field of 11 characters, rightly") :-
+   bagof(
+        [Length,Result],
+        Text^PieceText^Before^(
+           between(0,15,Length),
+           text(Text),
+           sub_string(Text,0,Length,Before,PieceText),
+           justify_center(11,0,0,PieceText,Result,string,true,true,rightly)
+        ),
+        Bag),
+   assertion(Bag ==
+      [[0, "           "],
+       [1, "     S     "],
+       [2, "     So    "],
+       [3, "    So_    "],
+       [4, "    So_b   "],
+       [5, "   So_bl   "],
+       [6, "   So_bla  "],
+       [7, "  So_blac  "],
+       [8, "  So_black "],
+       [9, " So_black_ "],
+       [10," So_black_h"],
+       [11,"So_black_ho"],
+       [12,"So_black_ho"],
+       [13,"o_black_hol"],
+       [14,"o_black_hol"],
+       [15,"_black_hole"]]).
 
-test("full center offset -2", true(O == "..Hello,.World......")) :-
-   hello_world_justify_with_offset(center,-2,R),
-   space_to_dot(R,O).
+% this may not be what one wants
 
-% ---
-% Testing fine-tuned position in case the text is centered inside a string
-% with even/odd number of characters
-% ---
+test("center, field of 11 characters, leftly, offset on the left 5") :-
+   bagof(
+        [Length,Result],
+        Text^PieceText^Before^(
+           between(0,15,Length),
+           text(Text),
+           sub_string(Text,0,Length,Before,PieceText),
+           justify_center(11,5,0,PieceText,Result,string,true,true,leftly)
+       ),
+       Bag),
+   assertion(Bag ==
+      [[0, "           "],
+       [1, "       S   "],
+       [2, "       So  "],
+       [3, "      So_  "],
+       [4, "      So_b "],
+       [5, "     So_bl "],
+       [6, "     So_bla"],
+       [7, "    So_blac"],
+       [8, "    So_blac"],
+       [9, "   So_black"],
+       [10,"   So_black"],
+       [11,"  So_black_"],
+       [12,"  So_black_"],
+       [13," So_black_h"],
+       [14," So_black_h"],
+       [15,"So_black_ho"]]).
 
-test("even width even text left", true(O == "...quux...")) :-
-   hello_world_center_even_width_even_text(R,left),
-   space_to_dot(R,O).
+:- end_tests(justify_center).
 
-test("odd width even text left", true(O == "..quux...")) :-
-   hello_world_center_odd_width_even_text(R,left),
-   space_to_dot(R,O).
-
-test("even width odd text left", true(O == "...foo....")) :-
-   hello_world_center_even_width_odd_text(R,left),
-   space_to_dot(R,O).
-
-test("odd width odd text left", true(O == "...foo...")) :-
-   hello_world_center_odd_width_odd_text(R,left),
-   space_to_dot(R,O).
-
-test("even width even text right", true(O == "...quux...")) :-
-   hello_world_center_even_width_even_text(R,right),
-   space_to_dot(R,O).
-
-test("odd width even text right", true(O == "...quux..")) :-
-   hello_world_center_odd_width_even_text(R,right),
-   space_to_dot(R,O).
-
-test("even width odd text right", true(O == "....foo...")) :-
-   hello_world_center_even_width_odd_text(R,right),
-   space_to_dot(R,O).
-
-test("odd width odd text right", true(O == "...foo...")) :-
-   hello_world_center_odd_width_odd_text(R,right),
-   space_to_dot(R,O).
-
-% ---
-% shims on top of
-% justify(Text,Width,How,CutLeft,CutRight,Prefer,Offset,Result,Want,Nocheck)
-% ---
-
-hello_world_justify(How,Result) :-
-   justify("Hello, World", 20, How, _,_,_,_, Result, string, _).
-
-hello_world_justify_with_offset(How,Offset,Result) :-
-   justify("Hello, World", 20, How, _,_,_, Offset, Result, string, _).
-
-
-hello_world_center_even_width_even_text(Result,Prefer) :-
-   justify("quux", 10, center, _,_, Prefer, _, Result, string, _).
-
-hello_world_center_odd_width_even_text(Result,Prefer) :-
-   justify("quux", 9, center, _,_, Prefer, _, Result, string, _).
-
-hello_world_center_even_width_odd_text(Result,Prefer) :-
-   justify("foo", 10, center, _,_, Prefer, _, Result, string, _).
-
-hello_world_center_odd_width_odd_text(Result,Prefer) :-
-   justify("foo", 9, center, _,_, Prefer, _, Result, string, _).
-*/
-
-:- end_tests(stringy_justify).

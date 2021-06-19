@@ -523,7 +523,7 @@ test("number, ihard, failure, throw type error", error(check(type,_,_,_))) :-
 
 test("number, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(number)]).
-   
+
 test("number, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(number)]).
 
@@ -992,7 +992,7 @@ test("pos0int, hard, failure, throw domain error", error(check(domain,_,_,_))) :
 
 test("pos0int, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(pos0int)]).
-   
+
 test("pos0int, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(pos0int)]).
 
@@ -1070,7 +1070,7 @@ test("posinty, hard, domain exception") :-
 
 test("posinty, hard, throw instantiation error on uninstantiated X", error(check(instantiation,_,_,_))) :-
    check_that(_,[hard(posinty)]).
-   
+
 test("posinty, smooth, fail instead of throwing on uninstantiated X", fail) :-
    check_that(_,[smooth(posinty)]).
 
@@ -1573,7 +1573,7 @@ test("cyclic_now, throw if ground acyclic (hard)",error(check(domain,_,_,_))) :-
 test("cyclic_now, fail if uninstantiated (soft)",fail) :-
    check_that(_,[soft(cyclic_now)]).
 
-test("cyclic_now, fail if uninstantiated (soft)",fail) :- 
+test("cyclic_now, fail if uninstantiated (soft)",fail) :-
    check_that(s(_),[soft(cyclic_now)]).
 
 test("cyclic_now, fail if uninstantiated (soft)",fail) :-
