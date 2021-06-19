@@ -230,3 +230,42 @@ split_string(String, "", " ", [""]).
 See also this code concerning "exponentiation" of an associative operation:
 
 https://swi-prolog.discourse.group/t/power-implementation/1937
+
+## Is it fast?
+
+Not particularly. There is a simple performance test in the "perf" directory.
+
+- "goal_special" uses `space_stringy(Length,Spaces,string)`
+- "goal-direct" uses `length(Codes,Length),maplist(=(0'\s),Codes),string_codes(Codes,Spaces)`
+- "goal_format" uses `format(string(Spaces),"~t~*|",[Length])`
+
+There are two tests: create space strings of random length and drop them immediately.
+Or else create space strings of random length and keep them in a list.
+
+We find:
+
+```
+drop them immediately (100000 calls) (500 max size) using goal 'goal_special'
+CPU time: 3.73 s, KiloInferences: 19202, Wallclock: 3.74 s
+
+
+drop them immediately (100000 calls) (500 max size) using goal 'goal_direct'
+CPU time: 1.8 s, KiloInferences: 26112, Wallclock: 1.81 s
+
+
+drop them immediately (100000 calls) (500 max size) using goal 'goal_format'
+CPU time: 1.11 s, KiloInferences: 800, Wallclock: 1.11 s
+
+.
+collect in list (100000 calls) (500 max size) using goal 'goal_special'
+CPU time: 5.88 s, KiloInferences: 20308, Wallclock: 5.91 s
+
+
+collect in list (100000 calls) (500 max size) using goal 'goal_direct'
+CPU time: 3.44 s, KiloInferences: 27229, Wallclock: 3.46 s
+
+
+collect in list (100000 calls) (500 max size) using goal 'goal_format'
+CPU time: 1.56 s, KiloInferences: 1900, Wallclock: 1.56 s
+```
+
