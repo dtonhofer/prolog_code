@@ -233,7 +233,9 @@ https://swi-prolog.discourse.group/t/power-implementation/1937
 
 ## Is it fast?
 
-Not particularly. There is a simple performance test in the "perf" directory.
+Not particularly, if the `check_that` calls are fully active. 
+
+There is a simple performance test in the "perf" directory.
 
 - "goal_special" uses `space_stringy(Length,Spaces,string)`
 - "goal-direct" uses `length(Codes,Length),maplist(=(0'\s),Codes),string_codes(Codes,Spaces)`
@@ -267,5 +269,32 @@ CPU time: 3.44 s, KiloInferences: 27229, Wallclock: 3.46 s
 
 collect in list (100000 calls) (500 max size) using goal 'goal_format'
 CPU time: 1.56 s, KiloInferences: 1900, Wallclock: 1.56 s
+```
+
+However, if at least the full syntax check on the `check_that` calls is disabled, performance becomes competitive:
+
+```
+drop them immediately (100000 calls) (500 max size) using goal 'goal_special'
+CPU time: 1.85 s, KiloInferences: 11001, Wallclock: 1.85 s
+
+
+drop them immediately (100000 calls) (500 max size) using goal 'goal_direct'
+CPU time: 1.8 s, KiloInferences: 26076, Wallclock: 1.8 s
+
+
+drop them immediately (100000 calls) (500 max size) using goal 'goal_format'
+CPU time: 1.11 s, KiloInferences: 800, Wallclock: 1.11 s
+
+.
+collect in list (100000 calls) (500 max size) using goal 'goal_special'
+CPU time: 2.5 s, KiloInferences: 12103, Wallclock: 2.51 s
+
+
+collect in list (100000 calls) (500 max size) using goal 'goal_direct'
+CPU time: 2.86 s, KiloInferences: 27150, Wallclock: 2.87 s
+
+
+collect in list (100000 calls) (500 max size) using goal 'goal_format'
+CPU time: 1.55 s, KiloInferences: 1900, Wallclock: 1.56 s
 ```
 
