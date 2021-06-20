@@ -5,6 +5,7 @@
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
+:- use_module(library('onepointfour_basics/stringy_length.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
 

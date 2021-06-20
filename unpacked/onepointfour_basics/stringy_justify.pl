@@ -1,13 +1,20 @@
 :- module(onepointfour_basics_stringy_justify,
           [
-           justify_right/5
-          ,justify_right/7
-          ,justify_left/5
-          ,justify_left/7
-          ,justify_center/9
+           justify_left/4   % justify_left(FieldWidth,Text,Result,ResultType)
+          ,justify_left/5   % justify_left(FieldWidth,Text,Result,ResultType,SettingsDict)
+          ,justify_right/4  % justify_right(FieldWidth,Text,Result,ResultType)
+          ,justify_right/5  % justify_right(FieldWidth,Text,Result,ResultType,SettingsDict)
+          ,justify_center/4 % justify_center(FieldWidth,Text,Result,ResultType)
+          ,justify_center/5 % justify_center(FieldWidth,Text,Result,ResultType,SettingsDict)
+          ,justify_how/5    % justify_how(How,FieldWidth,Text,Result,ResultType) 
+          ,justify_how/6    % justify_how(How,FieldWidth,Text,Result,ResultType,SettingsDict) 
           ]).
 
 :- use_module(library('onepointfour_basics/stringy_overwrite.pl')).
+:- use_module(library('onepointfour_basics/dict_settings.pl')).
+:- use_module(library('onepointfour_basics/checks.pl')).
+:- use_module(library('onepointfour_basics/stringy_length.pl')).
+:- use_module(library('onepointfour_basics/space_stringy.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
 
@@ -43,39 +50,38 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 
 */
 
-/* Justify right
-
-   case of positive offset
-
-   |************************FieldWidth****************************|
-   |-------PadWidth-----------|*********TextWidth******|**Offset**|
-
-   case of negative offset
-
-   |************************FieldWidth****************************|
-   |---------------------PadWidth----------------------|*********TextWidth******|
-                                                                  |***Offset****|
-*/
-
-%! justify_right(FieldWidth,Offset,Text,Result,ResultType)
+%! justify_how takes the value How (left,right,center) to select among behaviours. 
 %
-% Justify right, cutting at the field extremities
+% Default behaviour in all cases.
 
-justify_right(FieldWidth,Offset,Text,Result,ResultType) :-
-   justify_right(FieldWidth,Offset,Text,Result,ResultType,true,true).
-
-%! justify_right(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight)
+justify_how(How,FieldWidth,Text,Result,ResultType) :-
+   justify_how(How,FieldWidth,Text,Result,ResultType,_{}).
+ 
+%! justify_how takes the value How (left,right,center) to select among behaviours. 
 %
-% Justify right, and you may choose whether to cut at the field extremities or not
+%  SettingsDict can contain:
+%
+%  cut_left   - a boolean, cut the result at left field limit (default true)
+%  cut_right  - a boolean, cut the result at right field limit (default true)
+%  offset     - an integer, used for "offset on the left" when justifying left
 
-justify_right(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight) :-
-   common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight),
-   check_that_named(Offset,[hard(integer)],"Offset"),
-   complete_result_type(Text,Result,ResultType),
-   stringy_length(Text,TextWidth),
-   PadWidth is FieldWidth-TextWidth-Offset,
-   space_stringy(FieldWidth,BgSpaceText,string),
-   overwrite(BgSpaceText,Text,PadWidth,CutLeft,CutRight,Result,ResultType).
+justify_how(How,FieldWidth,Text,Result,ResultType,SettingsDict) :-
+   assertion(check_that(How,[hard(member([left,right,center]))])),
+   (
+     (How==left) 
+     -> 
+     justify_left(FieldWidth,Text,Result,ResultType,SettingsDict)
+     ;
+     (How==right) 
+     -> 
+     justify_right(FieldWidth,Text,Result,ResultType,SettingsDict)
+     ;
+     (How==center)
+     ->
+     justify_center(FieldWidth,Text,Result,ResultType,SettingsDict)
+   ).
+
+% -----------------------------------------------------------------------------------
 
 /* Justify left
 
@@ -100,23 +106,81 @@ justify_right(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight) :-
 
 */
 
-%! justify_left(FieldWidth,Offset,Text,Result,ResultType)
+%! justify_left(FieldWidth,Text,Result,ResultType,SettingsDict)
 %
-% Justify left, cutting at the field extremities.
+% Standard "left justify", everything is default.
 
-justify_left(FieldWidth,Offset,Text,Result,ResultType) :-
-   justify_left(FieldWidth,Offset,Text,Result,ResultType,true,true).
-
-%! justify_left(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight)
+justify_left(FieldWidth,Text,Result,ResultType) :-
+   justify_left(FieldWidth,Text,Result,ResultType,_{}).
+ 
+%! justify_left(FieldWidth,Text,Result,ResultType,SettingsDict)
 %
-% Justify left, and you may choose to not cut at the field extremities.
+% Justify Text left inside a field of width FieldWidth, yielding the
+% Result of the type given by ResultType (one of =|string|=, =|atom|=).
+% ResultType can also be deduced if Result is instantiated on call,
+% or else from the given Text.
+%
+% SettingsDict can contain:
+%
+% cut_left   - a boolean, cut the result at left field limit (default true)
+% cut_right  - a boolean, cut the result at right field limit (default true)
+% offset     - an integer, used for "offset on the left" when justifying left
 
-justify_left(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight) :-
-   common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight),
-   check_that_named(Offset,[hard(integer)],"Offset"),
+justify_left(FieldWidth,Text,Result,ResultType,SettingsDict) :-
+   decaps_cut_flags(SettingsDict,CutLeft,CutRight),
+   decaps_offset(SettingsDict,Offset),
+   common_entry_checks(FieldWidth,Text,Result,ResultType),
    complete_result_type(Text,Result,ResultType),
    space_stringy(FieldWidth,BgText,string),
-   overwrite(BgText,Text,Offset,CutLeft,CutRight,Result,ResultType).
+   stringy_overwrite(BgText,Text,Offset,CutLeft,CutRight,Result,ResultType).
+
+% -----------------------------------------------------------------------------------
+
+/* Justify right
+
+   case of positive offset
+
+   |************************FieldWidth****************************|
+   |-------PadWidth-----------|*********TextWidth******|**Offset**|
+
+   case of negative offset
+
+   |************************FieldWidth****************************|
+   |---------------------PadWidth----------------------|*********TextWidth******|
+                                                                  |***Offset****|
+*/
+
+%! justify_right(FieldWidth,Text,Result,ResultType)
+%
+% Standard "right justify", everything is default.
+
+justify_right(FieldWidth,Text,Result,ResultType) :-
+   justify_right(FieldWidth,Text,Result,ResultType,_{}).
+
+%! justify_right(FieldWidth,Text,Result,ResultType,SettingsDict)
+%
+% Justify Text right inside a field of width FieldWidth, yielding the
+% Result of the type given by ResultType (one of =|string|=, =|atom|=).
+% ResultType can also be deduced if Result is instantiated on call,
+% or else from the given Text.
+%
+% SettingsDict can contain:
+%
+% cut_left
+% cut_right
+% offset
+
+justify_right(FieldWidth,Text,Result,ResultType,SettingsDict) :-
+   decaps_cut_flags(SettingsDict,CutLeft,CutRight),
+   decaps_offset(SettingsDict,Offset),
+   common_entry_checks(FieldWidth,Text,Result,ResultType),
+   complete_result_type(Text,Result,ResultType),
+   stringy_length(Text,TextWidth),
+   PadWidth is FieldWidth-TextWidth-Offset,
+   space_stringy(FieldWidth,BgText,string),
+   stringy_overwrite(BgText,Text,PadWidth,CutLeft,CutRight,Result,ResultType).
+
+% -----------------------------------------------------------------------------------
 
 /* Justify center
 
@@ -128,35 +192,66 @@ justify_left(FieldWidth,Offset,Text,Result,ResultType,CutLeft,CutRight) :-
 
 */
 
-justify_center(FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly) :-
-   common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight),
-   check_that_named(OffsetLeft,[hard(integer)],"OffsetLeft"),
-   check_that_named(OffsetRight,[hard(integer)],"OffsetRight"),
-   check_that_named(LeftlyRightly,[hard(member([leftly,rightly]))],"LeftlyRightly"),
+%! justify_center(FieldWidth,Text,Result,ResultType)
+%
+% Standard "center justify", everything is default.
+
+justify_center(FieldWidth,Text,Result,ResultType) :-
+   justify_center(FieldWidth,Text,Result,ResultType,_{}).
+
+%! justify_center(FieldWidth,Text,Result,ResultType,SettingsDict)
+%
+% Justify Text centrally inside a field of width FieldWidth, yielding the
+% Result of the type given by ResultType (one of =|string|=, =|atom|=).
+% ResultType can also be deduced if Result is instantiated on call,
+% or else from the given Text.
+%
+% SettingsDict can contain:
+%
+% cut_left
+% cut_right
+% offset_left
+% offset_right
+% prefer       - leftly,rightly : where to prefer shifting the foreground left or
+%                right if full central alignment is impossible
+
+justify_center(FieldWidth,Text,Result,ResultType,SettingsDict) :-
+   decaps_offset_left_right(SettingsDict,OffsetLeft,OffsetRight),
+   decaps_cut_flags(SettingsDict,CutLeft,CutRight),
+   decaps_prefer(SettingsDict,Prefer),
+   common_entry_checks(FieldWidth,Text,Result,ResultType),
    complete_result_type(Text,Result,ResultType),
    stringy_length(Text,TextWidth),
    ReducedFieldWidth is FieldWidth-OffsetLeft-OffsetRight, % could already be negative
    ((ReducedFieldWidth < 0)
     ->
-    deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly)
+    deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,Prefer)
     ;
-    deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,LeftlyRightly)).
+    deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,Prefer)).
 
-deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly) :-
+deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,OffsetRight,Text,Result,ResultType,CutLeft,CutRight,Prefer) :-
    Half           is (-ReducedFieldWidth)//2, % round towards 0 (in principle)
    OtherHalf      is (-ReducedFieldWidth) - Half,
    NewOffsetLeft  is OffsetLeft  - Half,
    NewOffsetRight is OffsetRight - OtherHalf,
    assertion(FieldWidth =:= NewOffsetLeft+NewOffsetRight),
-   justify_center(FieldWidth,NewOffsetLeft,NewOffsetRight,Text,Result,ResultType,CutLeft,CutRight,LeftlyRightly).
+   % calls itself now
+   justify_center(FieldWidth,Text,Result,ResultType,
+      _{offset_left  : NewOffsetLeft,
+        offset_right : NewOffsetRight,
+        cut_left     : CutLeft,
+        cut_right    : CutRight,
+        prefer       : Prefer}).
 
-deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,LeftlyRightly) :-
+deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,Prefer) :-
    odd_even(ReducedFieldWidth,TaggedReducedFieldWidth),
    odd_even(TextWidth,TaggedTextWidth),
-   start_pos(TaggedReducedFieldWidth,TaggedTextWidth,LeftlyRightly,StartPos),
+   start_pos(TaggedReducedFieldWidth,TaggedTextWidth,Prefer,StartPos),
    AbsoluteStartPos is OffsetLeft + StartPos,
    space_stringy(FieldWidth,BgText,string),
-   overwrite(BgText,Text,AbsoluteStartPos,CutLeft,CutRight,Result,ResultType).
+   stringy_overwrite(BgText,Text,AbsoluteStartPos,CutLeft,CutRight,Result,ResultType).
+
+% -----------------------------------------------------------------------------------
 
 odd_even(X,odd(X))  :- (X mod 2) =:= 1, !.
 odd_even(X,even(X)).
@@ -223,11 +318,37 @@ has_type(X,var)    :- var(X),!.
 has_type(X,atom)   :- atom(X),!.
 has_type(X,string) :- string(X).
 
-common_entry_checks(FieldWidth,Text,Result,ResultType,CutLeft,CutRight) :-
-   check_that_named(FieldWidth,[hard(integer),hard(pos0int)],"FieldWidth"),
-   check_that_named(Text,[hard(stringy)],"Text"),
-   check_that_named(Result,[break(var),hard(stringy)],"Result"),
-   check_that_named(ResultType,[break(var),hard(stringy_typeid)],"ResultType"),
-   check_that_named(CutLeft,[hard(boolean)],"CutLeft"),
-   check_that_named(CutRight,[hard(boolean)],"CutRight").
+common_entry_checks(FieldWidth,Text,Result,ResultType) :-
+   assertion(check_that_named(FieldWidth,[hard(integer),hard(pos0int)],"FieldWidth")),
+   assertion(check_that_named(Text,[hard(stringy)],"Text")),
+   assertion(check_that_named(Result,[break(var),hard(stringy)],"Result")),
+   assertion(check_that_named(ResultType,[break(var),hard(stringy_typeid)],"ResultType")).
+
+% Get OffsetLeft and OffsetRight out of the SettingsDict (if missing, they are assumed 0)
+
+decaps_offset_left_right(SettingsDict,OffsetLeft,OffsetRight) :-
+   get_setting(SettingsDict,offset_left,OffsetLeft,0),
+   get_setting(SettingsDict,offset_right,OffsetRight,0),
+   assertion(check_that_named(OffsetLeft,[hard(integer)],"OffsetLeft")),
+   assertion(check_that_named(OffsetRight,[hard(integer)],"OffsetRight")).
+
+% Get CutLeft and CutRight out of the SettingsDict (if missing, they are assumed true)
+
+decaps_cut_flags(SettingsDict,CutLeft,CutRight) :-
+   get_setting(SettingsDict,cut_left,CutLeft,true),
+   get_setting(SettingsDict,cut_right,CutRight,true),
+   assertion(check_that_named(CutLeft,[hard(boolean)],"CutLeft")),
+   assertion(check_that_named(CutRight,[hard(boolean)],"CutRight")).
+
+% Get Offset out of the SettingsDict (if missing, it is assumed 0)
+
+decaps_offset(SettingsDict,Offset) :-
+   get_setting(SettingsDict,offset,Offset,0),
+   assertion(check_that_named(Offset,[hard(integer)],"Offset")).
+
+% Get Prefer out of the SettingsDict (if missing, it is assumed leftly)
+
+decaps_prefer(SettingsDict,Prefer) :-
+   get_setting(SettingsDict,prefer,Prefer,leftly),
+   assertion(check_that_named(Prefer,[hard(member([leftly,rightly]))],"Prefer")).
 

@@ -1,13 +1,16 @@
 :- module(onepointfour_basics_stringy_overwrite,
           [
-            overwrite/7              % overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
-           ,overwrite_using_chars/7  % overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
-           ,overwrite_using_runs/7   % overwrite_using_runs(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+            stringy_overwrite/5              % stringy_overwrite(BgText,FgText,FgPos,Result,ResultType)
+           ,stringy_overwrite/7              % stringy_overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+           ,stringy_overwrite_using_chars/7  % stringy_overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
+           ,stringy_overwrite_using_runs/7   % stringy_overwrite_using_runs(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
 :- use_module(library('onepointfour_basics/space_stringy.pl')).
 :- use_module(library('onepointfour_basics/stringy_concat.pl')).
+:- use_module(library('onepointfour_basics/stringy_length.pl')).
+:- use_module(library('onepointfour_basics/stringy_morph.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
 
@@ -53,6 +56,12 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 
 */
 
+%! stringy_overwrite(+BgText,+FgText,+FgPos,?Result,+ResultType)
+% As overwrite/7, but cuts on both ends by default.
+
+stringy_overwrite(BgText,FgText,FgPos,Result,ResultType) :-
+   stringy_overwrite_using_runs(BgText,FgText,FgPos,true,true,Result,ResultType).
+
 %! overwrite(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
 %
 % Succeeds if Result is the outcome of overwriting BgText (a stringy) with
@@ -66,21 +75,21 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 % CutLeft and CutRight must be one of =|true|=, =|false|=.
 % ResultType must be one of =|atom|=, =|string|=.
 
-overwrite(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
-   overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType).
+stringy_overwrite(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+   stringy_overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType).
 
 % Entry verification called by both overwrite_using_chars/7 and
 % overwrite_using_runs/7.
 
-overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+stringy_overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
    check_that(BgText     , [hard(stringy)]),
    check_that(FgText     , [hard(stringy)]),
    check_that(FgPos      , [hard(integer)]),
    check_that(CutLeft    , [hard(boolean)]),
    check_that(CutRight   , [hard(boolean)]),
-   check_that(Result     , [break(var),soft(stringy)]), % fail if Result provided but bad type (TODO: make tunable)
-   check_that(ResultType , [break(var),hard(stringy_typeid)]), % throw if ResultType is not var 'atom' or 'string'
-   complete_result_type(BgText,FgText,Result,ResultType), % succeeds with ResultType instantiated, or throws on missing info, or fails
+   check_that(Result     , [break(var),hard(stringy)]),        % throw if ResultType instantiated but bad type
+   check_that(ResultType , [break(var),hard(stringy_typeid)]), % throw if ResultType instantiated but not 'atom' or 'string'
+   complete_result_type(BgText,FgText,Result,ResultType),      % succeeds with ResultType instantiated, or throws on missing info, or fails
    assertion(nonvar(ResultType)).
 
 %! overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
@@ -88,8 +97,8 @@ overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
 % This implementation uses character-by-character processing and is slow but
 % easy to verify for correctness.
 
-overwrite_using_chars(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
-   overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType),
+stringy_overwrite_using_chars(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+   stringy_overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType),
    stringy_charylist_morph(BgText,BgChars,_,chars),
    stringy_charylist_morph(FgText,FgChars,_,chars),
    stringy_length(BgText,BgLen),
@@ -139,8 +148,8 @@ collect(Pos,EndPos,FgPos,FgEnd,FgChars,BgChars,BgLen,Fin,FinalFin) :-
 % This implementation uses run-of-character processing and is a bit hairy to
 % verify, but fast.
 
-overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
-   overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType),
+stringy_overwrite_using_runs(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
+   stringy_overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType),
    stringy_length(BgText,BgLen),
    stringy_length(FgText,FgLen),
    FgEnd is FgPos+FgLen,
@@ -245,7 +254,7 @@ complete_result_type(BgText,FgText,Result,PassedResultType) :-
 %                  BgTextType     |   ResultType   |
 %                      |          |       |        |  PassedResultType (maybe var on call, as indicated by the preceding arg)
 %                      |          |       |        |        |
-complete_result_type_2(atom   , string , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw
+complete_result_type_2(atom   , string , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw (TODO: Msg is actually the argument name, needs design change)
 complete_result_type_2(string , atom   , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw
 complete_result_type_2(atom   , atom   , var    , var   , atom   ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'atom' because the input texts are both atom
 complete_result_type_2(string , string , var    , var   , string ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'string' because the input texts are both string
@@ -262,4 +271,5 @@ has_type(X,atom)   :- atom(X),!.
 has_type(X,string) :- string(X),!.
 
 error_msg("If the input texts are of differing type (here, atom and string) and the Result is unbound, then ResultType must be bound").
+
 

@@ -20,6 +20,7 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 */
 
 :- use_module(library('onepointfour_basics/stringy_overwrite.pl')).
+:- use_module(library('onepointfour_basics/stringy_length.pl')).
 
 % :- debug(repeatedly_overwrite).
 
@@ -31,102 +32,102 @@ fg_text("(computation is like maxing out your credit card)").
 test("Overwrite with positive position, in the middle of the background text") :-
    bg_text(BgText),
    fg_text(FgText),
-   overwrite(BgText,FgText,10,false,false,Result,string),
+   stringy_overwrite(BgText,FgText,10,false,false,Result,string),
    assertion(Result == "The univer(computation is like maxing out your credit card) answer.").
 
 test("Overwrite with positive position, overshooting at the right") :-
    bg_text(BgText),
    fg_text(FgText),
-   overwrite(BgText,FgText,29,false,false,Result,string),
+   stringy_overwrite(BgText,FgText,29,false,false,Result,string),
    assertion(Result == "The universe can still end in(computation is like maxing out your credit card)").
 
 test("Overwrite with negative position, overshooting at the left") :-
    bg_text(BgText),
    fg_text(FgText),
-   overwrite(BgText,FgText,-9,false,false,Result,string),
+   stringy_overwrite(BgText,FgText,-9,false,false,Result,string),
    assertion(Result == "(computation is like maxing out your credit card)ou're computing the answer.").
 
 test("Overwrite with positive position, overshooting at the right, but cut on both sides") :-
    bg_text(BgText),
    fg_text(FgText),
-   overwrite(BgText,FgText,29,true,true,Result,string),
+   stringy_overwrite(BgText,FgText,29,true,true,Result,string),
    assertion(Result == "The universe can still end in(computation is like maxing out your c").
 
 test("Overwrite with negative position, overshooting at the left, but cut on both sides") :-
    bg_text(BgText),
    fg_text(FgText),
-   overwrite(BgText,FgText,-9,true,true,Result,string),
+   stringy_overwrite(BgText,FgText,-9,true,true,Result,string),
    assertion(Result == "ion is like maxing out your credit card)ou're computing the answer.").
 
 test("Overwrite empty background at position 0, the result is the foreground") :-
    fg_text(FgText),
-   overwrite("",FgText,0,false,false,Result,string),
+   stringy_overwrite("",FgText,0,false,false,Result,string),
    assertion(Result == FgText).
 
 test("Overwrite empty background at position 0, cutting; the result is empty") :-
    fg_text(FgText),
-   overwrite("",FgText,0,true,true,Result,string),
+   stringy_overwrite("",FgText,0,true,true,Result,string),
    assertion(Result == "").
 
 test("Wanted output type: string") :-
-   overwrite("alfabeta","beta",0,true,true,Result,string),
+   stringy_overwrite("alfabeta","beta",0,Result,string),
    assertion(Result == "betabeta").
 
 test("Wanted output type: atom") :-
-   overwrite('alfabeta','beta',0,true,true,Result,atom),
+   stringy_overwrite('alfabeta','beta',0,Result,atom),
    assertion(Result == 'betabeta').
 
 test("Guess the output type: string") :-
-   overwrite("alfabeta","beta",0,true,true,Result,ResultType),
+   stringy_overwrite("alfabeta","beta",0,Result,ResultType),
    assertion(Result == "betabeta"),
    assertion(ResultType == string).
 
 test("Guess the output type: atom") :-
-   overwrite('alfabeta','beta',0,true,true,Result,ResultType),
+   stringy_overwrite('alfabeta','beta',0,Result,ResultType),
    assertion(Result == 'betabeta'),
    assertion(ResultType == atom).
 
 test("Guess the output type: can't",error(check(instantiation,_,_,_))) :-
-   overwrite('alfabeta',"beta",0,true,true,_Result,_ResultType).
+   stringy_overwrite('alfabeta',"beta",0,_Result,_ResultType).
 
 test("Accept result: Correct #1") :-
-   overwrite("alfabeta","beta",0,true,true,"betabeta",_).
+   stringy_overwrite("alfabeta","beta",0,"betabeta",_).
 
 test("Accept result: Correct #2") :-
-   overwrite("alfabeta","beta",0,true,true,"betabeta",string).
+   stringy_overwrite("alfabeta","beta",0,"betabeta",string).
 
 test("Accept result: Correct #3") :-
-   overwrite('alfabeta','beta',0,true,true,"betabeta",string).
+   stringy_overwrite('alfabeta','beta',0,"betabeta",string).
 
 test("Accept result: Correct #4") :-
-   overwrite('alfabeta',"beta",0,true,true,"betabeta",string).
+   stringy_overwrite('alfabeta',"beta",0,"betabeta",string).
 
 test("Accept result: Correct #5") :-
-   overwrite("alfabeta","beta",0,true,true,'betabeta',_).
+   stringy_overwrite("alfabeta","beta",0,'betabeta',_).
 
 test("Accept result: Correct #6") :-
-   overwrite("alfabeta","beta",0,true,true,'betabeta',atom).
+   stringy_overwrite("alfabeta","beta",0,'betabeta',atom).
 
 test("Accept result: Fail, Bad type #1",fail) :-
-   overwrite("alfabeta","beta",0,true,true,'betabeta',string).
+   stringy_overwrite("alfabeta","beta",0,'betabeta',string).
 
 test("Accept result: Fail, Bad type #2",fail) :-
-   overwrite("alfabeta","beta",0,true,true,"betabeta",atom).
+   stringy_overwrite("alfabeta","beta",0,"betabeta",atom).
 
 test("Accept result: Fail, Bad string, free type",fail) :-
-   overwrite("alfabeta","beta",0,true,true,"foo",_).
+   stringy_overwrite("alfabeta","beta",0,"foo",_).
 
 test("Accept result: Fail, Bad string, correct type",fail) :-
-   overwrite("alfabeta","beta",0,true,true,"foo",string).
+   stringy_overwrite("alfabeta","beta",0,"foo",string).
 
 test("Accept result: Fail, Bad string, bad type",fail) :-
-   overwrite("alfabeta","beta",0,true,true,"foo",atom).
+   stringy_overwrite("alfabeta","beta",0,"foo",atom).
 
-test("Accept result: Fail, Bad result type",fail) :-
-   overwrite("alfabeta","beta",0,true,true,122,_). % Should this throw or fail? Make tunable!
+test("Accept result: Fail, Bad result type: an integer",error(check(type,_,_,_),_)) :-
+   stringy_overwrite("alfabeta","beta",0,122,_). 
 
 test("Bad ResultType leads to exception",error(check(domain,_,_,_),_)) :-
-   overwrite("alfabeta","beta",0,true,true,_Result,foo).
+   stringy_overwrite("alfabeta","beta",0,_Result,foo).
 
 :- end_tests(stringy_overwrite_detail_tests).
 
@@ -421,46 +422,46 @@ repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(Goal,T) :-
         [16,"Lorem ipsum     "]]).
 
 test("Char-by-Char 1",[true(T)]) :-
-   repeatedly_overwrite_the_empty_string(overwrite_using_chars,T).
+   repeatedly_overwrite_the_empty_string(stringy_overwrite_using_chars,T).
 
 test("Runs 1",[true(T)]) :-
-   repeatedly_overwrite_the_empty_string(overwrite_using_runs,T).
+   repeatedly_overwrite_the_empty_string(stringy_overwrite_using_runs,T).
 
 test("Char-by-Char 2",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_no_cutting(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_no_cutting(stringy_overwrite_using_chars,T).
 
 test("Runs 2",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_no_cutting(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_no_cutting(stringy_overwrite_using_runs,T).
 
 test("Char-by-Char 3",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_right(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_right(stringy_overwrite_using_chars,T).
 
 test("Runs 3",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_right(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_right(stringy_overwrite_using_runs,T).
 
 test("Char-by-Char 4",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_left(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left(stringy_overwrite_using_chars,T).
 
 test("Runs 4",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_left(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left(stringy_overwrite_using_runs,T).
 
 test("Char-by-Char 5",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(stringy_overwrite_using_chars,T).
 
 test("Runs 5",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_cutting_left_and_right(stringy_overwrite_using_runs,T).
 
 test("Char-by-Char 6",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(stringy_overwrite_using_chars,T).
 
 test("Runs 6",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_with_empty_string_cutting_left_and_right(stringy_overwrite_using_runs,T).
 
 test("Char-by-Char 7",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(overwrite_using_chars,T).
+   repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(stringy_overwrite_using_chars,T).
 
 test("Runs 7",[true(T)]) :-
-   repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(overwrite_using_runs,T).
+   repeatedly_overwrite_lorem_ipsum_with_empty_string_no_cutting(stringy_overwrite_using_runs,T).
 
 :- end_tests(stringy_overwrite_mass_tests).
 

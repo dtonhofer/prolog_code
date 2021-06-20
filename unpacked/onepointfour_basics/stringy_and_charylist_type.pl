@@ -5,8 +5,6 @@
           ,stringy_type/3
           ,stringy_type_with_length/2
           ,stringy_type_with_length/3
-          ,stringy_length/2
-          ,stringy_length/3
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
@@ -227,35 +225,5 @@ stringy_type_with_length(Stringy,Type,Tuned) :-
 stringy_type_with_length_2(Stringy,var)       :- var(Stringy),!.
 stringy_type_with_length_2(Stringy,atom(L))   :- atom(Stringy),!,atom_length(Stringy,L).
 stringy_type_with_length_2(Stringy,string(L)) :- string(Stringy),!,string_length(Stringy,L).
-
-%! stringy_length(+Stringy,?Length)
-%
-% Determine the length of Stringy, which may be an atom or a string.
-%
-% This is not really needed a atom_length/2 and string_length/2 work for
-% both strings and atoms, but it removes the specificity of calling
-% atom_length/2 or string_length/2.
-%
-% Length may be instantiated to a integer. In that case, the
-% predicate verifies the length of Stringy against Length.
-%
-% This predicates behaves _softly_, i.e. preferentially fails on bad input.
-
-stringy_length(Stringy,Length) :-
-   stringy_length(Stringy,Length,soft).
-
-%! stringy_length(+Stringy,?Length,@Tuned)
-%
-% As stringy_length/2, but setting Tuned to either =|true|= or =|throw|=
-% will make the predicate throw on bad input.
-
-stringy_length(Stringy,Length,Tuned) :-
-   check_that(Stringy,[hard(nonvar),hard(stringy)]),
-   check_that(Length,[break(var),hard(integer),tuned(pos0int)],Tuned),
-   stringy_type_with_length(Stringy,Type,Tuned),
-   detag(Type,Length).
-
-detag(atom(Length),Length).
-detag(string(Length),Length).
 
 

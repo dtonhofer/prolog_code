@@ -1438,14 +1438,38 @@ test("member, failure #2",fail) :-
 test("member, X nonground",error(check(instantiation,_,_,_))) :-
    check_that(_,[soft(member([a,b,c]))]).
 
-test("member, argument to member/1 term not a proper list #1",error(check(unknown_or_problematic_check,_,_,_))) :-
-   check_that(a,[soft(member(_))]). % already caught in well-formedness check
+test("member, argument to member/1 term not a proper list #1") :-
+   catch(
+      check_that(a,[soft(member(_))]),
+      ErrorTerm,
+      true),
+   assertion((
+     ErrorTerm = error(check(unknown_or_problematic_check,_,_,_),_)  % if check_that/N syntax checks are on (problem caught early)
+     ;
+     ErrorTerm = error(check(type,_,_,_),_)                          % if check_that/N syntax checks are off (problem caught late)
+   )).
 
-test("member, argument to member/1 term not a proper list #2",error(check(unknown_or_problematic_check,_,_,_))) :-
-   check_that(a,[soft(member(foo))]).  % already caught in well-formedness check
+test("member, argument to member/1 term not a proper list #2") :-
+   catch(
+      check_that(a,[soft(member(foo))]),
+      ErrorTerm,
+      true),
+   assertion((
+     ErrorTerm = error(check(unknown_or_problematic_check,_,_,_),_)  % if check_that/N syntax checks are on (problem caught early)
+     ;
+     ErrorTerm = error(check(type,_,_,_),_)                          % if check_that/N syntax checks are off (problem caught late)
+   )).
 
-test("member, argument to member/1 term not a proper list #3",error(check(unknown_or_problematic_check,_,_,_))) :-
-   check_that(a,[soft(member([a,b,c|_]))]).  % already caught in well-formedness check
+test("member, argument to member/1 term not a proper list #3") :-
+   catch(
+      check_that(a,[soft(member([a,b,c|_]))]), 
+      ErrorTerm,
+      true),
+   assertion((
+     ErrorTerm = error(check(unknown_or_problematic_check,_,_,_),_)  % if check_that/N syntax checks are on (problem caught early)
+     ;
+     ErrorTerm = error(check(type,_,_,_),_)                          % if check_that/N syntax checks are off (problem caught late)
+   )).
 
 :- end_tests(check_that_using_member).
 

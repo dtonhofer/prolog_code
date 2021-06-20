@@ -26,7 +26,7 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 test("'hello' wandering from right to left in a cut 10-char field") :-
    bagof([Offset,Result],
          (between(-6,11,Offset),
-          justify_right(10,Offset,"hello",Result,string)),
+          justify_right(10,"hello",Result,string,_{offset:Offset})),
          Bag),
    assertion(Bag ==
       [[-6 ,"          "],
@@ -51,12 +51,12 @@ test("'hello' wandering from right to left in a cut 10-char field") :-
 test("the empty string wandering from right to left") :-
    forall(
       between(-6,11,Offset),
-      justify_right(10,Offset,"","          ",string)).
+      justify_right(10,"","          ",string,_{offset:Offset})).
 
 test("'hello' wandering from right to left in a non-cut 10-char wide field") :-
    bagof([Offset,Result],
          (between(-6,11,Offset),
-          justify_right(10,Offset,"hello",Result,string,false,false)),
+          justify_right(10,"hello",Result,string,_{offset:Offset,cut_left:false,cut_right:false})),
          Bag),
    assertion(Bag ==
       [[-6,"           hello"],
@@ -81,7 +81,7 @@ test("'hello' wandering from right to left in a non-cut 10-char wide field") :-
 test("a zero-width field containing 'hello' being progressively widened") :-
    bagof([FieldWidth,Result],
          (between(0,10,FieldWidth),
-          justify_right(FieldWidth,0,"hello",Result,string)),
+          justify_right(FieldWidth,"hello",Result,string)),
          Bag),
    assertion(Bag ==
       [[0,""],
@@ -103,7 +103,7 @@ test("a zero-width field containing 'hello' being progressively widened") :-
 test("'hello' wandering from left to right") :-
    bagof([Offset,Result],
          (between(-6,11,Offset),
-          justify_left(10,Offset,"hello",Result,string)),
+          justify_left(10,"hello",Result,string,_{offset:Offset})),
          Bag),
    assertion(Bag ==
       [[-6,"          "],
@@ -128,7 +128,7 @@ test("'hello' wandering from left to right") :-
 test("a zero-width field containing 'hello' being progressively widened") :-
    bagof([FieldWidth,Result],
          (between(0,10,FieldWidth),
-          justify_left(FieldWidth,0,"hello",Result,string)),
+          justify_left(FieldWidth,"hello",Result,string)),
          Bag),
    assertion(Bag ==
       [[0, ""],
@@ -156,7 +156,7 @@ test("center, field of 10 characters, leftly") :-
            between(0,15,Length),
            text(Text),
            sub_string(Text,0,Length,Before,PieceText),
-           justify_center(10,0,0,PieceText,Result,string,true,true,leftly)
+           justify_center(10,PieceText,Result,string,_{prefer:leftly})
         ),
         Bag),
    assertion(Bag ==
@@ -184,7 +184,7 @@ test("center, field of 10 characters, rightly") :-
            between(0,15,Length),
            text(Text),
            sub_string(Text,0,Length,Before,PieceText),
-           justify_center(10,0,0,PieceText,Result,string,true,true,rightly)
+           justify_center(10,PieceText,Result,string,_{prefer:rightly})
         ),
         Bag),
    assertion(Bag ==
@@ -212,7 +212,7 @@ test("center, field of 11 characters, leftly") :-
            between(0,15,Length),
            text(Text),
            sub_string(Text,0,Length,Before,PieceText),
-           justify_center(11,0,0,PieceText,Result,string,true,true,leftly)
+           justify_center(11,PieceText,Result,string,_{prefer:leftly})
         ),
         Bag),
    assertion(Bag ==
@@ -240,7 +240,7 @@ test("center, field of 11 characters, rightly") :-
            between(0,15,Length),
            text(Text),
            sub_string(Text,0,Length,Before,PieceText),
-           justify_center(11,0,0,PieceText,Result,string,true,true,rightly)
+           justify_center(11,PieceText,Result,string,_{prefer:rightly})
         ),
         Bag),
    assertion(Bag ==
@@ -270,7 +270,7 @@ test("center, field of 11 characters, leftly, offset on the left 5") :-
            between(0,15,Length),
            text(Text),
            sub_string(Text,0,Length,Before,PieceText),
-           justify_center(11,5,0,PieceText,Result,string,true,true,leftly)
+           justify_center(11,PieceText,Result,string,_{offset_left:5,prefer:leftly})
        ),
        Bag),
    assertion(Bag ==

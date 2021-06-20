@@ -112,9 +112,19 @@ check_that_named(X,Conditions,Name,Tuned) :-
 
 check_that_1(Conditions,X,Name,Tuned) :-
    % syntax check
-   no_var_in_list_or_throw(Conditions),
-   wellformed_conds_or_throw(Conditions,X),
-   % evaluate the conditions
+   %
+   % ***** TODO: a gloabl variable that says whether this should be called or not ****
+   % ***** (it makes a fat difference in performance, but tells the programmer about errors) ****
+   %
+   WellFormedCheck=true,
+   (
+      (WellFormedCheck==true)
+      ->
+      no_var_in_list_or_throw(Conditions),
+      wellformed_conds_or_throw(Conditions,X)
+      ;
+      true
+   ),
    check_that_2(Conditions,X,Name,Tuned).
 
 no_var_in_list_or_throw(Conditions) :-
@@ -337,20 +347,24 @@ fail_if_not_hard(Tuned) :- format(user_error,"The passed Tuned flag is ~q. Prefe
 % ---
 
 precondition_X_must_be_instantiated(X,Name,Ness,Tuned) :-
-   var(X)
+   assertion((Tuned==hard;Tuned==soft)),
+   (
+   nonvar(X)
    ->
+   true
+   ;
    (
       fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
       select_name(Name,Name2),
       format(string(Msg),"~s must not be uninstantiated. Can't check for '~s-ness'",[Name2,Ness]),
       throw_2(instantiation,Msg,X)
-   )
-   ;
-   true.
+   )).
 
 % special case precondition: the list
 
 precondition_X_must_be_list(X,Name,Ness,Tuned) :-
+   assertion((Tuned==hard;Tuned==soft)),
+   (
    is_proper_list(X)
    ->
    true
@@ -360,11 +374,13 @@ precondition_X_must_be_list(X,Name,Ness,Tuned) :-
       select_name(Name,Name2),
       format(string(Msg),"~s must be a proper list. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
-   ).
+   )).
 
 % special case precondition: the dict
 
 precondition_X_must_be_dict(X,Name,Ness,Tuned) :-
+   assertion((Tuned==hard;Tuned==soft)),
+   (
    is_dict(X)
    ->
    true
@@ -374,11 +390,13 @@ precondition_X_must_be_dict(X,Name,Ness,Tuned) :-
       select_name(Name,Name2),
       format(string(Msg),"~s must be a dict. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
-   ).
+   )).
 
 % special case precondition: atomic (used to assess dict key)
 
 precondition_X_must_be_atomic(X,Name,Ness,Tuned) :-
+   assertion((Tuned==hard;Tuned==soft)),
+   (
    atomic(X)
    ->
    true
@@ -388,26 +406,29 @@ precondition_X_must_be_atomic(X,Name,Ness,Tuned) :-
       select_name(Name,Name2),
       format(string(Msg),"~s must be atomic. Can't check for '~s'-ness.",[Name2,Ness]),
       throw_2(type,Msg,X)
-   ).
-
+   )).
 
 % special case precondition: X must be instantiated enough to positively say whether it is cyclic
 
 precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Tuned) :-
+   assertion((Tuned==hard;Tuned==soft)),
+   (
    var(X),
    !, % commit, then fail or throw
    fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    select_name(Name,Name2),
    format(string(Msg),"~s must not be uninstantiated. Can't say anything about cyclic-ness.",[Name2]),
-   throw_2(instantiation,Msg,X).
+   throw_2(instantiation,Msg,X)).
 precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(X,Name,Tuned) :-
+   assertion((Tuned==hard;Tuned==soft)),
+   (
    \+ground(X),
    acyclic_term(X),
    !, % commit, then fail or throw
    fail_if_not_hard(Tuned), % if this fails, the call fails (which is what we want)
    select_name(Name,Name2),
    format(string(Msg),"~s must not be 'nonground and cyclic'. Can't say anything about cyclic-ness.",[Name2]),
-   throw_2(instantiation,Msg,X).
+   throw_2(instantiation,Msg,X)).
 precondition_X_must_be_instantiated_enough_to_decide_whether_cyclic(_,_,_). % default accepts anything
 
 % ---
@@ -1165,17 +1186,23 @@ eval(passnone(Check),ListOfX,Name,Tuned,TP) :-
 % ---
 
 forall_forall_loop(ListOfChecks,X,Name,Tuned,TP) :-
-  forall(                           % success of ListOfChecks is empty
+   % TODO: There is no need to do this if the well-formedness check
+   % is on, but it must be done either there or here otherwise the forall
+   % call will succeed on non-list (similarly, in forany/fornone)
+   eval(proper_list,ListOfChecks,Name,hard,hard),
+   forall(                           % success of ListOfChecks is empty
       member(Check,ListOfChecks),
       eval(Check,X,Name,Tuned,TP)).
 
 forany_forall_loop(ListOfChecks,X,Name,TP) :-
-   \+forall(                        % failure if ListOfChecks is empty
-      member(Check,ListOfChecks),
-      \+eval(Check,X,Name,soft,TP)).  % disable throwing
+   eval(proper_list,ListOfChecks,Name,hard,hard),
+   \+forall(                         % failure if ListOfChecks is empty
+     member(Check,ListOfChecks),
+     \+eval(Check,X,Name,soft,TP)).  % disable throwing
 
 fornone_forall_loop(ListOfChecks,X,Name,TP) :-
-   (ListOfChecks == [])             % force failure if ListOfChecks is empty
+   eval(proper_list,ListOfChecks,Name,hard,hard),
+   (ListOfChecks == [])              % force failure if ListOfChecks is empty
    ->
    false
    ;
@@ -1184,17 +1211,23 @@ fornone_forall_loop(ListOfChecks,X,Name,TP) :-
       \+eval(Check,X,Name,soft,TP)). % disable throwing
 
 passall_forall_loop(Check,ListOfX,Name,Tuned,TP) :-
-  forall(                           % success if ListOfX is empty
+   % TODO: There is no need to do this if the well-formedness check
+   % is on, but it must be done either there or here otherwise the forall
+   % call will succeed on non-list
+   eval(proper_list,ListOfX,Name,hard,hard),
+   forall(                           % success if ListOfX is empty
       member(X,ListOfX),
       eval(Check,X,Name,Tuned,TP)).
 
 passany_forall_loop(Check,ListOfX,Name,TP) :-
-   \+forall(                        % failure if ListOfX is empty
+   eval(proper_list,ListOfX,Name,hard,hard),
+   \+forall(                         % failure if ListOfX is empty
       member(X,ListOfX),
-      \+eval(Check,X,Name,soft,TP)).  % disable throwing
+      \+eval(Check,X,Name,soft,TP)). % disable throwing
 
 passnone_forall_loop(Check,ListOfX,Name,TP) :-
-   (ListOfX == [])                  % force failure if ListOfX is empty
+   eval(proper_list,ListOfX,Name,hard,hard),
+   (ListOfX == [])                   % force failure if ListOfX is empty
    ->
    false
    ;
