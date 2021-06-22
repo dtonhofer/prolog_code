@@ -246,7 +246,7 @@ deal_with_negative_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,O
 deal_with_pos0_reduced_field_width(ReducedFieldWidth,FieldWidth,OffsetLeft,Text,TextWidth,Result,ResultType,CutLeft,CutRight,Prefer) :-
    odd_even(ReducedFieldWidth,TaggedReducedFieldWidth),
    odd_even(TextWidth,TaggedTextWidth),
-   start_pos(TaggedReducedFieldWidth,TaggedTextWidth,Prefer,StartPos),
+   once(start_pos(TaggedReducedFieldWidth,TaggedTextWidth,Prefer,StartPos)),
    AbsoluteStartPos is OffsetLeft + StartPos,
    space_stringy(FieldWidth,BgText,string),
    stringy_overwrite(BgText,Text,AbsoluteStartPos,CutLeft,CutRight,Result,ResultType).
