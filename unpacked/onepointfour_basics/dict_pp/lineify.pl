@@ -10,10 +10,39 @@
 :- use_module(library('onepointfour_basics/stringy_justify.pl')).
 :- use_module(library('onepointfour_basics/meta_helpers.pl')).
 
+/*  MIT License Follows (https://opensource.org/licenses/MIT)
+
+    Copyright 2021 David Tonhofer <ronerycoder@gluino.name>
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 /** <module> dict prettyprinter helper predicates
 
-Transforming a list of entries generated from a dict, "Entries", 
-into a list of strings (nearly) ready for ouput, "Lines".
+Transforming a list of entries (key-value pairs) generated from a dict, "Entries", 
+into a list of strings (nearly) ready for output and appending them to an open
+difference list. 
+
+The homepage for this module is at
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_dict_pp.md
 
 */
 
@@ -54,8 +83,6 @@ lineify(Entries,SettingsDict,LinesTip,FinalFin) :-
         max_mono_width:MaxMonoWidth,
         settings_dict:SettingsDict},  % use a parameter dict for readability
       LinesTip,FinalFin).
-
-% ----------
 
 % lineify_entries(+Entries,+MaxKeyWidth,+MaxMonoWidth,+SettingsDict,?LinesTip,?FinalFin).
 %
@@ -102,8 +129,6 @@ lineify_entries([KeyString-poly([Poly|MorePoly])|MoreEntries],Params,Lines,Final
       Fin2),
    lineify_entries(MoreEntries,Params,Fin2,FinalFin).
 
-% ----------
-
 % Find the max key width in "Entries" which is a list "KeyString-Lineified"
 
 max_key_width(Entries,Max) :-
@@ -112,8 +137,6 @@ max_key_width(Entries,Max) :-
 foldl_mkw(String-_,FromLeft,ToRight) :-
    string_length(String,Width),
    ToRight is max(FromLeft,Width).
-
-% ----------
 
 % Find the maximum width of any string appearing in a mono(String) value of an entry
 % i.e. the entry looks like "KeyString-mono(String)"
@@ -128,16 +151,12 @@ foldl_mmw(_-mono(String),FromLeft,ToRight) :-
 
 foldl_mmw(_-poly(_),PassThrough,PassThrough). % disregard in case of poly(_)
 
-% ----------
-
 % Construct the first line for a "poly" case
 
 poly_first_line(KeyString,ValueSideString,Params,LineOut) :-
    justify_key(Params.settings_dict,KeyString,Params.max_key_width,K),
    separator(Sep),
    stringy_concat([K,Sep,ValueSideString],LineOut,string).
-
-% ----------
 
 % Justify a "mono" value (which is string)
 
@@ -150,15 +169,11 @@ justify_mono(SettingsDict,StringIn,Width,StringOut) :-
    get_setting(SettingsDict,justify_value,How,left),
    justify_how(How,Width,StringIn,StringOut,string).
 
-% ----------
-
 % Justify a key (which is a string) inside a field of width Width
 
 justify_key(SettingsDict,StringIn,Width,StringOut) :-
    get_setting(SettingsDict,justify_key,How,left),
    justify_how(How,Width,StringIn,StringOut,string).
-
-% ----------
 
 % Construct a filler string for a "poly" case beyond the first line.
 
@@ -166,8 +181,6 @@ filler_string(Width,StringOut) :-
    space_stringy(Width,Spaces,string),  
    empty_separator(Sep),
    stringy_concat([Spaces,Sep],StringOut,string).
-
-% ----------
 
 % The separator separating a key from a value, and the empty separator
 % used if the value consists of several lines. Both should have the same width.
