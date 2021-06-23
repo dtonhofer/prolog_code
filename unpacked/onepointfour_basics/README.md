@@ -110,7 +110,7 @@ Determine the length of a "stringy" term (atom or string). No complex, just subt
 
 Justify text left, right or center in a field of a given width. This is an ingredient of the dict prettyprinter.
 
-[README_stringy_justify.md](doc/README_stringy_overwrite.md)
+[README_stringy_justify.md](doc/README_stringy_justify.md)
 
 ### `stringy_overwrite.pl`
 
