@@ -5,10 +5,8 @@
 - [`stringy_justify.pl`](../stringy_justify.pl) (MIT license)
 - [`stringy_justify.plt`](../stringy_justify.plt) (0BSD license)
 
-Justify strings inside a field of SPACE  (ASCII 0x20) characters.
-
-Those little predicates may be called a lot of times (e.g. when formatting
-tables), so let's not become too slow when running it!
+Justify strings inside a field of given width supposed to contain only SPACE
+(ASCII 0x20) characters.
 
 ## Loading the module and running its tests (in SWI-Prolog)
 
