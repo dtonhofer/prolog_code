@@ -1,73 +1,100 @@
 # `stringy_justify.pl`
 
-- [`stringy_justify.pl`](../stringy_justify.pl)
-- [`stringy_justify.plt`](../stringy_justify.plt)
+- [`stringy_justify.pl`](../stringy_justify.pl) (MIT license)
+- [`stringy_justify.plt`](../stringy_justify.plt) (0BSD license)
 
-Justify strings inside a field of whitespace.
+Justify strings inside a field of SPACE  (ASCII 0x20) characters.
 
 Those little predicates may be called a lot of times (e.g. when formatting
 tables), so let's not become too slow when running it!
-Currently, there are meta-calls in there and checks and everything, so the
-code is not necessarily fast.
 
 ## Loading the module and running its tests (in SWI-Prolog)
 
-Please refer to the [README.md](../README.md) file.
+Please refer to the [README.md](../README.md) file, but in short:
+
+```
+?- assertz(file_search_path(library,'/foo/bar/prolog_code/unpacked')).
+?- use_module(library('onepointfour_basics/stringy_justify.pl')).
+?- load_test_files([]).
+?- run_tests.
+```
 
 ## Synopsis
 
-One always wants to justify `Text` (a stringy, i.e. an atom or string)
-inside a field of `Width` SPACE (0x20) characters, giving `Result`
-(which can also be passed instantiated in case one wants to "accept"
-`Result` instead of computing it).
-
-- The resulting text will be cut off if it overflows the field of
-  `Width` space.
-- The resulting text will always be of `Width` with the SPACE
-  character doing necessary padding.
-- The type of `Result` (string or atom) corresponds to the type
-  of `Text`.
-
 ```
-justify_left(+Text,+Width,-Result)
-justify_right(+Text,+Width,-Result)
-justify_center(+Text,+Width,-Result)
+justify_left(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom)
+justify_right(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom)
+justify_center(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom)
 ```
 
-The same as above, just with the `left`, `right`, `center`
-passed as argument
+One always wants to justify `Text` (a "stringy", i.e. an atom or string)
+inside a field of `Width` SPACE characters, giving `Result`. `Result`
+can also be passed instantiated in case one wants to "accept" `Result`
+instead of generating it. The actual type of the `Result` is given by
+`ResultType`: one of the atoms `atom` or `string`.
+
+The resulting text will always be of `Width` (>= 0) with the SPACE character 
+doing required padding. Text that overflows out of the field of `Width` SPACE
+is cut off by default, but that can be configured.
+
+A variation on the above is:
 
 ```
-justify_how(+How,+Text,+Width,-Result)
+justify_how(+How:atom,+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom)
 ```
 
-The same as above, only you can specify the type of the
-`Result` with `ResultType` (it must be one of the atoms
-`string` or `atom`).
+which allows you to specify how to justifiy via a parameter instead of via the functor name:
+Set `How` to one of `left`, `right`, `center`.
 
-- Additionally, the predicate entry checks can be skipped
-  if `NoCheck` is set to true.
+For finetuning, there are predicates which take an additional `SettingDict` SWI-Prolog dict:
 
 ```
-justify_left(+Text,+Width,-Result,?ResultType,+NoCheck)
-justify_right(+Text,+Width,-Result,?ResultType,+NoCheck)
-justify_center(+Text,+Width,-Result,?ResultType,+NoCheck)
+justify_left(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom,+SettingsDict:dict)
+justify_right(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom,+SettingsDict:dict)
+justify_center(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom,+SettingsDict:dict)
+justify_how(+How:atom,+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom,+SettingsDict:dict)
 ```
 
-The same as above, but an SWI-Prolog dict carries a number of additional flags:
+The following key-value pairs are recognized:
 
-```
-justify(+How,+Text,+Width,-Result,?ResultType,+NoCheck,+Flags:Dict)
-```
+| key                | value                           | default    | explainer |
+| :-                 | :-                              | :-         | :- |
+| `cut_left`         | `true`, `false`                 | `true`     | Cut off overflowing text on the left |
+| `cut_right`        | `true`, `false`                 | `true`     | Cut off overflowing text on the right |
+| `offset`           | integer                         | 0          | Additional padding to be added (or subtracted) on the left in case of "left" justification, and to be added (or subtracted) on the right in case of "right" justification | 
+| `offset_left`      | integer                         | 0          | Additional padding to be added (or subtracted) on the left in case of "center" justification | 
+| `offset_right`     | integer                         | 0          | Additional padding to be added (or subtracted) on the right in case of "center" justification | 
+| `prefer`           | `rightly`, `leftly`             | `leftly`   | In the case of `center` justification, there may be amibuity as to whether to shift the text to the left or to the right by a single character. This setting influences the decision. Esoteric. |
 
-`Flags` may hold the following keys-value pairs
-
-- cut_left  boolean (i.e. `true` or `false)
-- cut_right boolean
-- prefer
-- offset
-- no_trailing
 
 ## Examples
 
+```
+?- justify_how(right,10,"hello",Result,string).
+Result = "     hello".
+```
 
+```
+?- justify_how(left,10,"hello",Result,string).
+Result = "hello     ".
+```
+
+```
+?- justify_how(center,10,"hello",Result,string).
+Result = "  hello   ".
+```
+
+```
+?- justify_how(right,10,"hello",Result,string,_{offset:3}).
+Result = "  hello   ".
+```
+
+```
+?- justify_how(right,15,"hello",Result,string,_{offset:3}).
+Result = "       hello   ".
+```
+
+```
+?- justify_how(right,15,"hello world this is a long text",Result,string,_{offset:3}).
+Result = " a long text   ".
+```
