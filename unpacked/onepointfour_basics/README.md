@@ -8,6 +8,9 @@ one or more plunit modules.
 The module files are relatively "small" and provide specific functionality. We avoid large modules where in-module interrelationships
 are hard to survey.
 
+In this picture, the links from `checks.pl` to the other modules are not shown. The orange modules are the "big collectors" of
+submodules. Modules in the grey boxes (subdirectories) provide service exclusively to their repsective orange "collecting" modules.
+
 ![use_module graph](doc/use_module_graph.png)
 
 ## Loading a module and running its tests (in SWI-Prolog)
@@ -36,6 +39,8 @@ loads module files _by filename_ not by module name, although the module name is
 ?- run_tests.
 ```
 
+The `bin` directory contains a shell script which runs all the test.
+
 ## Module naming
 
 The name of a module is relatively arbitrary. We always use the atom `onepointfour_basis_X` where `X` is the suffix-less name
@@ -54,13 +59,13 @@ of the file in which the module is defined.
 A more powerful replacement for the venerable [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2).
 The predicates provided by `checks.pl` are used throughout other code.
 
-[doc/README_checks.md](README_checks.md)
+[README_checks.md](doc/README_checks.md)
 
 ### `dict_pp.pl`
 
 An SWI-Prolog dict prettyprinter.
 
-[doc/README_dict_pp.md](README_dict_pp.md)
+[README_dict_pp.md](doc/README_dict_pp.md)
 
 ## Minor elements
 
@@ -74,13 +79,13 @@ Provides replacement for the predicates
 [`string_chars/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_chars/2),
 [`string_codes/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=string_codes/2).
 
-[doc/README_stringy_morph.md](README_stringy_morph.md)
+[README_stringy_morph.md](doc/README_stringy_morph.md)
 
 ### `space_stringy.pl`
 
 Create or accept atoms or strings made only of the _SPACE_ character (Unicode code point 0x20).
 
-[doc/README_space_stringy.md](README_space_stringy.md)
+[README_space_stringy.md](doc/README_space_stringy.md)
 
 ### `stringy_and_charylist_type.pl`
 
