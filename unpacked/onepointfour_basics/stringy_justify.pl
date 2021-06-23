@@ -46,7 +46,7 @@
 
 ## Homepage for this code
 
-https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_stringy_justify.md
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/doc/README_stringy_justify.md
 
 */
 
