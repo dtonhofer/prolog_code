@@ -1,3 +1,5 @@
+[Top README](../README.md)
+
 # `dict_pp.pl`
 
 SWI-Prolog dict prettyprinter.
