@@ -5,6 +5,8 @@ A more powerful replacement for the venerable  [`must_be/2`](https://eu.swi-prol
 - [`checks.pl`](checks.pl) (MIT license)
 - [`checks.plt`](checks.plt) (0BSD license)
 
+** This documentation is out of sync with the latest update ** 
+
 ## Synopsis
 
 Check that term `X` fulfills all the conditions in the list `Conditions`.
