@@ -10,6 +10,42 @@
 :- use_module(library('onepointfour_basics/safe_format.pl')).
 :- use_module(library('onepointfour_basics/dict_pp/topmost.pl')). % to perform recursive call to pp_if_shallow_enough
 
+/*  MIT License Follows (https://opensource.org/licenses/MIT)
+
+    Copyright 2021 David Tonhofer <ronerycoder@gluino.name>
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/** <module> dict prettyprinter helper predicates
+
+This module collects a few very simple and very specialized helper predicates
+dealing with strings in the context of dict prettyprinting, which just add noise
+to the main module. So they are here, in a separate module.
+
+The homepage for this module is at
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_dict_pp.md
+
+*/
+
 % ***************************************************
 %  Transforming dict pairs into stringified "entries"
 % ***************************************************
