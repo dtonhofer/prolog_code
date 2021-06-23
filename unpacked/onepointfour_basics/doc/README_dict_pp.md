@@ -52,17 +52,17 @@ Behaves as `dict_pp/3`, followed by immediate printing of the resulting lines.
 ### `dict_pp(+Dict,+SettingsDict,-Result:list(string))`
 
 Prettyprint `Dict` by generating strings that are accumulated into
-the list of SWI-Prolog strings `Resukt`, maybe for later emission to an output 
+the list of SWI-Prolog strings `Result`, for later emission to an output 
 stream. The lines do not have a newline at their end. An empty `Dict` does 
-not lead to failure but to an empty or nonempty list, depending on what can be found
-in `SettingsDict`.
+not lead to failure but to an empty or nonempty list, depending on what can 
+be found in `SettingsDict`.
 
-Instructions on how to format the output can be given by `SettingsDict`. The
+Instructions on how to format the output are given via `SettingsDict`. The
 tag of that dict is arbitrary.  Giving an empty dict here means that default
 settings are used in all cases.
 
 The following settings are understood. Anything not recognized is disregarded.
-If a setting is missing when it is needed, a default value is used instead.
+If a setting is missing when it is needed, the indicated default value is used.
 
 | key                | value                           | default    | explainer |
 | :-                 | :-                              | :-         | :- |
