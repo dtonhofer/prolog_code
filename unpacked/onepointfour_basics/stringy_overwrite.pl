@@ -82,14 +82,14 @@ stringy_overwrite(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
 % overwrite_using_runs/7.
 
 stringy_overwrite_entry(BgText,FgText,FgPos,CutLeft,CutRight,Result,ResultType) :-
-   check_that(BgText     , [hard(stringy)]),
-   check_that(FgText     , [hard(stringy)]),
-   check_that(FgPos      , [hard(integer)]),
-   check_that(CutLeft    , [hard(boolean)]),
-   check_that(CutRight   , [hard(boolean)]),
-   check_that(Result     , [break(var),hard(stringy)]),        % throw if ResultType instantiated but bad type
-   check_that(ResultType , [break(var),hard(stringy_typeid)]), % throw if ResultType instantiated but not 'atom' or 'string'
-   complete_result_type(BgText,FgText,Result,ResultType),      % succeeds with ResultType instantiated, or throws on missing info, or fails
+   check_that(BgText     , hard(stringy)),
+   check_that(FgText     , hard(stringy)),
+   check_that(FgPos      , hard(integer)),
+   check_that(CutLeft    , hard(boolean)),
+   check_that(CutRight   , hard(boolean)),
+   check_that(Result     , break(var),hard(stringy)),         % throw if ResultType instantiated but bad type
+   check_that(ResultType , break(var),hard(stringy_typeid)),  % throw if ResultType instantiated but not 'atom' or 'string'
+   complete_result_type(BgText,FgText,Result,ResultType),     % succeeds with ResultType instantiated, or throws on missing info, or fails
    assertion(nonvar(ResultType)).
 
 %! overwrite_using_chars(+BgText,+FgText,+FgPos,+CutLeft,+CutRight,?Result,+ResultType)
@@ -176,7 +176,7 @@ filler_between_end_of_fg_and_position0(FgEnd,CutLeft,Rprev,Rnew,ResultType) :-
    (Rnew=Rprev) % do nothing
    ;
    (Len is -FgEnd,
-    space_stringy(Len,Run,ResultType,throw),
+    space_stringy(Len,Run,ResultType,hard),
     stringy_concat([Rprev,Run],Rnew,ResultType)). % gives sth corresponding to "ResultType"
 
 bg_visible_between_position0_and_start_of_fg(FgPos,BgLen,Bg,Rprev,Rnew,ResultType) :-
@@ -216,7 +216,7 @@ filler_between_end_of_bg_and_start_of_fg(FgPos,BgLen,CutRight,Rprev,Rnew,ResultT
    (Rnew=Rprev) % do nothing
    ;
    (Len is FgPos-BgLen,
-    space_stringy(Len,Run,ResultType,throw),
+    space_stringy(Len,Run,ResultType,hard),
     stringy_concat([Rprev,Run],Rnew,ResultType)).  % gives sth corresponding to "ResultType"
 
 fg_completely_or_partially_on_the_right(FgText,FgPos,FgLen,FgEnd,BgLen,CutRight,Rprev,Rnew,ResultType) :-
@@ -248,14 +248,14 @@ complete_result_type(BgText,FgText,Result,PassedResultType) :-
    assertion(member(PassedResultTypeType,[var,atom])),  % has already been check_that-ed (also, if atom, it is one of 'atom', 'string')
    complete_result_type_2(BgTextType,FgTextType,ResultType,PassedResultTypeType,PassedResultType), % this throws, or fails or succeeds, with PassedResultType instantiated
    !,                                                       % complete_result_type_2 generates choicepoint we don't want!
-   check_that(PassedResultType , [hard(stringy_typeid)]).   % PassedResultType must be instantiated now!
+   check_that(PassedResultType , hard(stringy_typeid)).   % PassedResultType must be instantiated now!
 
 %                             FgTextType     PassedResultTypeType
 %                  BgTextType     |   ResultType   |
 %                      |          |       |        |  PassedResultType (maybe var on call, as indicated by the preceding arg)
 %                      |          |       |        |        |
-complete_result_type_2(atom   , string , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw (TODO: Msg is actually the argument name, needs design change)
-complete_result_type_2(string , atom   , var    , var   , _      ) :- error_msg(Msg),check_that_named(_,hard(nonvar),Msg). % unconditionally throw
+complete_result_type_2(atom   , string , var    , var   , _      ) :- error_msg(Msg),check_that(_,hard(nonvar),_{msg:Msg}). % unconditionally throw
+complete_result_type_2(string , atom   , var    , var   , _      ) :- error_msg(Msg),check_that(_,hard(nonvar),_{msg:Msg}). % unconditionally throw
 complete_result_type_2(atom   , atom   , var    , var   , atom   ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'atom' because the input texts are both atom
 complete_result_type_2(string , string , var    , var   , string ).         % Guess: We want PassedResultType (unbound on call) to be the atom 'string' because the input texts are both string
 complete_result_type_2( _     , _      , string , var   , string ).         % Set: We definitely want PassedResultType (unbound on call) to be the atom 'string' because the provided Result is a string

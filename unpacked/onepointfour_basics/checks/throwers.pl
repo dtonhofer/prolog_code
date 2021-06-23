@@ -43,14 +43,9 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 */
 
 % Checking the "Tuned" flag for being set to 'hard' or 'soft'
-% Never code should exclusively use the atoms but originally, more was allowed,
-% including var, so this is messy. TODO: This should be simplified.
 
-fail_unless_hard(Tuned) :- Tuned==hard,!.
-fail_unless_hard(Tuned) :- Tuned==true,!,format(user_error,"The passed Tuned flag is ~q. Preferring 'hard'~q",[Tuned]).
-fail_unless_hard(Tuned) :- Tuned==throw,!,format(user_error,"The passed Tuned flag is ~q. Preferring 'hard'~n",[Tuned]).
-fail_unless_hard(Tuned) :- Tuned==soft,!,fail.
-fail_unless_hard(Tuned) :- format(user_error,"The passed Tuned flag is ~q. Preferring 'soft'~n",[Tuned]),fail.
+fail_unless_hard(soft) :- !,fail.
+fail_unless_hard(hard).
 
 % Predicates which check whether the Tuned flag is set to 'hard', and if so,
 % construct an exception throw and then throw. If the Tuned flag is set to
@@ -85,29 +80,33 @@ throw_or_fail(ErrorTerm,Culprit,Tuned,Info,Dict) :-
 % "Lowermost" throwing predicate constructing the exception term itself.
 % All the throws are here for easy modification
 
-throw_2(domain(Expected),Msg,Culprit) :- throw(error(check(domain           , Expected  , Msg , Culprit)  , _)).
-throw_2(type(Expected),Msg,Culprit)   :- throw(error(check(type             , Expected  , Msg , Culprit)  , _)).
-throw_2(domain,Msg,Culprit)           :- throw(error(check(domain           , _Expected , Msg , Culprit)  , _)).
-throw_2(type,Msg,Culprit)             :- throw(error(check(type             , _Expected , Msg , Culprit)  , _)).
-throw_2(uninstantiation,Msg,Culprit)  :- throw(error(check(uninstantiation  , _Expected , Msg , Culprit)  , _)). % ISO's "uninstantiation error"
-throw_2(instantiation,Msg,Culprit)    :- throw(error(check(instantiation    , _Expected , Msg , Culprit)  , _)). % ISO's "instantiation error"
-throw_2(random,Msg,_)                 :- throw(error(check(random           , _Expected , Msg , _Culprit) , _)).
-throw_2(explicit_fail,Msg,Culprit)    :- throw(error(check(explicit_fail    , _Expected , Msg , Culprit)  , _)).
-throw_2(call,Msg,Culprit)             :- throw(error(check(call             , _Expected , Msg , Culprit)  , _)).
-throw_2(hard_check_fails,Msg,Culprit) :- throw(error(check(hard_check_fails , _Expected , Msg , Culprit)  , _)).
+throw_2(domain(Expected),Msg,Culprit)  :- throw(error(check(domain            , Expected  , Msg , Culprit)  , _)).
+throw_2(type(Expected),Msg,Culprit)    :- throw(error(check(type              , Expected  , Msg , Culprit)  , _)).
+throw_2(domain,Msg,Culprit)            :- throw(error(check(domain            , _Expected , Msg , Culprit)  , _)).
+throw_2(type,Msg,Culprit)              :- throw(error(check(type              , _Expected , Msg , Culprit)  , _)).
+throw_2(uninstantiation,Msg,Culprit)   :- throw(error(check(uninstantiation   , _Expected , Msg , Culprit)  , _)). % ISO's "uninstantiation error"
+throw_2(instantiation,Msg,Culprit)     :- throw(error(check(instantiation     , _Expected , Msg , Culprit)  , _)). % ISO's "instantiation error"
+throw_2(random,Msg,_)                  :- throw(error(check(random            , _Expected , Msg , _Culprit) , _)).
+throw_2(explicit_fail,Msg,Culprit)     :- throw(error(check(explicit_fail     , _Expected , Msg , Culprit)  , _)).
+throw_2(call,Msg,Culprit)              :- throw(error(check(call              , _Expected , Msg , Culprit)  , _)).
+throw_2(hard_check_fails,Msg,Culprit)  :- throw(error(check(hard_check_fails  , _Expected , Msg , Culprit)  , _)).
+throw_2(syntax,Msg,Culprit)            :- throw(error(check(syntax            , _Expected , Msg , Culprit)  , _)).
+throw_2(unknown_condition,Msg,Culprit) :- throw(error(check(unknown_condition , _Expected , Msg , Culprit)  , _)).
 
 % I'm not sure about whether these are a good idea:
 
-throw_2(passall,Msg,Culprit)          :- throw(error(check(passall          , _Expected , Msg , Culprit) , _)).
-throw_2(passany,Msg,Culprit)          :- throw(error(check(passany          , _Expected , Msg , Culprit) , _)).
-throw_2(passnone,Msg,Culprit)         :- throw(error(check(passnone         , _Expected , Msg , Culprit) , _)).
-throw_2(forall,Msg,Culprit)           :- throw(error(check(forall           , _Expected , Msg , Culprit) , _)).
-throw_2(forany,Msg,Culprit)           :- throw(error(check(forany           , _Expected , Msg , Culprit) , _)).
-throw_2(fornone,Msg,Culprit)          :- throw(error(check(fornone          , _Expected , Msg , Culprit) , _)).
+throw_2(passall,Msg,Culprit)           :- throw(error(check(passall          , _Expected , Msg , Culprit) , _)).
+throw_2(passany,Msg,Culprit)           :- throw(error(check(passany          , _Expected , Msg , Culprit) , _)).
+throw_2(passnone,Msg,Culprit)          :- throw(error(check(passnone         , _Expected , Msg , Culprit) , _)).
+throw_2(forall,Msg,Culprit)            :- throw(error(check(forall           , _Expected , Msg , Culprit) , _)).
+throw_2(forany,Msg,Culprit)            :- throw(error(check(forany           , _Expected , Msg , Culprit) , _)).
+throw_2(fornone,Msg,Culprit)           :- throw(error(check(fornone          , _Expected , Msg , Culprit) , _)).
 
 % Having this at the end of throw_2/3 saves the day when debugging
 
-throw_2(_,_,_)                        :- throw("Bug! You forgot a throw_2/3 clause in the source!").
+throw_2(T,M,C) :- 
+   format(string(Msg),"Bug! You forgot a throw_2/3 clause in the source for term '~q', message '~q', culprit '~q'",[T,M,C]),
+   throw(Msg).
 
 % Map the name of the variable to something sensible
 

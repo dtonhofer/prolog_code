@@ -14,6 +14,7 @@
 :- use_module(library('onepointfour_basics/dict_settings.pl')).
 :- use_module(library('onepointfour_basics/checks/print_error_message.pl')).
 :- use_module(library('onepointfour_basics/checks/throwers.pl')).
+:- use_module(library('onepointfour_basics/checks/wellformed.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
 
@@ -69,52 +70,133 @@ https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/
 % to unconditionally accept var et.c
 
 % 2 arguments
+% old school: conditions in a list
 
-check_that(X,[])                          :- !, default_tuned(Tuned), check_that_1(X,[],Tuned,_{}). % actually, this always succeeds
-check_that(X,[C|Cs])                      :- is_list([C|Cs]), !, default_tuned(Tuned), check_that_1(X,[C|Cs],Tuned,_{}). 
-check_that(X,C1)                          :- !, default_tuned(Tuned), check_that_1(X,[C1],Tuned,_{}).
+check_that(X,[]) :- 
+   !,
+   check_that_1(X,[],_,_{}).
+check_that(X,[C|Cs]) :- 
+   !,
+   check_that_1(X,[C|Cs],_,_{}). 
+
+% 2 arguments
+% new school: conditions not in a list
+
+check_that(X,C1) :-
+   !,
+   check_that_1(X,[C1],_,_{}).
 
 % 3 arguments
+% old school: conditions in a list
 
-check_that(X,[],Tuned)                    :- soft_hard(Tuned), !, check_that_1(X,[],Tuned,_{}).
-check_that(X,[C|Cs],Tuned)                :- is_list([C|Cs]), soft_hard(Tuned), !, check_that_1(X,[C|Cs],Tuned,_{}).
-check_that(X,[],SettingsDict)             :- is_dict(SettingsDict), !,  get_tuned(SettingsDict,Tuned), check_that_1(X,[],Tuned,SettingsDict). 
-check_that(X,[C|Cs],SettingsDict)         :- is_dict(SettingsDict), is_list([C|Cs]), !, get_tuned(SettingsDict,Tuned), check_that_1(X,[C|Cs],Tuned,SettingsDict).
-check_that(X,C1,C2)                       :- not_soft_hard(C2), \+ is_dict(C2), !, check_that_1(X,[C1,C2],soft,_{}).
-check_that(X,C1,Tuned)                    :- soft_hard(Tuned), !, check_that_1(X,[C1],Tuned,_{}).
-check_that(X,C1,SettingsDict)             :- is_dict(SettingsDict), !, get_tuned(SettingsDict,Tuned), check_that_1(X,[C1],Tuned,SettingsDict).
-check_that(A1,A2,A3)                      :- throw_2(call,"no matching check_that/3",check_that(A1,A2,A3)).
+check_that(X,[],Tuned) :-
+   \+ is_dict(Tuned),
+   !,
+   check_that_1(X,[],Tuned,_{}).
+check_that(X,[C|Cs],Tuned) :-
+   \+ is_dict(Tuned),
+   !,
+   check_that_1(X,[C|Cs],Tuned,_{}).
+check_that(X,[],SettingsDict) :-
+   is_dict(SettingsDict),
+   !, 
+   check_that_1(X,[],_,SettingsDict). 
+check_that(X,[C|Cs],SettingsDict) :-
+   is_dict(SettingsDict),
+   !,
+   check_that_1(X,[C|Cs],_,SettingsDict).
 
-% 4 arguments
+% 3 arguments, conditions not in a list (ambiguous)
 
-check_that(X,C1,C2,C3)                    :- not_soft_hard(C3), \+ is_dict(C3), !, check_that_1(X,[C1,C2,C3],soft,_{}).
-check_that(X,C1,C2,Tuned)                 :- soft_hard(Tuned), !, check_that_1(X,[C1,C2],Tuned,_{}).
-check_that(X,C1,C2,SettingsDict)          :- is_dict(SettingsDict), !, get_tuned(SettingsDict,Tuned), check_that_1(X,[C1,C2],Tuned,SettingsDict).
-check_that(A1,A2,A3,A4)                   :- throw_2(call,"no matching check_that/4",check_that(A1,A2,A3,A4)).
+check_that(X,C1,C2) :-
+   not_soft_hard(C2),
+   \+ is_dict(C2),
+   !,
+   check_that_1(X,[C1,C2],_,_{}).
+check_that(X,C1,Tuned) :-
+   soft_hard(Tuned),
+   !,
+   check_that_1(X,[C1],Tuned,_{}).
+check_that(X,C1,SettingsDict) :-
+   is_dict(SettingsDict),
+   !,
+   check_that_1(X,[C1],_,SettingsDict).
+check_that(A1,A2,A3) :-
+   throw_2(unmatched_call,"no matching check_that/3",check_that(A1,A2,A3)).
 
-% 5 arguments
+% 4 arguments, conditions not in a list (ambiguous)
 
-check_that(X,C1,C2,C3,C4)                 :- not_soft_hard(C4), \+ is_dict(C4), !, check_that_1(X,[C1,C2,C3,C4],soft,_{}).
-check_that(X,C1,C2,C3,Tuned)              :- soft_hard(Tuned), !, check_that_1(X,[C1,C2,C3],Tuned,_{}).
-check_that(X,C1,C2,C3,SettingsDict)       :- is_dict(SettingsDict), !, get_tuned(SettingsDict,Tuned), check_that_1(X,[C1,C2,C3],Tuned,SettingsDict).
-check_that(A1,A2,A3,A4,A5)                :- throw_2(call,"no matching check_that/5",check_that(A1,A2,A3,A4,A5)).
+check_that(X,C1,C2,C3) :-
+   not_soft_hard(C3),
+   \+ is_dict(C3),
+   !,
+   check_that_1(X,[C1,C2,C3],_,_{}).
+check_that(X,C1,C2,Tuned) :-
+   soft_hard(Tuned),
+   !,
+   check_that_1(X,[C1,C2],Tuned,_{}).
+check_that(X,C1,C2,SettingsDict) :-
+   is_dict(SettingsDict),
+   !,
+   check_that_1(X,[C1,C2],_,SettingsDict).
+check_that(A1,A2,A3,A4) :-
+   throw_2(unmatched_call,"no matching check_that/4",check_that(A1,A2,A3,A4)).
 
-% 6 arguments
+% 5 arguments, conditions not in a list (ambiguous)
 
-check_that(X,C1,C2,C3,C4,C5)              :- not_soft_hard(C5), \+ is_dict(C5), !, check_that_1(X,[C1,C2,C3,C4,C5],soft,_{}).
-check_that(X,C1,C2,C3,C4,Tuned)           :- soft_hard(Tuned), !, check_that_1(X,[C1,C2,C3,C4],Tuned,_{}).
-check_that(X,C1,C2,C3,C4,SettingsDict)    :- is_dict(SettingsDict), !, get_tuned(SettingsDict,Tuned), check_that_1(X,[C1,C2,C3,C4],Tuned,SettingsDict).
-check_that(A1,A2,A3,A4,A5,A6)             :- throw_2(call,"no matching check_that/6",check_that(A1,A2,A3,A4,A5,A6)).
+check_that(X,C1,C2,C3,C4) :-
+   not_soft_hard(C4),
+   \+ is_dict(C4),
+   !,
+   check_that_1(X,[C1,C2,C3,C4],_,_{}).
+check_that(X,C1,C2,C3,Tuned) :-
+   soft_hard(Tuned),
+   !,
+   check_that_1(X,[C1,C2,C3],Tuned,_{}).
+check_that(X,C1,C2,C3,SettingsDict) :-
+   is_dict(SettingsDict),
+   !,
+   check_that_1(X,[C1,C2,C3],_,SettingsDict).
+check_that(A1,A2,A3,A4,A5) :-
+   throw_2(unmatched_call,"no matching check_that/5",check_that(A1,A2,A3,A4,A5)).
 
-% 7 arguments
+% 6 arguments, conditions not in a list (ambiguous)
 
-check_that(X,C1,C2,C3,C4,C5,Tuned)        :- soft_hard(Tuned), !, check_that_1(X,[C1,C2,C3,C4,C5],Tuned,_{}).
-check_that(X,C1,C2,C3,C4,C5,SettingsDict) :- is_dict(SettingsDict), !, get_tuned(SettingsDict,Tuned), check_that_1(X,[C1,C2,C3,C4,C5],Tuned,SettingsDict).
-check_that(A1,A2,A3,A4,A5,A6,A7)          :- throw_2(call,"no matching check_that/7",check_that(A1,A2,A3,A4,A5,A6,A7)).
+check_that(X,C1,C2,C3,C4,C5) :-
+   not_soft_hard(C5),
+   \+ is_dict(C5),
+   !,
+   check_that_1(X,[C1,C2,C3,C4,C5],_,_{}).
+check_that(X,C1,C2,C3,C4,Tuned) :-
+   soft_hard(Tuned),
+   !,
+   check_that_1(X,[C1,C2,C3,C4],Tuned,_{}).
+check_that(X,C1,C2,C3,C4,SettingsDict) :-
+   is_dict(SettingsDict),
+   !,
+   check_that_1(X,[C1,C2,C3,C4],_,SettingsDict).
+check_that(A1,A2,A3,A4,A5,A6) :-
+   throw_2(unmatched_call,"no matching check_that/6",check_that(A1,A2,A3,A4,A5,A6)).
+
+% 7 arguments, conditions not in a list (ambiguous)
+
+check_that(X,C1,C2,C3,C4,C5,C6) :-
+   not_soft_hard(C6),
+   \+ is_dict(C6),
+   !,
+   check_that_1(X,[C1,C2,C3,C4,C5,C6],_,_{}).
+check_that(X,C1,C2,C3,C4,C5,Tuned) :-
+   soft_hard(Tuned),
+   !,
+   check_that_1(X,[C1,C2,C3,C4,C5],Tuned,_{}).
+check_that(X,C1,C2,C3,C4,C5,SettingsDict) :-
+   is_dict(SettingsDict),
+   !,
+   check_that_1(X,[C1,C2,C3,C4,C5],_,SettingsDict).
+check_that(A1,A2,A3,A4,A5,A6,A7) :-
+   throw_2(unmatched_call,"no matching check_that/7",check_that(A1,A2,A3,A4,A5,A6,A7)).
 
 % helpers for the above
-
-default_tuned(hard).
 
 get_tuned(SettingsDict,Tuned) :-
    default_tuned(DefaultTuned),
@@ -145,23 +227,52 @@ soft_hard(P)     :- P == soft; P == hard.
 % Prolog needs something to handle that more elegantly.
 % ---
 
+default_tuned(hard).
+wellformed_check.
+
 check_that_1(X,Conditions,Tuned,SettingsDict) :-
-   % syntax check
    %
    % ***** TODO: a global variable that says whether this should be called or not ****
    % ***** (it makes a *fat* difference in performance, but tells the programmer about errors) ****
    %
-   WellFormedCheck=true,
    (
-      (WellFormedCheck==true)
+      wellformed_check
       ->
       no_var_in_list_or_throw(Conditions),
       wellformed_conds_or_throw(Conditions,X)
       ;
       true
    ),
-   check_that_2(Conditions,X,Tuned,SettingsDict).
+   tag_var(Tuned,TaggedTunedFromArg),
+   tag_tuned_from_dict(SettingsDict,TaggedTunedFromDict),
+   determine_tuned(TaggedTunedFromArg,TaggedTunedFromDict,Tuned2),
+   !,
+   check_that_2(Conditions,X,Tuned2,SettingsDict).
 
+determine_tuned(var(_FromArg) , var(_FromDict) , Default) :- 
+   default_tuned(Default).
+determine_tuned(var(_FromArg) , nonvar(hard)   , hard).
+determine_tuned(var(_FromArg) , nonvar(soft)   , soft).
+determine_tuned(var(_FromArg) , nonvar(X)      , Default) :- 
+   default_tuned(Default),
+   format(user_error,"Unknown 'tuned' value from settings dict: ~q. Choosing default: ~q.~n",[X,Default]).
+determine_tuned(nonvar(hard)  , _              , hard).
+determine_tuned(nonvar(soft)  , _              , soft).
+determine_tuned(nonvar(X)     , _              , Default) :- 
+   default_tuned(Default),
+   format(user_error,"Unknown 'tuned' value from argument: ~q. Choosing default: ~q.~n",[X,Default]).
+
+tag_var(X,var(X)) :- var(X),!.
+tag_var(X,nonvar(X)).
+
+tag_tuned_from_dict(SettingsDict,Tagged) :-
+   assertion(is_dict(SettingsDict)),
+   (get_dict(tuned,SettingsDict,InDict) 
+    -> 
+    tag_var(InDict,Tagged)
+    ;
+    Tagged=var(_)).
+   
 no_var_in_list_or_throw(Conditions) :-
    no_var_in_list(Conditions)
    ->
@@ -173,148 +284,6 @@ no_var_in_list([C|More]) :-
    nonvar(C),
    no_var_in_list(More).
 no_var_in_list([]).
-
-wellformed_conds_or_throw(Conditions,X) :-
-   wellformed_conds(Conditions,X) % may also throw
-   ->
-   true
-   ;
-   throw_2(syntax,"conditions do not pass syntax check",Conditions).
-
-% ---
-% wellformed_conds(Conditions,X)
-%
-% Verify the conds of Conditions for syntactic correctness. This is done
-% outside of actual check-evaluation eval/4, to have clean code and to be able to
-% disable the verification for well-formedness by (currently) commenting out
-% the call to wellformed/2.
-% ---
-
-wellformed_conds([Condition|More],X) :-
-   exists_cond_or_throw(Condition),
-   wellformed_cond_or_throw(Condition,X),
-   wellformed_conds(More,X).
-wellformed_conds([],_).
-
-exists_cond_or_throw(Condition) :-
-   exists_cond(Condition)
-   ->
-   true
-   ;
-   throw_2(unknown_condition,"unknown condition found during syntax check",Condition).
-
-exists_cond(break(_Check)).
-exists_cond(smooth(_Check)).
-exists_cond(soft(_Check)).
-exists_cond(tuned(_Check)).
-exists_cond(hard(_Check)).
-
-wellformed_cond_or_throw(Condition,X) :-
-   atom(Condition)
-   ->
-   true
-   ;
-   (Condition =.. [_,Check], wellformed_check_or_throw(Check,X)).
-
-wellformed_check_or_throw(Check,X) :-
-   wellformed_check_2(Check,X)
-   ->
-   true
-   ;
-   throw_2(unknown_or_problematic_check,"unknown or problematic check found during syntax check",Check).
-
-wellformed_check_2(Check,_)                 :- atom(Check),!,atomoform_checks(AFCs),memberchk(Check,AFCs).
-
-% We allow either a single (possibly empty) list as argument to member/1 
-% or >= 1 arguments that are packed into a list. The latter makes it
-% unnecessary to add brackets, which increases legibility. But then
-% we can't check anything about the arguments of member.
-
-wellformed_check_2(member(_)            ,_).  % argument  can be anything, maybe even a list
-wellformed_check_2(member(_,_)          ,_).  % arguments can be anything
-wellformed_check_2(member(_,_,_)        ,_).  % arguments can be anything
-wellformed_check_2(member(_,_,_,_)      ,_).  % arguments can be anything
-wellformed_check_2(member(_,_,_,_,_)    ,_).  % arguments can be anything
-wellformed_check_2(member(_,_,_,_,_,_)  ,_).  % arguments can be anything
-wellformed_check_2(member(_,_,_,_,_,_,_),_).  % arguments can be anything
-
-wellformed_check_2(dict_has_key(_),_).      % just test the form, leave the testing of Key and Dict type to the actual check
-wellformed_check_2(type(ListOfTypes),_)     :- is_proper_list(ListOfTypes),atomoform_checks(AFCs),maplist({AFCs}/[T]>>memberchk(T,AFCs),ListOfTypes).
-wellformed_check_2(random(Probability),_)   :- number(Probability),0=<Probability,Probability=<1.
-wellformed_check_2(unifies(_),_).
-wellformed_check_2(forall(ListOfChecks),X)  :- wellformed_list_of_checks(ListOfChecks,X).
-wellformed_check_2(forany(ListOfChecks),X)  :- wellformed_list_of_checks(ListOfChecks,X).
-wellformed_check_2(fornone(ListOfChecks),X) :- wellformed_list_of_checks(ListOfChecks,X).
-wellformed_check_2(passall(Check),ListOfX)  :- wellformed_check_over_list(Check,ListOfX).
-wellformed_check_2(passany(Check),ListOfX)  :- wellformed_check_over_list(Check,ListOfX).
-wellformed_check_2(passnone(Check),ListOfX) :- wellformed_check_over_list(Check,ListOfX).
-
-wellformed_list_of_checks(ListOfChecks,X) :-
-   is_proper_list(ListOfChecks),
-   forall(
-      member(Check,ListOfChecks),
-      wellformed_check_or_throw(Check,X)). % ** recursive **
-
-wellformed_check_over_list(Check,ListOfX) :-
-   is_proper_list_or_throw(Check,ListOfX),
-   forall(
-      member(M,ListOfX),
-      wellformed_check_or_throw(Check,M)). % ** recursive **
-
-is_proper_list_or_throw(Check,ListOfX) :-
-   is_proper_list(ListOfX)
-   ->
-   true
-   ;
-   throw_2(type,"check needs a list as argument",[check(Check),arg(ListOfX)]).
-
-% ---
-% All the atoms for "elementary checks", i.e. those that
-% are not a compound term, are listed here.
-% ---
-
-atomoform_checks(
-   [
-   var,nonvar,
-   nonground,ground,
-   atom,symbol,
-   atomic,constant,
-   compound,
-   boolean,
-   pair,
-   string,stringy,
-   char,code,chary,
-   char_list,chars,
-   code_list,codes,
-   chary_list,charys,
-   nonempty_stringy,
-   stringy_typeid,
-   chary_typeid,
-   number,float,integer,int,rational,nonint_rational,proper_rational,
-   negnum,negnumber,
-   posnum,posnumber,
-   neg0num,neg0number,
-   pos0num,pos0number,
-   non0num,non0number,
-   float_not_nan,
-   float_not_inf,
-   float_not_neginf,
-   float_not_posinf,
-   negint,negative_integer,
-   posint,positive_integer,
-   neg0int,pos0int,nonneg,
-   negfloat,posfloat,
-   neg0float,pos0float,
-   inty,
-   neginty,posinty,
-   neg0inty,pos0inty,
-   list,proper_list,
-   nonempty_list,
-   dict,
-   cyclic,cyclic_now,acyclic_now,acyclic_forever,
-   stream
-   ]
-).
 
 % ---
 % check_that_2(Conditions,TermToCheck,Tuned,SettingsDict)
@@ -333,6 +302,7 @@ atomoform_checks(
 % ---
 
 check_that_2([Condition|More],X,Tuned,Dict) :-
+   assertion(member(Tuned,[hard,soft])),
    exists_cond_or_throw(Condition), % always succeeds if the syntax check was passed
    check_that_3(Condition,X,Tuned,Outcome,Dict), % needs no internal cut
    !, % no need to go back on success

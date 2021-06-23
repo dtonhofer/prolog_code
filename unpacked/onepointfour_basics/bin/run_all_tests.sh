@@ -26,7 +26,8 @@ for plfile in \
    stringy_length.pl \
    stringy_morph.pl \
    stringy_overwrite.pl \
-   dict_pp/string_stuff.pl
+   dict_pp/string_stuff.pl \
+   dict_pp.pl 
 do
    module_file="onepointfour_basics/$plfile"
    test_file="onepointfour_basics/${plfile}t"

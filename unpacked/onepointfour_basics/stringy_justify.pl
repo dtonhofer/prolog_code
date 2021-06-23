@@ -298,7 +298,7 @@ complete_result_type(Text,Result,PassedResultType) :-
    assertion(member(PassedResultTypeType,[var,atom])),  % has already been check_that-ed (also, if atom, it is one of 'atom', 'string')
    complete_result_type_2(TextType,ResultType,PassedResultTypeType,PassedResultType), % this throws, or fails or succeeds, with PassedResultType instantiated
    !,                                                   % complete_result_type_2 generates choicepoint we don't want!
-   check_that(PassedResultType,[hard(stringy_typeid)]). % PassedResultType must be instantiated now!
+   assertion(check_that(PassedResultType,hard(stringy_typeid))).   % PassedResultType must be instantiated now!
 
 %                            ResultType
 %                    TextType    |  PassedResultTypeType
@@ -319,36 +319,36 @@ has_type(X,atom)   :- atom(X),!.
 has_type(X,string) :- string(X).
 
 common_entry_checks(FieldWidth,Text,Result,ResultType) :-
-   assertion(check_that_named(FieldWidth,[hard(integer),hard(pos0int)],"FieldWidth")),
-   assertion(check_that_named(Text,[hard(stringy)],"Text")),
-   assertion(check_that_named(Result,[break(var),hard(stringy)],"Result")),
-   assertion(check_that_named(ResultType,[break(var),hard(stringy_typeid)],"ResultType")).
+   assertion(check_that(FieldWidth, hard(integer), hard(pos0int),     _{name:"FieldWidth"})),
+   assertion(check_that(Text,       hard(stringy),                    _{name:"Text"})),
+   assertion(check_that(Result,     break(var), hard(stringy),        _{name:"Result"})),
+   assertion(check_that(ResultType, break(var), hard(stringy_typeid), _{name:"ResultType"})).
 
 % Get OffsetLeft and OffsetRight out of the SettingsDict (if missing, they are assumed 0)
 
 decaps_offset_left_right(SettingsDict,OffsetLeft,OffsetRight) :-
    get_setting(SettingsDict,offset_left,OffsetLeft,0),
    get_setting(SettingsDict,offset_right,OffsetRight,0),
-   assertion(check_that_named(OffsetLeft,[hard(integer)],"OffsetLeft")),
-   assertion(check_that_named(OffsetRight,[hard(integer)],"OffsetRight")).
+   assertion(check_that(OffsetLeft,  hard(integer), _{name:"OffsetLeft"})),
+   assertion(check_that(OffsetRight, hard(integer), _{name:"OffsetRight"})).
 
 % Get CutLeft and CutRight out of the SettingsDict (if missing, they are assumed true)
 
 decaps_cut_flags(SettingsDict,CutLeft,CutRight) :-
    get_setting(SettingsDict,cut_left,CutLeft,true),
    get_setting(SettingsDict,cut_right,CutRight,true),
-   assertion(check_that_named(CutLeft,[hard(boolean)],"CutLeft")),
-   assertion(check_that_named(CutRight,[hard(boolean)],"CutRight")).
+   assertion(check_that(CutLeft,  hard(boolean), _{name:"CutLeft"})),
+   assertion(check_that(CutRight, hard(boolean), _{name:"CutRight"})).
 
 % Get Offset out of the SettingsDict (if missing, it is assumed 0)
 
 decaps_offset(SettingsDict,Offset) :-
    get_setting(SettingsDict,offset,Offset,0),
-   assertion(check_that_named(Offset,[hard(integer)],"Offset")).
+   assertion(check_that(Offset, hard(integer), _{name:"Offset"})).
 
 % Get Prefer out of the SettingsDict (if missing, it is assumed leftly)
 
 decaps_prefer(SettingsDict,Prefer) :-
    get_setting(SettingsDict,prefer,Prefer,leftly),
-   assertion(check_that_named(Prefer,[hard(member(leftly,rightly))],"Prefer")).
+   assertion(check_that(Prefer, hard(member(leftly,rightly)), _{name:"Prefer"})).
 
