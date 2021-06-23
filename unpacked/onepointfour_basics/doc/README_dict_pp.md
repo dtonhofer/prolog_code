@@ -86,6 +86,12 @@ If a setting is missing when it is needed, the indicated default value is used.
 | `pad_top`          | int >= 0                        | 0          | As above, on top (underneath the tag, if any).  |
 | `pad_bottom`       | int >= 0                        | 0          | As above, on the bottom. |
 
+## History
+
+   1. 2021-01-29 - Version 1, a bit rough.
+   1. 2021-02-05 - Version 2, works but unpackageable
+   1. 2021-06-22 - Version 3, rebuild, passes all tests!
+
 ## Examples
 
 Prettyprint _Dict_ to a list of strings _Result_ with default settings (_SettingsDict_ set to `_{}`).
