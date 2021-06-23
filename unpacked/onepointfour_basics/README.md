@@ -59,14 +59,24 @@ of the file in which the module is defined.
 - License for the .pl files: [MIT License](https://opensource.org/licenses/MIT)
 - License for the .plt files: [Zero-Clause BSD (0BSD)](https://opensource.org/licenses/0BSD)
 
-## `checks.pl`
+## Major elements
+
+### `checks.pl`
 
 A more powerful replacement for the venerable [`must_be/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=must_be/2).
 The predicates provided by `checks.pl` are used throughout other code.
 
 [README_checks.md](README_checks.md)
 
-## `stringy_morph.pl`
+### `dict_pp.pl`
+
+An SWI-Prolog dict prettyprinter.
+
+[README_dict_pp.md](README_dict_pp.md)
+
+## Minor elements
+
+### `stringy_morph.pl`
 
 A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
 of character sequences, i.e. "proper lists of char" and "proper lists of code".
@@ -78,28 +88,60 @@ Provides replacement for the predicates
 
 [README_stringy_morph.md](README_stringy_morph.md)
 
-## `space_string.pl`
+### `space_stringy.pl`
 
-Create or accept strings made only of the SPACE character (Unicode code point 0x20).
+Create or accept atoms or strings made only of the _SPACE_ character (Unicode code point 0x20).
 
-[README_space_string.md](README_space_string.md)
+[README_space_stringy.md](README_space_stringy.md)
 
-## `stringy_and_charylist_type.pl`
+### `stringy_and_charylist_type.pl`
 
-Simple analysis for stringy and chary terms.
+Analysis of "stringy" (atom or string) and "chary" (lists of chars or codes) terms.
 
 [README_stringy_and_charylist_type.md](README_stringy_and_charylist_type.md)
 
-## `stringy_overwrite.pl`
+### `stringy_concat.pl`
 
-Overwrite background text with foreground text.
+Concantenate several "stringy" terms (atoms or strings) to a single "stringy" term.
+A front-end to the corresponding SWI-Prolog predicates.
+
+[README_stringy_concat.md](README_stringy_concat.md)
+
+### `stringy_length.pl`
+
+Determine the length of a "stringy" term (atom or string). No complex, just subtle.
+
+[README_stringy_length.md](README_stringy_length.md) (README TO BE DONE)
+
+### `stringy_justify.pl`
+
+Justify text left, right or center in a field of a given width. This is an ingredient of the dict prettyprinter.
+
+[README_stringy_justify.md](README_stringy_overwrite.md)
+
+### `stringy_overwrite.pl`
+
+Overwrite background text with foreground text. This is an ingredient of the dict prettyprinter.
 
 [README_stringy_overwrite.md](README_stringy_overwrite.md)
 
-## `stringy_concat.pl`
+### `safe_format.pl`
 
-Concantenate stringys to a single stringy. Just a front-end to the corresponding
-SWI-Prolog predicates
+A simple predicate fronting `format/3`, but able to survive a mistake in the number or type of arguments without throwing.
+Strongly useful in any code which may not have been given 100% coverage.
 
-[README_stringy_concat.md](README_stringy_concat.md)
+[README_safe_format.md](README_safe_format.md) (README TO BE DONE)
+
+### `meta_helpers.pl`
+
+Various meta-predicate meant to make code writing and especially reading easier.
+
+[README_meta_helpers.md](README_meta_helpers.md) (README TO BE DONE)
+
+### `dict_settings.pl`
+
+A very small set of predicates that are meant to use a dict as an options container, possibly providing defaults for missing options.
+
+[README_dict_settings.md](README_dict_settings.md) (README TO BE DONE)
+
 
