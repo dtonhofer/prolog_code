@@ -90,7 +90,7 @@ foldl_mlw(Line,FromLeft,ToRight) :-
 make_tag_line(Tag,MaxLineWidth,PadLeft,PadRight,SettingsDict,Result) :-
    get_setting(SettingsDict,justify_tag,How,center),
    get_setting(SettingsDict,justify_tag_full,Full,true),
-   assertion(check_that(How ,[hard(member([left,right,center]))])),
+   assertion(check_that(How ,[hard(member(left,right,center))])),
    assertion(check_that(Full,[hard(boolean)])),
    preprocess_tag(Tag,TagString),
    make_tag_line_2(Full,How,TagString,MaxLineWidth,PadLeft,PadRight,Result).

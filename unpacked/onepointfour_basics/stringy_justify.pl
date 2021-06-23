@@ -66,7 +66,7 @@ justify_how(How,FieldWidth,Text,Result,ResultType) :-
 %  offset     - an integer, used for "offset on the left" when justifying left
 
 justify_how(How,FieldWidth,Text,Result,ResultType,SettingsDict) :-
-   assertion(check_that(How,[hard(member([left,right,center]))])),
+   assertion(check_that(How,[hard(member(left,right,center))])),
    (
      (How==left) 
      -> 
@@ -350,5 +350,5 @@ decaps_offset(SettingsDict,Offset) :-
 
 decaps_prefer(SettingsDict,Prefer) :-
    get_setting(SettingsDict,prefer,Prefer,leftly),
-   assertion(check_that_named(Prefer,[hard(member([leftly,rightly]))],"Prefer")).
+   assertion(check_that_named(Prefer,[hard(member(leftly,rightly))],"Prefer")).
 

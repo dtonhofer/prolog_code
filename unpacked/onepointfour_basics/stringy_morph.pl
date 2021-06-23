@@ -154,7 +154,7 @@ stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType)
 stringy_charylist_morph(Stringy,Charylist,StatedStringyType,StatedCharylistType,Tuned) :-
    check_that(Stringy,             [break(var),tuned(stringy)],Tuned),
    check_that(StatedStringyType,   [break(var),tuned(stringy_typeid)],Tuned),
-   check_that(StatedCharylistType, [break(var),tuned(member([char,code,chars,codes]))],Tuned),
+   check_that(StatedCharylistType, [break(var),tuned(member(char,code,chars,codes))],Tuned),
    fix(StatedCharylistType,StatedCharylistType2),
    % Won't fail because Stringy is well-typed after check_that/2
    stringy_type_with_length(Stringy,ActualStringyType),

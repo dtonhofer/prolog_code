@@ -1429,6 +1429,12 @@ test("member, success #2") :-
 test("member, success #3") :-
    check_that(v,[soft(member([a,_,c]))]).
 
+test("member, no brackets #1") :-
+   check_that(a,[soft(member(a))]).
+
+test("member, no brackets #2") :-
+   check_that(f,[soft(member(a,b,c,d,e,f))]).
+
 test("member, failure #1",fail) :-
    check_that(v,[soft(member([a,b,c]))]).
 
@@ -1438,7 +1444,7 @@ test("member, failure #2",fail) :-
 test("member, X nonground",error(check(instantiation,_,_,_))) :-
    check_that(_,[soft(member([a,b,c]))]).
 
-test("member, argument to member/1 term not a proper list #1") :-
+test("member, argument to member/1 term not a proper list but a var") :-
    catch(
       check_that(a,[soft(member(_))]),
       ErrorTerm,
@@ -1449,18 +1455,7 @@ test("member, argument to member/1 term not a proper list #1") :-
      ErrorTerm = error(check(type,_,_,_),_)                          % if check_that/N syntax checks are off (problem caught late)
    )).
 
-test("member, argument to member/1 term not a proper list #2") :-
-   catch(
-      check_that(a,[soft(member(foo))]),
-      ErrorTerm,
-      true),
-   assertion((
-     ErrorTerm = error(check(unknown_or_problematic_check,_,_,_),_)  % if check_that/N syntax checks are on (problem caught early)
-     ;
-     ErrorTerm = error(check(type,_,_,_),_)                          % if check_that/N syntax checks are off (problem caught late)
-   )).
-
-test("member, argument to member/1 term not a proper list #3") :-
+test("member, argument to member/1 term not a proper list but an open list") :-
    catch(
       check_that(a,[soft(member([a,b,c|_]))]), 
       ErrorTerm,

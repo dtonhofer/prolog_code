@@ -189,7 +189,7 @@ stringy_type(Stringy,Type) :-
 
 stringy_type(Stringy,Type,Tuned) :-
    check_that(Stringy,[break(var),tuned(stringy)],Tuned),
-   check_that(Type,[break(var),tuned(member([var,atom,string]))],Tuned),
+   check_that(Type,[break(var),tuned(member(var,atom,string))],Tuned),
    stringy_type_2(Stringy,Type).
 
 stringy_type_2(Stringy,var)    :- var(Stringy),!.

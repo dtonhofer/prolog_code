@@ -4,8 +4,38 @@
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
-:- use_module(library('onepointfour_basics/dict_pp/helpers.pl')).
 :- use_module(library('onepointfour_basics/dict_settings.pl')).
+:- use_module(library('onepointfour_basics/dict_pp/helpers.pl')).
+
+/*  MIT License Follows (https://opensource.org/licenses/MIT)
+
+    Copyright 2021 David Tonhofer <ronerycoder@gluino.name>
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/*
+The homepage for this module is at
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_dict_pp.md
+*/
 
 %! decision_how_to_display(+Tag,+SettingsDict,-DecisionForTag,-DecisionForBorder,-DecisionForPadding)
 %
@@ -31,14 +61,14 @@ decision_how_to_display(Tag,SettingsDict,DecisionForTag,DecisionForBorder,Decisi
    get_setting(SettingsDict, sub_tag,    SubTagFlag,    inherit),
    get_setting(SettingsDict, depth,      Depth),                  % must exist in "SettingsDict", so no default
    % 
-   % we don't want surprises or arbitrary failures later, so make sure we are on the rails
+   % we don't want surprises or arbitrary failures later, so make sure we are "on the rails"
    %
    assertion(check_that(PadFlag       ,[hard(boolean)])),
-   assertion(check_that(SubPadFlag    ,[hard(member([true,false,inherit]))])),
+   assertion(check_that(SubPadFlag    ,[hard(member(true,false,inherit))])),
    assertion(check_that(BorderFlag    ,[hard(boolean)])),
-   assertion(check_that(SubBorderFlag ,[hard(member([true,false,inherit]))])),
+   assertion(check_that(SubBorderFlag ,[hard(member(true,false,inherit))])),
    assertion(check_that(TagFlag       ,[hard(boolean)])),
-   assertion(check_that(SubTagFlag    ,[hard(member([true,false,inherit]))])),
+   assertion(check_that(SubTagFlag    ,[hard(member(true,false,inherit))])),
    %
    % do we print the tag or not?
    %
