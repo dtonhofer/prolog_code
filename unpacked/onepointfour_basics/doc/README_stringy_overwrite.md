@@ -1,7 +1,7 @@
 # `stringy_overwrite.pl`
 
-- [`stringy_overwrite.pl`](stringy_overwrite.pl) (MIT license)
-- [`stringy_overwrite.plt`](stringy_overwrite.plt) (0BSD license)
+- [`stringy_overwrite.pl`](../stringy_overwrite.pl) (MIT license)
+- [`stringy_overwrite.plt`](../stringy_overwrite.plt) (0BSD license)
 
 ## Synopsis
 

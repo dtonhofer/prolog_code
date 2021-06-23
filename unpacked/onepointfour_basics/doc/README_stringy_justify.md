@@ -1,5 +1,8 @@
 # `stringy_justify.pl`
 
+- [`stringy_justify.pl`](../stringy_justify.pl)
+- [`stringy_justify.plt`](../stringy_justify.plt)
+
 Justify strings inside a field of whitespace.
 
 Those little predicates may be called a lot of times (e.g. when formatting
@@ -9,7 +12,7 @@ code is not necessarily fast.
 
 ## Loading the module and running its tests (in SWI-Prolog)
 
-Please refer to the [README.md](README.md) file.
+Please refer to the [README.md](../README.md) file.
 
 ## Synopsis
 

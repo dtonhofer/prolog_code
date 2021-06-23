@@ -1,7 +1,7 @@
 # `stringy_concat.pl`
 
-- [`stringy_concat.pl`](stringy_concat.pl)
-- [`stringy_concat.plt`](stringy_concat.plt)
+- [`stringy_concat.pl`](../stringy_concat.pl)
+- [`stringy_concat.plt`](../stringy_concat.plt)
 
 This module provides a simple predicate to relate a list of _stringys_ (a _stringy_ being something
 that is either a Prolog _atom_ or an SWI-Prolog _string_) to a single stringy `Result` and an atom `ResultType`.

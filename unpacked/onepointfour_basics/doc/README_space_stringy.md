@@ -2,8 +2,8 @@
 
 Generate or accept SWI-Prolog strings or atoms made only of the _SPACE_ character (Unicode code point 0x20).
 
-- [`space_stringy.pl`](space_stringy.pl) (MIT license)
-- [`space_stringy.plt`](space_stringy.plt) (0BSD license)
+- [`space_stringy.pl`](../space_stringy.pl) (MIT license)
+- [`space_stringy.plt`](../space_stringy.plt) (0BSD license)
 
 This is a simple but still interesting exercise. The code uses the
 functionality provided by `check.pl` to verify passed arguments and
@@ -11,7 +11,7 @@ fail or throw as required.
 
 ## Loading the module and running its tests (in SWI-Prolog)
 
-Please refer to the [README.md](README.md) file.
+Please refer to the [README.md](../README.md) file.
 
 ## Synopsis
 

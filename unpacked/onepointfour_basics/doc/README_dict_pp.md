@@ -2,18 +2,18 @@
 
 SWI-Prolog dict prettyprinter.
 
-- [`dict_pp.pl`](dict_pp.pl) (MIT license)
-   - [`dict_pp/decision.pl`](dict_pp/decision.pl) (MIT license)
-   - [`dict_pp/helpers.pl`](dict_pp/helpers.pl) (MIT license)
-   - [`dict_pp/lineify.pl`](dict_pp/lineify.pl) (MIT license)
-   - [`dict_pp/string_stuff.pl`](dict_pp/string_stuff.pl) (MIT license)
-   - [`dict_pp/string_stuff.plt`](dict_pp/string_stuff.plt) (0BSD license)
-   - [`dict_pp/topmost.pl`](dict_pp/topmost.pl) (MIT license)
-- [`dict_pp.plt`](dict_pp.plt) (0BSD license)
+- [`dict_pp.pl`](../dict_pp.pl) (MIT license)
+   - [`dict_pp/decision.pl`](../dict_pp/decision.pl) (MIT license)
+   - [`dict_pp/helpers.pl`](../dict_pp/helpers.pl) (MIT license)
+   - [`dict_pp/lineify.pl`](../dict_pp/lineify.pl) (MIT license)
+   - [`dict_pp/string_stuff.pl`](../dict_pp/string_stuff.pl) (MIT license)
+   - [`dict_pp/string_stuff.plt`](../dict_pp/string_stuff.plt) (0BSD license)
+   - [`dict_pp/topmost.pl`](../dict_pp/topmost.pl) (MIT license)
+- [`dict_pp.plt`](../dict_pp.plt) (0BSD license)
 
 ## Loading the module and running its tests (in SWI-Prolog)
 
-Please refer to the [README.md](README.md) file, but in short:
+Please refer to the [README.md](../README.md) file, but in short:
 
 ```
 ?- assertz(file_search_path(library,'/foo/bar/prolog_code/unpacked')).

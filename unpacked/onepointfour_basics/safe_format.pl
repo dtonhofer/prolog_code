@@ -27,8 +27,6 @@
 % ### Examples
 %
 % ```
-% ?- use_module(library('heavycarbon/support/safe_format.pl')).
-%
 % ?- safe_format("Hello ~d",[7889],Result).
 % Result = "Hello 7889".
 %

@@ -2,8 +2,8 @@
 
 Simple analysis for _stringy_ and _chary_ terms.
 
-- [`stringy_and_charylist_type.pl`](stringy_and_charylist_type.pl) (MIT license)
-- [`stringy_and_charylist_type.plt`](stringy_and_charylist_type.plt) (0BSD license)
+- [`stringy_and_charylist_type.pl`](../stringy_and_charylist_type.pl) (MIT license)
+- [`stringy_and_charylist_type.plt`](../stringy_and_charylist_type.plt) (0BSD license)
 
 We introduce the following additional vocabulary:
 
@@ -19,7 +19,7 @@ We introduce the following additional vocabulary:
 
 ## Loading the module and running its tests (in SWI-Prolog)
 
-Please refer to the [README.md](README.md) file.
+Please refer to the [README.md](../README.md) file.
 
 ## Synopsis
 

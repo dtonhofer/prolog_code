@@ -1,21 +1,21 @@
 :- module(onepointfour_basics_meta_helpers,
           [
-%          switch/4                 % switch(If1,Then1,If2,Then2)  (throws if 'else' condition is hit)
-%         ,switch/5                 % switch(If1,Then1,If2,Then2,Else)  
-%         ,switch/6                 % switch(If1,Then1,If2,Then2,If3,Then3)  (throws if 'else' condition is hit) 
-%         ,switch/7                 % switch(If1,Then1,If2,Then2,If3,Then3,Else) 
-%         ,switch/8                 % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4)  (throws if 'else' condition is hit)
-%         ,switch/9                 % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,Else) 
-%         ,switch/10                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5)  (throws if 'else' condition is hit)
-%         ,switch/11                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5,Else)
-%         ,switch/12                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5,If6,Then6)  (throws if 'else' condition is hit)
-%         ,switch/13                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5,If6,Then6,Else) 
-%         ,if_then_else/3           % if_then_else(Condition,Then,Else)
-         reify_outcome/4          % reify_outcome(Condition,SuccessThing,FailureThing,Out) (unifies "Out" with either "SuccessThing" or "FailureThing")
-         ,reify/2                  % reify(Goal,Outcome) (unifies "Outcome" with either 'true' or 'false') (should properly be 'true' or 'fail')
-%         ,if_then/2                % if_then(Condition,Then) (nothing happens if the 'else' condition is hit as "Condition" fails)
-%         ,unless/2                 % unless(Condition,Else)  (nothing happens if the 'then' condition is hit as "Condition" succeeds)
-         ,maplist_onto_open_list/4 % maplist_onto_open_list(Goal,ListIn,TipOfListOut,FinOfListOut) -- TipOfListOut-FinOfListOut is a difference list of an open list
+           switch/4                 % switch(If1,Then1,If2,Then2)  (throws if 'else' condition is hit)
+          ,switch/5                 % switch(If1,Then1,If2,Then2,Else)  
+          ,switch/6                 % switch(If1,Then1,If2,Then2,If3,Then3)  (throws if 'else' condition is hit) 
+          ,switch/7                 % switch(If1,Then1,If2,Then2,If3,Then3,Else) 
+          ,switch/8                 % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4)  (throws if 'else' condition is hit)
+          ,switch/9                 % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,Else) 
+          ,switch/10                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5)  (throws if 'else' condition is hit)
+          ,switch/11                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5,Else)
+          ,switch/12                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5,If6,Then6)  (throws if 'else' condition is hit)
+          ,switch/13                % switch(If1,Then1,If2,Then2,If3,Then3,If4,Then4,If5,Then5,If6,Then6,Else) 
+          ,if_then_else/3           % if_then_else(Condition,Then,Else)
+          ,reify_outcome/4          % reify_outcome(Condition,SuccessThing,FailureThing,Out) (unifies "Out" with either "SuccessThing" or "FailureThing")
+          ,reify/2                  % reify(Goal,Outcome) (unifies "Outcome" with either 'true' or 'false') (should properly be 'true' or 'fail')
+          ,if_then/2                % if_then(Condition,Then) (nothing happens if the 'else' condition is hit as "Condition" fails)
+          ,unless/2                 % unless(Condition,Else)  (nothing happens if the 'then' condition is hit as "Condition" succeeds)
+          ,maplist_onto_open_list/4 % maplist_onto_open_list(Goal,ListIn,TipOfListOut,FinOfListOut) -- TipOfListOut-FinOfListOut is a difference list of an open list
          ]).
 
 % See 
@@ -40,6 +40,35 @@
       ,unless(0,0)
       ,maplist_onto_open_list(2,?,?,?). % Goal takes 2 args more than present in the term
 
+/*  MIT License Follows (https://opensource.org/licenses/MIT)
+
+    Copyright 2021 David Tonhofer <ronerycoder@gluino.name>
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+/*
+The homepage for this module is at
+
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_meta_helpers.md
+*/
 
 % Metapredicates that are supposed to help in programming:
 %
@@ -60,8 +89,6 @@
 %
 % Examples:
 % ---------
-%
-% :- use_module(library('heavycarbon/support/meta_helpers.pl')).
 %
 % val_string(X,S) :-
 %    switch(
@@ -85,19 +112,12 @@
 % ?- reify_outcome((random(X),X>0.5),["That went well",X],["That didn't work",X],Out).
 % Out = ["That didn't work",X].
 %
-% =============================================================================
 % Note that using this instead of directly-inlined "->" may slows down a
 % program markedly. 30% slowdown if there are lots of these calls is not 
 % impossible. 
-% =============================================================================
-% David Tonhofer (ronerycoder@gluino.name) says:
-% This code is licensed under: 
-% "Zero-Clause BSD / Free Public License 1.0.0 (0BSD)"
-% https://opensource.org/licenses/0BSD
-% =============================================================================
+%
 % 2021-01-19: Review
 % 2021-02-02: Added maplist_onto_open_list/4; comment review
-% =============================================================================
 
 % ===
 % A better "switch" than an unreadable sequence of ->/2 and ;/2

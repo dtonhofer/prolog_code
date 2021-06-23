@@ -3,8 +3,8 @@
 A "logical" mapper between atoms and SWI-Prolog strings and "list representations"
 of character sequences, i.e. proper lists of chars and proper lists of codes.
 
-- [`stringy_morph.pl`](stringy_morph.pl) (MIT license)
-- [`stringy_morph.plt`](stringy_morph.plt) (0BSD license)
+- [`stringy_morph.pl`](../stringy_morph.pl) (MIT license)
+- [`stringy_morph.plt`](../stringy_morph.plt) (0BSD license)
 
 The module provides a replacement for
 

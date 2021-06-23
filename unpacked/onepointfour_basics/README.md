@@ -8,6 +8,8 @@ one or more plunit modules.
 The module files are relatively "small" and provide specific functionality. We avoid large modules where in-module interrelationships
 are hard to survey.
 
+![use_module graph](docs/use_module_graph.png)
+
 ## Loading a module and running its tests (in SWI-Prolog)
 
 Put the directory just above this package directory
