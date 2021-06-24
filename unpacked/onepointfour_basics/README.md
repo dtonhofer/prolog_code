@@ -8,8 +8,8 @@ one or more plunit modules.
 The module files are relatively "small" and provide specific functionality. We avoid large modules where in-module interrelationships
 are hard to survey.
 
-In this picture, the links from `checks.pl` to the other modules are not shown. The orange modules are the "big collectors" of
-submodules. Modules in the grey boxes (subdirectories) provide service exclusively to their repsective orange "collecting" modules.
+In this picture, the links from `checks.pl` and other commonly used modules (all of which are shown in green)
+are elided. Modules in the grey boxes (subdirectories) provide service exclusively to their respective "top" modules.
 
 ![use_module graph](doc/use_module_graph.png)
 
