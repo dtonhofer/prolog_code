@@ -69,7 +69,8 @@ A front-end to the corresponding SWI-Prolog predicates.
 
 ### `stringy_length.pl`
 
-Determine the length of a "stringy" term (atom or string).
+Determine the length of a "stringy" term (atom or string). A front-end to the
+corresponding SWI-Prolog predicates, but also provides or accepts type information.
 
 [README_stringy_length.md](doc/README_stringy_length.md)
 
@@ -87,7 +88,8 @@ Overwrite background text with foreground text. This is an ingredient of the dic
 
 ### `safe_format.pl`
 
-A simple predicate fronting `format/3`, but able to survive a mistake in the number or type of arguments without throwing.
+A simple predicate fronting `format/3`, but able to survive a mistake in
+the number or type of arguments without throwing.
 Strongly useful in any code which may not have been given 100% coverage.
 
 [README_safe_format.md](doc/README_safe_format.md) (README TO BE DONE)
