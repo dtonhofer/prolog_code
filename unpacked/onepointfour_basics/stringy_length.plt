@@ -74,3 +74,27 @@ test("exception on non-integer arg 2",error(check(type,_,_,_))) :-
 
 :- end_tests(stringy_length).
 
+:- begin_tests(stringy_length_with_type).
+
+test("accept length and type of string") :-
+   stringy_length("hello",5,string,hard).
+
+test("reject length and type of string because of type mismatch",fail) :-
+   stringy_length("hello",5,atom,hard).
+
+test("reject length and type of string because of length mismatch",fail) :-
+   stringy_length("hello",50,string,hard).
+
+test("determine length and type") :-
+   stringy_length("hello",L,T,hard),
+   assertion(L==5),
+   assertion(T==string).
+
+test("soft mode fails on bad type",fail) :-
+   stringy_length("hello",_,foo,soft).
+
+test("hard mode throws on bad type",error(check(domain,_,_,_))) :-
+   stringy_length("hello",_,foo,hard).
+
+:- end_tests(stringy_length_with_type).
+

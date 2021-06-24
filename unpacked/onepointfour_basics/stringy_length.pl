@@ -2,10 +2,10 @@
           [
            stringy_length/2
           ,stringy_length/3
+          ,stringy_length/4
           ]).
 
 :- use_module(library('onepointfour_basics/checks.pl')).
-:- use_module(library('onepointfour_basics/stringy_and_charylist_type.pl')).
 
 /*  MIT License Follows (https://opensource.org/licenses/MIT)
 
@@ -49,16 +49,23 @@ stringy_length(Stringy,Length) :-
 
 %! stringy_length(+Stringy,?Length,@Tuned)
 %
-% As stringy_length/2, but setting Tuned to either =|true|= or =|throw|=
-% will make the predicate throw on bad input.
+% As stringy_length/2, but setting Tuned to =|hard|= 
+% will make the predicate throw if Length is bound but negative.
 
 stringy_length(Stringy,Length,Tuned) :-
+   stringy_length(Stringy,Length,_,Tuned).
+ 
+%! stringy_length(+Stringy,?Length,?Type,@Tuned)
+%
+% As stringy_length/3, but additionally takes the Type of
+% the stringy, which is unified with one of =|atom|= or =|string|=.
+
+stringy_length(Stringy,Length,Type,Tuned) :-
    check_that(Stringy,[hard(nonvar),hard(stringy)]),
    check_that(Length,[break(var),hard(integer),tuned(pos0int)],Tuned),
-   stringy_type_with_length(Stringy,Type,Tuned),
-   detag(Type,Length).
+   check_that(Type,[break(var),tuned(stringy_typeid)],Tuned),
+   stringy_length_decide(Stringy,Length,Type).
 
-detag(atom(Length),Length).
-detag(string(Length),Length).
-
+stringy_length_decide(Stringy,Length,atom)   :- atom(Stringy),!,atom_length(Stringy,Length).
+stringy_length_decide(Stringy,Length,string) :- string(Stringy),!,string_length(Stringy,Length).
 

@@ -267,10 +267,10 @@ dict_pp(Dict,SettingsDict) :-
 
 
 dict_pp(Dict,SettingsDict,LinesOut) :-
-   assertion(check_that(LinesOut,[break(var),hard(list)])),      % Maybe Lines is a given; that would be extraordinary
-   assertion(check_that(Dict,[hard(dict)])),
-   assertion(check_that(SettingsDict,[hard(dict)])),
-   put_dict(depth,SettingsDict,0,SettingsDict2),                 % Start tracking depth of recursion via 'depth' entry in SettingsDict
+   assertion(check_that(LinesOut,break(var),hard(list))),      % Maybe Lines is a given; that would be extraordinary
+   assertion(check_that(Dict,hard(dict))),
+   assertion(check_that(SettingsDict,hard(dict))),
+   put_dict(depth,SettingsDict,0,SettingsDict2),               % Start tracking depth of recursion via 'depth' entry in SettingsDict
    pp_if_shallow_enough(Dict,SettingsDict2,LinesOut),
-   assertion(check_that(LinesOut,[hard(proper_list),hard(passall(string))])).
+   assertion(check_that(LinesOut,hard(proper_list),hard(passall(string)))).
 
