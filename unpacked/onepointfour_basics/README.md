@@ -41,6 +41,41 @@ loads module files _by filename_ not by module name, although the module name is
 
 The `bin` directory contains a shell script which runs all the test.
 
+## Installing the package
+
+According to the [Pack HOWTO](https://eu.swi-prolog.org/howto/Pack.txt):
+
+- Download the pack file, getting the latest from [https://github.com/dtonhofer/prolog_code/packed](https://github.com/dtonhofer/prolog_code/packed).
+- On your machine, install the pack file by issuing the Prolog command `pack_install('onepointfour_basics-0.9.tgz')` as described in the [Pack HOWTO](https://eu.swi-prolog.org/howto/Pack.txt).
+- This will dump the unpacked contents of the `.tgz` file into `~/.local/share/swi-prolog/pack/onepointfour_basics/` (or the equivalent on your system).
+
+Now you make the module exports visible via:
+
+```
+use_module(library('onepointfour_basics/checks.pl')).
+use_module(library('onepointfour_basics/dict_pp.pl')).
+use_module(library('onepointfour_basics/dict_settings.pl')).
+use_module(library('onepointfour_basics/meta_helpers.pl')).
+use_module(library('onepointfour_basics/safe_format.pl')).
+use_module(library('onepointfour_basics/space_stringy.pl')).
+use_module(library('onepointfour_basics/stringy_and_charylist_type.pl')).
+use_module(library('onepointfour_basics/stringy_concat.pl')).
+use_module(library('onepointfour_basics/stringy_justify.pl')).
+use_module(library('onepointfour_basics/stringy_length.pl')).
+use_module(library('onepointfour_basics/stringy_morph.pl')).
+use_module(library('onepointfour_basics/stringy_overwrite.pl')).
+```
+
+Possibly add the above as directives to file `~/.config/swi-prolog/init.pl`
+
+Now you can do some verifications:
+
+```
+list_undefined.
+load_test_files([]).
+run_tests.
+```
+
 ## Module naming
 
 The name of a module is relatively arbitrary. We always use the atom `onepointfour_basis_X` where `X` is the suffix-less name
