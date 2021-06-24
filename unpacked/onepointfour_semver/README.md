@@ -3,11 +3,15 @@
 The present code offers a "semantic versioning string" assembler/disassembler in Prolog.
 It handles strings that follow the [Semver V2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
-The code runs in SWI-Prolog 8.3 without using SWI-Prolog special features.
+The code runs in SWI-Prolog 8.3 _without_ using SWI-Prolog special features
+and thus should also run in other Prologs (although I haven't tested this), 
+with the following possibly needed adaptation:
 
-Note that SWI-Prolog prefers "lists of codes" (integer Unicode code
-points) when doing _Definite Clause Grammar_ processing, as opposed to
-"lists of chars". Adaptations to your favorite Prolog may be needed.
+SWI-Prolog prefers "lists of codes" (integer Unicode code points) when processing
+text via _Definite Clause Grammar_, as opposed to "lists of chars". If your favorite
+Prolog prefers chars, slight changes may be needed.
+
+## Contents
 
 There are two files:
 
@@ -91,3 +95,26 @@ After that:
 
 [Announcement on the semver issue tracker on 2021-Feb-24: Issue 667](https://github.com/semver/semver/issues/667)
 
+## Installing the package in SWI-Prolog
+
+According to the [Pack HOWTO](https://eu.swi-prolog.org/howto/Pack.txt):
+
+- Download the pack file, getting the latest from [https://github.com/dtonhofer/prolog_code/packed](https://github.com/dtonhofer/prolog_code/packed).
+- On your machine, install the pack file by issuing the Prolog command `pack_install('onepointfour_semver-0.9.tgz')` as described in the [Pack HOWTO](https://eu.swi-prolog.org/howto/Pack.txt).
+- This will dump the unpacked contents of the `.tgz` file into `~/.local/share/swi-prolog/pack/onepointfour_semver/` (or the equivalent on your system).
+
+Now you make the module exports visible via:
+
+```
+use_module(library('onepointfour_basics/semver.pl')).
+```
+
+Possibly add the above as a directive to file `~/.config/swi-prolog/init.pl`
+
+Now you can do some verifications:
+
+```
+list_undefined.
+load_test_files([]).
+run_tests.
+```
