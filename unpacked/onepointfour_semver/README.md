@@ -6,19 +6,18 @@ It handles strings that follow the [Semver V2.0.0](https://semver.org/spec/v2.0.
 
 > Given a version number MAJOR.MINOR.PATCH, increment the:
 > 
->     MAJOR version when you make incompatible API changes,
->     MINOR version when you add functionality in a backwards compatible manner, and
->     PATCH version when you make backwards compatible bug fixes.
+> - MAJOR version when you make incompatible API changes,
+> - MINOR version when you add functionality in a backwards compatible manner, and
+> - PATCH version when you make backwards compatible bug fixes.
 > 
 >  Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.
 
 The code runs in SWI-Prolog 8.3 _without_ using SWI-Prolog special features
 and thus should also run in other Prologs (although I haven't tested this), 
-with the following possibly needed adaptation:
-
-SWI-Prolog prefers "lists of codes" (integer Unicode code points) when processing
-text via _Definite Clause Grammar_, as opposed to "lists of chars". If your favorite
-Prolog prefers chars, slight changes may be needed.
+with the following possibly needed adaptation: SWI-Prolog prefers "lists of codes"
+(Unicode code points, i.e. integers) when processing text in _Definite Clause Grammar_,
+as opposed to "lists of chars". If your favorite Prolog prefers chars, slight changes
+may be needed.
 
 ## Contents
 
