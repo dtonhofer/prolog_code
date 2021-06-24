@@ -13,6 +13,11 @@ SWI-Prolog dict prettyprinter.
    - [`dict_pp/topmost.pl`](../dict_pp/topmost.pl) (MIT license)
 - [`dict_pp.plt`](../dict_pp.plt) (0BSD license)
 
+See also:
+
+- [SWI-Prolog dicts](https://eu.swi-prolog.org/pldoc/man?section=bidicts)
+- [`format/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=format/2)
+
 ## Loading the module and running its tests (in SWI-Prolog)
 
 Please refer to the [README.md](../README.md) file, but in short:
@@ -90,7 +95,7 @@ If a setting is missing when it is needed, the indicated default value is used.
 
    1. 2021-01-29 - Version 1, a bit rough.
    1. 2021-02-05 - Version 2, works but unpackageable
-   1. 2021-06-22 - Version 3, rebuild, passes all tests!
+   1. 2021-06-22 - Version 3, rebuild, passes all tests! For some reason, this ended up being a _lot_ of work.
 
 ## Examples
 
