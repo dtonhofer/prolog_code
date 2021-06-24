@@ -30,7 +30,8 @@ Please refer to the [README.md](../README.md) file, but in short:
 
 - `stringy_length(+Stringy,?Length)`
 - `stringy_length(+Stringy,?Length,@Tuned)`
-- `stringy_length(+Stringy,?Length,?Type,@Tuned)`
+- `stringy_length_type(+Stringy,?Length,?Type)`
+- `stringy_length_type(+Stringy,?Length,?Type,@Tuned)`
 
 All predicates throw if:
 
@@ -39,18 +40,12 @@ All predicates throw if:
 - `Length` is not an integer if it is bound.
 
 The additional input-only-argument `Tuned` can be set to either `hard` or `soft` to 
-control behaviour for negative `Length` and `Type`
+control behaviour for negative `Length` and bad `Type`.
 
-In case `Length` < 0:
+If `Tuned` = `hard` the predicates throw instead of failing if:
 
-- `stringy_length/2` _fails_ (behaves "softly")
-- `stringy_length/3` and `stringy_length/4` _fail_ if `Tuned` = `soft` 
-- `stringy_length/3` and `stringy_length/4` _throw_ if `Tuned` = `hard` 
-
-In case `Type` is bound to something other than `atom` or `string`:
-
-- `stringy_length/4` _fails_ if `Tuned` = `soft` 
-- `stringy_length/4` _throws_ if `Tuned` = `hard` 
+   - In case `Length` is bound and < 0.
+   - In case `Type` is bound and not one of `atom` or `string`.
 
 ## Examples
 
@@ -94,7 +89,7 @@ ERROR:    culprit   : -1
 Additionally finding the type:
 
 ```
-?- stringy_length(hello,Length,Type,hard).
+?- stringy_length_type(hello,Length,Type).
 Length = 5,
 Type = atom.
 ```
@@ -102,13 +97,22 @@ Type = atom.
 or accepting the type:
 
 ```
-?- stringy_length(hello,Length,atom,hard).
+?- stringy_length_type(hello,Length,atom).
 Length = 5.
 ```
 
 or not as the case may be:
 
 ```
-?- stringy_length(hello,Length,string,hard).
+?- stringy_length_type(hello,Length,string).
 false.
+```
+
+Using `hard` mode is always recommended:
+
+```
+?- stringy_length_type(hello,Length,gark,hard).
+ERROR: check failed : 'domain' error (the culprit is outside the required domain)
+ERROR:    message   : the value should fulfill "stringy_typeid"-ness
+ERROR:    culprit   : gark
 ```
