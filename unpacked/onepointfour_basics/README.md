@@ -41,7 +41,7 @@ loads module files _by filename_ not by module name, although the module name is
 
 The `bin` directory contains a shell script which runs all the test.
 
-## Installing the package
+## Installing the package in SWI-Prolog
 
 According to the [Pack HOWTO](https://eu.swi-prolog.org/howto/Pack.txt):
 
