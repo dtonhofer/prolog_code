@@ -1,6 +1,7 @@
 # Semantic versioning string assembler/disassembler in Prolog
 
 The present code offers a "semantic versioning string" assembler/disassembler in Prolog.
+
 It handles strings that follow the [Semver V2.0.0](https://semver.org/spec/v2.0.0.html) specification.
 
 The code runs in SWI-Prolog 8.3 _without_ using SWI-Prolog special features
