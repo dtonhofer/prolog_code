@@ -104,7 +104,7 @@ A front-end to the corresponding SWI-Prolog predicates.
 
 Determine the length of a "stringy" term (atom or string). No complex, just subtle.
 
-[README_stringy_length.md](doc/README_stringy_length.md) (README TO BE DONE)
+[README_stringy_length.md](doc/README_stringy_length.md)
 
 ### `stringy_justify.pl`
 
