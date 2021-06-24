@@ -124,7 +124,7 @@ According to the [Pack HOWTO](https://eu.swi-prolog.org/howto/Pack.txt):
 Now you make the module exports visible via:
 
 ```
-use_module(library('onepointfour_basics/semver.pl')).
+use_module(library('onepointfour_semver/semver.pl')).
 ```
 
 Possibly add the above as a directive to file `~/.config/swi-prolog/init.pl`
