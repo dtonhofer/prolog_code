@@ -46,7 +46,7 @@ justify_how(+How:atom,+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultT
 which allows you to specify how to justifiy via a parameter instead of via the functor name:
 Set `How` to one of `left`, `right`, `center`.
 
-For finetuning, there are predicates which take an additional `SettingDict` SWI-Prolog dict:
+For finetuning, there are predicates which take an additional `SettingsDict` SWI-Prolog dict:
 
 ```
 justify_left(+Text:stringy,+FieldWidth:integer,-Result:stringy,-ResultType:atom,+SettingsDict:dict)
@@ -69,32 +69,106 @@ The following key-value pairs are recognized:
 
 ## Examples
 
-```
-?- justify_how(right,10,"hello",Result,string).
-Result = "     hello".
-```
+Let's first define this using [library(pcre)](https://eu.swi-prolog.org/pldoc/doc_for?object=section(%27packages/pcre.html%27))
+to make the results more inspectable:
 
 ```
-?- justify_how(left,10,"hello",Result,string).
-Result = "hello     ".
+space_to_dot(R,O) :- re_replace("\\s"/g,".",R,O).
 ```
 
+Standard, right:
+
 ```
-?- justify_how(center,10,"hello",Result,string).
+?- justify_how(right,10,"hello",RS,string),space_to_dot(RS,RD).
+RS = "     hello",
+RD = ".....hello".
+```
+
+Standard, left:
+
+```
+?- justify_how(left,10,"hello",RS,string),space_to_dot(RS,RD).
+RS = "hello     ",
+RD = "hello.....".
+```
+
+Standard, center:
+
+```
+?- 
+justify_how(center,10,"hello",RS,string),space_to_dot(RS,RD).
+RS = "  hello   ",
+RD = "..hello...".
+```
+
+Center with fine-tuning whereby we want to make the decision
+to move the u-centerable text rather to the right than to the left:
+
+```
+?- justify_how(center,10,"hello",RS,string,_{prefer:rightly}),space_to_dot(RS,RD).
+RS = "   hello  ",
+RD = "...hello..".
+```
+
+You can have offsets so that "right justification" actually yields blanks on
+the right:
+
+```
+?- 
+justify_how(right,10,"hello",RS,string,_{offset:3}),space_to_dot(RS,RD).
+RS = "  hello   ",
+RD = "..hello...".
+```
+
+You can have offsets:
+
+```
+?- 
+justify_how(right,10,"hello",RS,string,_{offset:3}),space_to_dot(RS,RD).
 Result = "  hello   ".
 ```
 
-```
-?- justify_how(right,10,"hello",Result,string,_{offset:3}).
-Result = "  hello   ".
-```
+Even negative offsets, which leads to cutting:
 
 ```
-?- justify_how(right,15,"hello",Result,string,_{offset:3}).
-Result = "       hello   ".
+?- 
+justify_how(right,10,"hello",RS,string,_{offset:(-2)}),space_to_dot(RS,RD).
+RS = "       hel",
+RD = ".......hel".
 ```
 
+But you can switch cutting off:
+
 ```
-?- justify_how(right,15,"hello world this is a long text",Result,string,_{offset:3}).
-Result = " a long text   ".
+?- 
+justify_how(right,10,"hello",RS,string,_{offset:(-2),cut_right:false}),space_to_dot(RS,RD).
+RS = "       hello",
+RD = ".......hello".
+```
+
+Same on the left:
+
+```
+?- 
+justify_how(left,10,"hello",RS,string,_{offset:(-2)}),space_to_dot(RS,RD).
+RS = "llo       ",
+RD = "llo.......".
+```
+
+Switch cutting off:
+
+```
+?- 
+justify_how(left,10,"hello",RS,string,_{offset:(-2),cut_left:false}),space_to_dot(RS,RD).
+RS = "hello       ",
+RD = "hello.......".
+```
+
+Center large text in a small field:
+
+```
+?-
+justify_how(center,10,"hello world this is a long text",RS,string),space_to_dot(RS,RD).
+RS = " this is a",
+RD = ".this.is.a".
 ```
