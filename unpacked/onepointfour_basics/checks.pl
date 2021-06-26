@@ -1,7 +1,7 @@
 :- module(onepointfour_basics_checks,
           [
-            check_that/2 
-           ,check_that/3 
+            check_that/2
+           ,check_that/3
            ,check_that/4 
            ,check_that/5 
            ,check_that/6 
@@ -51,7 +51,7 @@ is not very flexible. Can we improve on that?
 
 The homepage for this module is at
 
-https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/README_checks.md
+https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_basics/doc/README_checks.md
 
 */
 
