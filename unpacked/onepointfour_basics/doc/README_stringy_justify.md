@@ -66,6 +66,23 @@ The following key-value pairs are recognized:
 | `offset_right`     | integer                         | 0          | Additional padding to be added (or subtracted) on the right in case of "center" justification | 
 | `prefer`           | `rightly`, `leftly`             | `leftly`   | In the case of `center` justification, there may be amibuity as to whether to shift the text to the left or to the right by a single character. This setting influences the decision. Esoteric. |
 
+## See also
+
+[`format/2`](https://eu.swi-prolog.org/pldoc/doc_for?object=format/2), which has a built-in method for justification of text with a field 
+(but I never remember how it works):
+
+```
+?- format("~|~43t~s~42t~10+",["Hello"]).
+++Hello***
+true.
+```
+
+Which measn:
+
+> Set tab stop on the current position (`~|`), set filler character to
+> code 43 (i.e. '+') and fill with weight 1 (one `t`), output string
+> (`~s`), set filler character to code 42 (i.e. '*') and fill with 
+> weight 1 (one `t`), set tab stop 10 positions after the last one set (`~10+`)
 
 ## Examples
 
