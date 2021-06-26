@@ -9,7 +9,7 @@
 % 
 % Homepage for this code:
 %
-% https://github.com/dtonhofer/prolog_code/tree/main/unpacked/onepointfour_semver
+% https://github.com/dtonhofer/prolog_code/blob/main/unpacked/onepointfour_semver/README.md
 % =============================================================================
 % This code runs in SWI-Prolog 8.3 without using SWI-Prolog special features 
 % except for the fact that SWI-Prolog prefers "lists of codes" when doing 
